@@ -43,7 +43,7 @@ Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 ### As a Claude Code plugin
 
 ```
-/plugin marketplace add specloop/specloop
+/plugin marketplace add khangtoh/specloop
 /plugin install specloop@specloop
 ```
 
