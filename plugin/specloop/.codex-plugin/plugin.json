@@ -1,0 +1,28 @@
+{
+  "name": "specloop",
+  "version": "0.1.0",
+  "description": "Spec-driven loop engineering for coding agents: numbered phase specs, an enforced structure, a mandatory Spec Summary/Status handoff, and the loop that drives them.",
+  "author": {
+    "name": "specloop"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spec-driven",
+    "agents",
+    "coding-agent",
+    "loop-engineering",
+    "workflow",
+    "methodology"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "specloop",
+    "shortDescription": "Drive coding agents through numbered phase specs with enforced structure and mandatory status handoffs.",
+    "longDescription": "specloop is a repeatable construct for spec-driven agent work: decompose a goal into numbered phase files (each a flat checklist of atomic tasks), run an agent loop that executes the next unchecked box and verifies it, and hand off in a mandatory Spec Summary/Status format. A bun validator enforces the directory structure so it never silently drifts, and a goal-completion-check prompt audits whether a goal is truly met by tracing it through requirements → specs → checkboxes.",
+    "developerName": "specloop",
+    "category": "Coding",
+    "capabilities": [],
+    "defaultPrompt": "Set up specloop in this repository and decompose my goal into phase specs.",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/specloop/specloop/main/schema/config.schema.json",
+  "title": "specloop config",
+  "description": "Configuration for the specloop validator (.specloop.json at the project root).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "specDir": {
+      "type": "string",
+      "description": "Directory holding the spec files, relative to the project root.",
+      "default": "spec"
+    },
+    "indexFile": {
+      "type": "string",
+      "description": "The phase-index file inside specDir.",
+      "default": "README.md"
+    },
+    "phasePattern": {
+      "type": "string",
+      "description": "Regex a filename must match to be treated as a numbered phase file.",
+      "default": "^\\d{2,}-.*\\.md$"
+    },
+    "requiredProcessFiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files that must exist inside specDir.",
+      "default": [
+        "README.md",
+        "spec-summary-status.md",
+        "goal-completion-check.md",
+        "agent-session-ledger.md"
+      ]
+    },
+    "requireGoalLine": {
+      "type": "boolean",
+      "description": "Require a 'Goal:' line in every phase file.",
+      "default": true
+    },
+    "requireDependsOnLine": {
+      "type": "boolean",
+      "description": "Require a 'Depends on:' line in every phase file.",
+      "default": true
+    },
+    "enforceIndexCounts": {
+      "type": "boolean",
+      "description": "Cross-check the index phase-table progress/status against the phase files.",
+      "default": true
+    },
+    "agentsFile": {
+      "type": "string",
+      "description": "Root instructions file that must reference the reporting standard.",
+      "default": "AGENTS.md"
+    }
+  }
+}

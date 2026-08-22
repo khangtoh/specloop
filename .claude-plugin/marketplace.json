@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "specloop",
+  "metadata": {
+    "description": "Spec-driven loop engineering — a repeatable construct for driving coding agents through numbered phase specs."
+  },
+  "owner": {
+    "name": "specloop"
+  },
+  "plugins": [
+    {
+      "name": "specloop",
+      "source": "./plugin/specloop",
+      "description": "Numbered phase specs, an enforced directory structure, a mandatory Spec Summary/Status handoff, and the agent loop that drives them.",
+      "category": "workflow"
+    }
+  ]
+}
