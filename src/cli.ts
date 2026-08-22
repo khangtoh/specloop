@@ -1,9 +1,22 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { runCheck } from "./commands/check.js";
 import { runStatus } from "./commands/status.js";
 import { runInit } from "./commands/init.js";
 import { runGoalCheck } from "./commands/goalCheck.js";
 
-const VERSION = "0.1.0";
+/** Single source of truth for the version: the package's own package.json. */
+function readVersion(): string {
+  try {
+    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
+    return JSON.parse(readFileSync(pkgPath, "utf8")).version ?? "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+}
+
+const VERSION = readVersion();
 
 const HELP = `specloop ${VERSION} — spec-driven loop engineering
 
