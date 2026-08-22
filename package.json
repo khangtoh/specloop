@@ -36,6 +36,17 @@
     "workflow",
     "methodology"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khangtoh/specloop.git"
+  },
+  "homepage": "https://github.com/khangtoh/specloop#readme",
+  "bugs": {
+    "url": "https://github.com/khangtoh/specloop/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.6.0",
