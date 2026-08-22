@@ -6,7 +6,7 @@ version: 0.1.0
 
 # Skill: specloop
 
-specloop is a repeatable construct for driving coding agents through a project:
+specloop is a repeatable construct for driving agents through a project:
 requirements are decomposed into **numbered phase specs**, each a flat checklist
 of atomic tasks; an **agent loop** executes the next unchecked box, verifies it,
 and hands off in a mandatory report format; and a **bun validator** enforces the

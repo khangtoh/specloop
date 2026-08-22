@@ -22,7 +22,7 @@ or the session ledger.
 
 The `/spec-*` commands prefer the `specloop` bun CLI when it's on PATH
 (`specloop check`, `specloop status`, `specloop goal-check`). Install it with
-`bun add -g specloop`. Without it, the commands fall back to reading and editing
+`bun add -g @khangtoh/specloop`. Without it, the commands fall back to reading and editing
 the spec files directly.
 
 See the repository root `README.md` and `docs/methodology.md` for the full

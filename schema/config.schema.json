@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/specloop/specloop/main/schema/config.schema.json",
+  "$id": "https://raw.githubusercontent.com/khangtoh/specloop/main/schema/config.schema.json",
   "title": "specloop config",
   "description": "Configuration for the specloop validator (.specloop.json at the project root).",
   "type": "object",

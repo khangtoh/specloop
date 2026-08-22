@@ -1,7 +1,7 @@
 # specloop
 
 **Spec-driven loop engineering** — a repeatable, enforceable construct for
-driving coding agents through a project, extracted so it's consistent across
+driving agents through a project, extracted so it's consistent across
 every repo you use it in.
 
 A goal is decomposed into **numbered phase specs**, each a flat checklist of
@@ -34,7 +34,7 @@ validator checks against, and what you inspect to learn the method.
 ### As a bun CLI
 
 ```bash
-bun add -g specloop        # or: bun add -d specloop  (per project)
+bun add -g @khangtoh/specloop   # or: bun add -d @khangtoh/specloop  (per project)
 specloop init              # scaffold spec/ into the current repo
 ```
 

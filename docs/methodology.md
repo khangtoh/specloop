@@ -1,6 +1,6 @@
 # The specloop methodology
 
-specloop packages a way of working that emerged from running coding agents
+specloop packages a way of working that emerged from running agents
 across many sessions on the same codebase. This document explains *why* each
 piece exists, so you can apply it deliberately rather than cargo-culting the
 file layout.

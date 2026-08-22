@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/specloop/specloop/main/schema/config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/khangtoh/specloop/main/schema/config.schema.json",
   "specDir": "spec",
   "indexFile": "README.md",
   "phasePattern": "^\\d{2,}-.*\\.md$",

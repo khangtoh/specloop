@@ -2,10 +2,10 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "specloop",
   "metadata": {
-    "description": "Spec-driven loop engineering — a repeatable construct for driving coding agents through numbered phase specs."
+    "description": "Spec-driven loop engineering — a repeatable construct for driving agents through numbered phase specs."
   },
   "owner": {
-    "name": "specloop"
+    "name": "khangtoh"
   },
   "plugins": [
     {

@@ -1,7 +1,8 @@
 {
-  "name": "specloop",
+  "name": "@khangtoh/specloop",
   "version": "0.1.0",
-  "description": "Spec-driven loop engineering: a repeatable construct for driving coding agents through numbered phase specs with enforced structure and mandatory status handoffs.",
+  "description": "Spec-driven loop engineering: a repeatable construct for driving agents through numbered phase specs with enforced structure and mandatory status handoffs.",
+  "author": "khangtoh",
   "type": "module",
   "bin": {
     "specloop": "./bin/specloop.ts"
@@ -29,7 +30,6 @@
   "keywords": [
     "spec-driven",
     "agents",
-    "coding-agent",
     "loop-engineering",
     "claude-code",
     "codex",
