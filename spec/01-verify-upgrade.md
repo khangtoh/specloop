@@ -45,9 +45,9 @@ BACKLOG + validator rules landed).
 
 ## B. Dry-run behavior (integration)
 
-- [ ] Test: the printed plan lists exactly the missing pieces — no more, no fewer.
-- [ ] Test: a complete specloop layout reports "nothing to adopt" (empty plan).
-- [ ] Test: the PRD re-authoring note appears only for omarchy-like / PRD inputs.
+- [x] Test: the printed plan lists exactly the missing pieces — no more, no fewer.
+- [x] Test: a complete specloop layout reports "nothing to adopt" (empty plan).
+- [x] Test: the PRD re-authoring note appears only for omarchy-like / PRD inputs.
 - [x] (p1) Test: a plain `upgrade` (no `--apply`) writes nothing — dir snapshot
       byte-identical before/after.
 
