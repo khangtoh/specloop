@@ -156,8 +156,37 @@ and many agents. See [`docs/methodology.md`](docs/methodology.md).
 ```bash
 bun test            # validator + parser unit tests
 bun run check:spec  # run the validator against the shipped template
+bun run check:self  # validate specloop's own self-hosted spec/
 bun run typecheck   # tsc --noEmit
 ```
+
+## Releasing
+
+One command promotes and publishes a new version:
+
+```bash
+bun run release              # patch  (x.y.Z)
+bun run release minor        # minor  (x.Y.0)
+bun run release major        # major  (X.0.0)
+bun run release patch --dry  # rehearse: verify + preview, no publish/push
+```
+
+`scripts/release.sh` runs the whole flow in order and is **safe by
+construction** — it verifies before it bumps, and it touches git only after the
+publish succeeds:
+
+1. **Preconditions** — must be on `main` with a clean working tree.
+2. **Verify** — `bun test`, `check --dir template`, `check --dir .` (and
+   `typecheck` when `node_modules` is present). A broken build never ships.
+3. **Bump** `package.json` only (no git yet).
+4. **`npm publish`** (uses the token in your project `.npmrc`).
+5. **Only after a successful publish** — commit `release: vX.Y.Z`, tag it, and
+   `git push --follow-tags origin main`.
+
+Because the bump isn't committed until the publish lands, a failed publish never
+leaves a tagged, unpublished version — discard the uncommitted bump and retry.
+The CLI reads its version from `package.json`, so `specloop version` always
+matches the published release.
 
 ## License
 
