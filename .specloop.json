@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/khangtoh/specloop/main/schema/config.schema.json",
+  "specDir": "spec",
+  "indexFile": "README.md",
+  "phasePattern": "^\\d{2,}-.*\\.md$",
+  "requiredProcessFiles": [
+    "README.md",
+    "spec-summary-status.md",
+    "goal-completion-check.md",
+    "agent-session-ledger.md"
+  ],
+  "requireGoalLine": true,
+  "requireDependsOnLine": true,
+  "enforceIndexCounts": true,
+  "agentsFile": "AGENTS.md"
+}

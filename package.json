@@ -20,7 +20,8 @@
   "scripts": {
     "specloop": "bun run bin/specloop.ts",
     "check:spec": "bun run bin/specloop.ts check --dir template",
-    "status": "bun run bin/specloop.ts status --dir template",
+    "check:self": "bun run bin/specloop.ts check --dir .",
+    "status": "bun run bin/specloop.ts status --dir .",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
