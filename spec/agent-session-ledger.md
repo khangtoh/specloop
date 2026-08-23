@@ -1,5 +1,7 @@
 # Agent Session Ledger
 
+Next task: Phase 01 git-status safety test.
+
 A running record of what an agent session actually did on this repo —
 decisions made, state changed, automation left running — so the next
 session (human or agent) can resume without re-deriving context or
@@ -82,3 +84,21 @@ Complete Phase 01's third p1 idempotency test.
 ### State left running / open
 
 Next task: Phase 01 git-status safety test.
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Define `specloop` autonomous execution scope.
+
+### What got done, in order
+
+1. Added goal-run and standard-run semantics to repository and template instructions.
+2. Documented the same behavior in the public README.
+
+
+Next task: Phase 01 git-status safety test.
+### State left running / open
+

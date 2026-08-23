@@ -44,6 +44,28 @@ and task tags order the boxes within a phase:
 6. Repeat until the goal's acceptance checkbox in `spec/README.md` is checked
    with live evidence recorded.
 
+## `specloop` execution command
+
+When the user sends exactly `specloop`, start or resume autonomous execution.
+It is an authorization to continue; do not stop after a checkbox merely to
+wait for another `specloop` message. Keep the user informed in commentary and
+use the mandatory final handoff only at the run's terminal condition.
+
+Choose the run scope before taking the next task:
+
+1. **Goal run:** when an active user, system, or agent goal maps to the goal
+   and acceptance checkbox in `spec/README.md`, work across eligible phases
+   until that acceptance checkbox is checked with recorded evidence.
+2. **Standard run:** when no active goal is set, complete the highest-priority
+   eligible numbered phase from `spec/BACKLOG.md`, including every unchecked
+   task in that phase.
+
+In either mode, pause only for a genuine blocker requiring user input or an
+external state change, or when the user sends a different instruction. A
+message such as `specloop help` requests help only; it does not start or resume
+execution. Do not claim a goal run complete because a phase is complete, or a
+standard run complete because one task is complete.
+
 ## Structural enforcement
 
 Run `specloop check` (or `bun run check:spec`) before handing off. It fails

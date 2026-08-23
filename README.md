@@ -113,6 +113,12 @@ is satisfied and its highest box → do it → verify → check it → update Fi
 the index, and the ledger → `specloop check` → emit the `Spec Summary/Status`
 handoff → commit → repeat. In Claude Code / Codex that's `/spec-loop`.
 
+Sending exactly `specloop` is also an autonomous execution command. With an
+active goal that maps to the acceptance checkbox in `spec/README.md`, it runs
+across phases until the goal has recorded evidence. Without one, it completes
+the highest-priority eligible numbered phase. It pauses only for a real blocker
+or a new user instruction; `specloop help` is help, not a run command.
+
 ### Adopt an existing project
 
 `specloop upgrade [dir]` inspects a project that already has a spec model
