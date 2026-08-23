@@ -59,7 +59,7 @@ BACKLOG + validator rules landed).
 - [x] Test: `.specloop.json` is written with the detected `specDir` (e.g.
       `docs/specs`, not a hard-coded `spec`).
 - [x] Test: `AGENTS.md` is added when absent.
-- [ ] Test: post-apply `specloop check` is clean for dillinger-like input and
+- [x] Test: post-apply `specloop check` is clean for dillinger-like input and
       reports the expected re-authoring gaps (e.g. `missing-goal`) for PRD/ad-hoc
       input — i.e. the gaps are correct, not a defect.
 
