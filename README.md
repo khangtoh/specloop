@@ -22,6 +22,7 @@ validator checks against, and what you inspect to learn the method.
 | Piece | What it is |
 |---|---|
 | `spec/README.md` | Phase index — the goal, the `# \| File \| Purpose \| Status \| Blocking dependency` table, and non-goals. |
+| `spec/BACKLOG.md` | The ranked **work order** — one line per phase; the loop takes the top. Stores order only; done-state is derived. `prio-spec` edits it. |
 | `spec/NN-title.md` | A phase — `Goal:` + `Depends on:` header, flat `- [ ]` / `- [x]` atomic tasks, and a dated `Findings / Results` log. |
 | `spec/spec-summary-status.md` | The mandatory `Spec Summary/Status` handoff every agent must emit. |
 | `spec/goal-completion-check.md` | A reusable prompt tracing a goal → requirements → specs → checkboxes. |
@@ -37,17 +38,15 @@ fact (counts, status, done-state) honest so no layer drifts from reality.
 
 | Layer | Question | Constructs |
 |---|---|---|
-| **Scheduling** | what to do next | `BACKLOG.md` (stored order)ᵖ + phase files/tasks (units) + `prio-spec`/`list-spec` (phase priority)ᵖ + `(pN)`/`upgrade` (task priority) |
+| **Scheduling** | what to do next | `BACKLOG.md` (stored order) + phase files/tasks (units) + `prio-spec`/`list-spec` (phase priority) + `(pN)`/`prio-task` (task priority) |
 | **Verification** | is it right / is it done | `spec-summary-status` (per-iteration handoff) + `goal-completion-check` (whole-goal gate & stop condition) |
 | **Memory** | what happened | `agent-session-ledger` (narrative continuity) |
 
 The scheduling layer is *forward state* (what's next), memory is *backward
 state* (what happened), and verification is *derived truth* read straight from
-the checkboxes. Order is stored and human-owned; done-state is always derived.
-
-ᵖ Planned for 0.3.0 — see [`docs/roadmap-0.3.0.md`](docs/roadmap-0.3.0.md). Today
-order comes from the phase-number index and `Depends on:`; `(pN)`/`upgrade` task
-priority already ships.
+the checkboxes. **Order is stored and human-owned (BACKLOG); done-state is always
+derived** from the checkboxes — so priority is cheap to change and can't drift.
+See [`docs/roadmap-0.3.0.md`](docs/roadmap-0.3.0.md) for how the layers fit.
 
 ## Install
 
@@ -67,8 +66,8 @@ Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 /plugin install specloop@specloop
 ```
 
-Adds the `/spec-init`, `/spec-loop`, `/spec-status`, and `/goal-check` slash
-commands plus the `specloop` skill.
+Adds the `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`, `/prio-spec`,
+`/list-spec`, and `/spec-upgrade` slash commands plus the `specloop` skill.
 
 ### As a Codex plugin
 
@@ -80,34 +79,48 @@ binds Codex agents to the loop.
 ## Use
 
 ```bash
-specloop init                       # 1. scaffold the structure
+specloop init                       # 1. scaffold the structure (incl. BACKLOG.md)
 # edit spec/README.md: set the goal, decompose into spec/NN-*.md phases
 specloop check                      # 2. validate structure (wire into CI/prebuild)
-specloop status                     # 3. see progress + the next box, read from checkboxes
-specloop upgrade 07.3 --to p1       #    raise a task's priority so it's picked sooner
+specloop list-spec                  # 3. see the ranked backlog (undone by default)
+specloop prio-spec 07 0             #    move phase 07 to the top of the work order
 specloop goal-check "X is done"     # 4. audit a goal before you ship it
 ```
 
-### Task priority
+### Priority — two levels that compose
 
-The loop takes the **highest-priority** open box among dependency-eligible
-phases (ties broken by lowest phase number, then position). Tag a task right
-after its checkbox — `- [ ] (p1) do the thing` — where `p1` is high, `p2`
-medium, `p3` low, and an untagged task is medium. Raise one without hand-editing:
+**`prio-spec` picks the phase; `(pN)`/`prio-task` picks the box within it.**
+
+- **Phase order** lives in `spec/BACKLOG.md` (top = next). Reorder it with
+  `specloop prio-spec <NN> <pos>` (`0` = top, `+N` up, `-N` down among incomplete
+  phases). `specloop list-spec [all|done|undone]` renders it.
+- **Task order** within a phase is a tag after the checkbox — `- [ ] (p1) do the
+  thing` (p1 high, p2/untagged medium, p3 low). Raise one with
+  `specloop prio-task <NN.T> [--to pN]`.
 
 ```bash
-specloop upgrade 07.3               # bump phase 07's 3rd task up one level
-specloop upgrade 07.3 --to p1       # set it explicitly to high
+specloop prio-spec 22 0             # phase 22 to the top of the backlog
+specloop prio-task 07.3 --to p1     # phase 07's 3rd task to high
 ```
 
-Priority reorders the *eligible* frontier; it never overrides a phase's
-`Depends on:` gating. `specloop check` flags a mistyped tag like `(p4)`.
+BACKLOG stores **order only**; done-state is always **derived** from the
+checkboxes, so nothing can drift. Priority never overrides a phase's `Depends
+on:` gating. `specloop check` keeps BACKLOG and the phase files consistent and
+flags a mistyped tag like `(p4)`.
 
-Then run the loop (with an agent): pick the next unchecked box in the
-lowest-numbered phase whose `Depends on:` is satisfied → do it → verify → check
-it → update Findings, the index, and the ledger → `specloop check` → emit the
-`Spec Summary/Status` handoff → commit → repeat. In Claude Code / Codex that's
-`/spec-loop`.
+Then run the loop (with an agent): take the top BACKLOG phase whose `Depends on:`
+is satisfied and its highest box → do it → verify → check it → update Findings,
+the index, and the ledger → `specloop check` → emit the `Spec Summary/Status`
+handoff → commit → repeat. In Claude Code / Codex that's `/spec-loop`.
+
+### Adopt an existing project
+
+`specloop upgrade [dir]` inspects a project that already has a spec model
+(dillinger-style phases, an omarchy-style backlog, or ad-hoc numbered specs),
+reports what it found, and — with `--apply` — non-destructively scaffolds the
+missing specloop pieces (process files, `AGENTS.md`, config, and a generated
+`BACKLOG.md`). Re-authoring PRD-style specs into atomic-task phases is agent
+work: `/spec-upgrade`.
 
 ## `specloop check` — what it enforces
 
@@ -118,6 +131,8 @@ it → update Findings, the index, and the ledger → `specloop check` → emit 
 - Every phase file is listed in the index, and no index row is an orphan.
 - Each index row's `checked/total` **and** status emoji match the real counts
   in the phase file it links to (`⛔ blocked` is respected as a human override).
+- `BACKLOG.md` lists every phase exactly once, with no orphan or duplicate
+  entries (and warns when it's absent, falling back to numeric order).
 - `AGENTS.md` references the reporting standard.
 
 Non-zero exit on any error, so it gates CI and prebuild.

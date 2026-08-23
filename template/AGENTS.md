@@ -25,15 +25,16 @@ directly.
 
 ## The loop
 
-Work the highest-priority unchecked box among phases whose `Depends on:` line
-is satisfied:
+Work in priority order — `spec/BACKLOG.md` ranks the phases, `Depends on:` gates,
+and task tags order the boxes within a phase:
 
-1. Among all unchecked `- [ ]` tasks in dependency-eligible phases, pick the
-   highest priority. A task may carry a priority tag right after the checkbox —
-   `- [ ] (p1) …` (high), `(p2)` (medium), `(p3)` (low); an untagged task is
-   medium. Break ties by lowest phase number, then task position. Raise a
-   task's priority with `specloop upgrade <NN.T>` (or edit the tag by hand).
-   `specloop status` prints the next box under this ordering.
+1. Take the highest `spec/BACKLOG.md` phase whose `Depends on:` line is
+   satisfied, and within it the highest-priority unchecked `- [ ]` task —
+   `(p1)` high, `(p2)`/untagged medium, `(p3)` low, then task position. So
+   **BACKLOG order picks the phase; `(pN)` picks the box.** Reprioritize phases
+   with `specloop prio-spec <NN> <pos>` and tasks with `specloop prio-task
+   <NN.T>` (or edit the tags/BACKLOG by hand). `specloop status` and `specloop
+   list-spec` print the order. (No `BACKLOG.md` → numeric phase order.)
 2. Do it. Verify it in proportion to risk.
 3. Check the box, update Findings/Results, and reconcile `spec/README.md`'s
    phase-table progress/status for that phase.

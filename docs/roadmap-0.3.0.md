@@ -1,7 +1,13 @@
 # specloop 0.3.0 — Scheduling layer (BACKLOG + prio-spec/list-spec + autonomy)
 
-Status: **planning**. This is a living document — the coverage table's *State*
-column is updated as steps land.
+Status: **shipped in 0.3.0**. This is a living document — the coverage table's
+*State* column reflects what has landed.
+
+Resolved decisions (were open during planning):
+- **BACKLOG lists phases** (not individual tasks) — preserves the phase/task model.
+- **Filename `NN` is a pure stable id**; work order comes from BACKLOG position.
+- **`upgrade` is repurposed** to project adoption/migration; the 0.2.0 task-priority
+  command is now **`prio-task`**.
 
 0.3.0 adds specloop's **Scheduling layer**. The Verification and Memory layers
 already exist (they came from dillinger in 0.1.0); 0.3.0 wires them to the new
@@ -43,14 +49,24 @@ repo `README.md`.
 
 | Layer | Construct | 0.3.0 plan step | State |
 |---|---|---|---|
-| **Scheduling** | `BACKLOG.md` (stored order) | Steps 1–2 (new file; order stored, done-state derived) | 🆕 new |
+| **Scheduling** | `BACKLOG.md` (stored order) | Steps 1–2 (new file; order stored, done-state derived) | ✅ shipped 0.3.0 |
 | | phase files / tasks (units) | core model, unchanged | ✅ already in specloop |
-| | `prio-spec` / `list-spec` (phase priority) | Step 3 (+ delivery step 10) | 🆕 new |
-| | `(pN)` / `upgrade` (task priority) | Step 4 (kept, now nested under BACKLOG) | ✅ shipped in 0.2.0 |
-| | *(autonomy toggle)* | Step 5 | 🆕 new |
-| **Verification** | `spec-summary-status` (per-iteration handoff) | Step 6 (rows reordered by BACKLOG; table scaffolded by `specloop status`) | ♻️ exists, adapted |
-| | `goal-completion-check` (whole-goal gate) | Step 7 (becomes the autonomous stop condition; blockers in BACKLOG order) | ♻️ exists, elevated |
+| | `prio-spec` / `list-spec` (phase priority) | Step 3 (+ delivery step 10) | ✅ shipped 0.3.0 |
+| | `(pN)` / `prio-task` (task priority) | Step 4 (kept, nested under BACKLOG; renamed from `upgrade`) | ✅ shipped 0.2.0, renamed 0.3.0 |
+| | *(autonomy toggle)* | Step 5 | 🟡 documented; loop stop-condition wired, no CLI flag yet |
+| **Verification** | `spec-summary-status` (per-iteration handoff) | Step 6 (rows reordered by BACKLOG; table scaffolded by `specloop status`) | ✅ status now BACKLOG-ordered |
+| | `goal-completion-check` (whole-goal gate) | Step 7 (becomes the autonomous stop condition; blockers in BACKLOG order) | ♻️ exists, elevated in docs |
 | **Memory** | `agent-session-ledger` (narrative continuity) | Step 8 (paired with BACKLOG as forward/backward memory; appended per run) | ♻️ exists, wired in |
+
+**Delivered in 0.3.0:** `spec/BACKLOG.md` construct; `specloop list-spec` /
+`prio-spec` / `prio-task` CLI; repurposed `specloop upgrade [dir] [--apply]`
+(model detection + non-destructive scaffold); validator BACKLOG rules
+(`backlog-absent` / `-orphan` / `-duplicate` / `-missing-phase`); BACKLOG-ordered
+selection in `status`; Claude commands `/prio-spec` `/list-spec` `/spec-upgrade`
++ matching Codex skills; docs across README/SKILL/AGENTS/methodology/template.
+
+**Deferred:** the explicit autonomy-toggle CLI/flag (Step 5) — the stop-condition
+semantics are documented, but a first-class `--autonomous` runner is a later cut.
 
 ## Plan steps
 

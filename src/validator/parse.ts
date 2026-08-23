@@ -55,37 +55,102 @@ export function extractNumber(basename: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
+/** A clean human title for a phase: drop a leading "Phase N —" or the phase's
+ *  own number prefix (so "# 01 Foo" and "# Phase 1 — Foo" both give "Foo"). */
+export function phaseTitle(rawTitle: string, num: number, fallback: string): string {
+  let t = rawTitle.replace(/^Phase\s+\d+\s*[—:.\-]\s*/i, "").trim();
+  t = t.replace(new RegExp(`^0*${num}\\b[\\s—:.\\-]*`), "").trim();
+  return t || fallback;
+}
+
 export interface OpenTaskRef {
   phase: number;
   file: string;
   task: Task;
 }
 
+/** A phase is complete when it has tasks and all of them are checked. */
+export function phaseComplete(p: PhaseFile): boolean {
+  return p.total > 0 && p.checked === p.total;
+}
+
 /**
- * The next box the loop should take: the highest-priority open task, breaking
- * ties by lowest phase number, then task position. `Depends on:` gating is the
- * agent's judgment (its prose isn't machine-evaluated here) — this orders the
- * frontier the agent chooses from.
+ * The next box the loop should take, given phases already in work order
+ * (BACKLOG order, or numeric fallback). Phase order is primary — `prio-spec`
+ * picks the phase; within a phase, task `(pN)` priority then position decide.
+ * `Depends on:` gating is the agent's judgment (its prose isn't machine-
+ * evaluated here) — this orders the frontier the agent chooses from.
  */
-export function selectNextTask(phases: PhaseFile[]): OpenTaskRef | null {
+export function selectNextTask(phasesInOrder: PhaseFile[]): OpenTaskRef | null {
   let best: OpenTaskRef | null = null;
-  for (const p of phases) {
+  let bestRank: [number, number, number] | null = null;
+  phasesInOrder.forEach((p, phaseOrder) => {
     for (const t of p.tasks) {
       if (t.checked) continue;
-      const candidate: OpenTaskRef = { phase: p.number, file: p.file, task: t };
-      if (best === null || compareOpenTasks(candidate, best) < 0) best = candidate;
+      const rank: [number, number, number] = [phaseOrder, priorityRank(t.priority), t.index];
+      if (bestRank === null || tupleLess(rank, bestRank)) {
+        best = { phase: p.number, file: p.file, task: t };
+        bestRank = rank;
+      }
     }
-  }
+  });
   return best;
 }
 
-/** Order: highest priority first, then lowest phase number, then task position. */
-export function compareOpenTasks(a: OpenTaskRef, b: OpenTaskRef): number {
-  return (
-    priorityRank(a.task.priority) - priorityRank(b.task.priority) ||
-    a.phase - b.phase ||
-    a.task.index - b.task.index
-  );
+function tupleLess(a: [number, number, number], b: [number, number, number]): boolean {
+  const d = a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+  return d < 0;
+}
+
+export interface BacklogEntry {
+  line: number; // 1-indexed line in BACKLOG.md
+  number: number; // phase id
+  title: string;
+}
+
+const BACKLOG_HEADING = /^##\s+Phases\s*\(priority order\)/i;
+const BACKLOG_ENTRY = /^\s*-\s+(?:\[[ xX]\]\s+)?(\d{2,})\b\s*(.*)$/;
+
+/** Parse the ordered phase list out of BACKLOG.md's `## Phases (priority order)`. */
+export function parseBacklog(path: string): BacklogEntry[] {
+  const lines = readFileSync(path, "utf8").split(/\r?\n/);
+  const out: BacklogEntry[] = [];
+  let inSection = false;
+  let inCode = false;
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    if (/^\s*```/.test(raw)) {
+      inCode = !inCode;
+      continue;
+    }
+    if (inCode) continue;
+    if (/^##\s+/.test(raw)) inSection = BACKLOG_HEADING.test(raw);
+    if (!inSection) continue;
+    const m = raw.match(BACKLOG_ENTRY);
+    if (m) out.push({ line: i + 1, number: parseInt(m[1], 10), title: m[2].trim() });
+  }
+  return out;
+}
+
+/** Phases in work order: BACKLOG position if a backlog is given, else by number.
+ *  Phases missing from the backlog are appended in numeric order. */
+export function orderPhases(phases: PhaseFile[], backlog: BacklogEntry[] | null): PhaseFile[] {
+  const byNumber = new Map(phases.map((p) => [p.number, p]));
+  const ordered: PhaseFile[] = [];
+  const seen = new Set<number>();
+  if (backlog) {
+    for (const e of backlog) {
+      const p = byNumber.get(e.number);
+      if (p && !seen.has(p.number)) {
+        ordered.push(p);
+        seen.add(p.number);
+      }
+    }
+  }
+  for (const p of [...phases].sort((a, b) => a.number - b.number)) {
+    if (!seen.has(p.number)) ordered.push(p);
+  }
+  return ordered;
 }
 
 export function parsePhaseFile(path: string, basename: string): PhaseFile {

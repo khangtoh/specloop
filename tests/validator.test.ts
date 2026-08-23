@@ -7,11 +7,17 @@ import { DEFAULT_CONFIG } from "../src/config.js";
 import {
   parsePhaseFile,
   parseIndex,
+  parseBacklog,
+  orderPhases,
+  phaseComplete,
   expectedEmoji,
   selectNextTask,
   priorityRank,
 } from "../src/validator/parse.js";
-import { runUpgrade } from "../src/commands/upgrade.js";
+import { runPrioTask } from "../src/commands/prioTask.js";
+import { runPrioSpec } from "../src/commands/prioSpec.js";
+import { detect } from "../src/commands/upgrade.js";
+import { writeFileSync as wf } from "node:fs";
 
 let dir: string;
 
@@ -150,17 +156,19 @@ test("priorityRank: p1 < untagged < p3", () => {
   expect(priorityRank("p2")).toBe(priorityRank(null));
 });
 
-test("selectNextTask takes highest priority across phases, then phase/pos order", () => {
-  specFile("02-a.md", "# Phase 02\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] a1\n- [ ] a2\n");
+test("selectNextTask: phase order primary, task priority within a phase", () => {
+  // Phase 02 has an untagged task then a (p1); phase 03 has a (p1) too.
+  specFile("02-a.md", "# Phase 02\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] a1\n- [ ] (p1) a2\n");
   specFile("03-b.md", "# Phase 03\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] (p1) b1\n");
   const phases = [
     parsePhaseFile(join(dir, "spec", "02-a.md"), "02-a.md"),
     parsePhaseFile(join(dir, "spec", "03-b.md"), "03-b.md"),
   ];
-  const next = selectNextTask(phases);
-  // b1 is p1 in phase 3; it outranks the untagged phase-2 tasks.
-  expect(next?.phase).toBe(3);
-  expect(next?.task.text).toBe("b1");
+  const next = selectNextTask(phases); // phases already in order 02, 03
+  // Phase 02 comes first (phase order primary); within it the (p1) a2 wins
+  // over the untagged a1. Phase 03's (p1) does NOT preempt an earlier phase.
+  expect(next?.phase).toBe(2);
+  expect(next?.task.text).toBe("a2");
 });
 
 test("invalid priority tag is flagged", () => {
@@ -169,19 +177,112 @@ test("invalid priority tag is flagged", () => {
   expect(ruleIds(dir)).toContain("invalid-priority");
 });
 
-test("runUpgrade bumps an untagged task to p1 and --to sets explicitly", () => {
+test("runPrioTask bumps an untagged task to p1 and --to sets explicitly", () => {
   specFile(
     "08-up.md",
     "# Phase 08\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] first\n- [ ] (p3) second\n",
   );
-  const cfg = { rootDir: dir };
-  runUpgrade(cfg.rootDir, "8.1"); // untagged -> p1
-  runUpgrade(cfg.rootDir, "8.2", "p2"); // p3 -> p2 explicitly
+  runPrioTask(dir, "8.1"); // untagged -> p1
+  runPrioTask(dir, "8.2", "p2"); // p3 -> p2 explicitly
   const p = parsePhaseFile(join(dir, "spec", "08-up.md"), "08-up.md");
   expect(p.tasks[0].priority).toBe("p1");
   expect(p.tasks[0].text).toBe("first");
   expect(p.tasks[1].priority).toBe("p2");
   expect(p.tasks[1].text).toBe("second");
+});
+
+// ---- BACKLOG / prio-spec / list-spec / upgrade ----
+
+function threePhases() {
+  specFile("01-a.md", "# Phase 01 — A\n\nGoal: g.\n\nDepends on: None.\n\n- [x] a1\n");
+  specFile("02-b.md", "# Phase 02 — B\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] b1\n");
+  specFile("03-c.md", "# Phase 03 — C\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] c1\n");
+}
+
+test("parseBacklog reads only entries under the Phases heading", () => {
+  specFile(
+    "BACKLOG.md",
+    "# Backlog\n\nintro - 99 not an entry (no heading yet)\n\n## Phases (priority order)\n\n- 03 C\n- 01 A\n- 02 B\n",
+  );
+  const b = parseBacklog(join(dir, "spec", "BACKLOG.md"));
+  expect(b.map((e) => e.number)).toEqual([3, 1, 2]);
+  expect(b[0].title).toBe("C");
+});
+
+test("orderPhases follows BACKLOG, then appends missing phases by number", () => {
+  threePhases();
+  const phases = ["01-a.md", "02-b.md", "03-c.md"].map((f) =>
+    parsePhaseFile(join(dir, "spec", f), f),
+  );
+  const backlog = [
+    { line: 1, number: 3, title: "C" },
+    { line: 2, number: 1, title: "A" },
+  ];
+  const ordered = orderPhases(phases, backlog);
+  expect(ordered.map((p) => p.number)).toEqual([3, 1, 2]); // 2 appended by number
+});
+
+test("phaseComplete reflects checkbox completion", () => {
+  threePhases();
+  const a = parsePhaseFile(join(dir, "spec", "01-a.md"), "01-a.md");
+  const b = parsePhaseFile(join(dir, "spec", "02-b.md"), "02-b.md");
+  expect(phaseComplete(a)).toBe(true);
+  expect(phaseComplete(b)).toBe(false);
+});
+
+test("selectNextTask honors BACKLOG phase order over numeric", () => {
+  threePhases();
+  const phases = ["01-a.md", "02-b.md", "03-c.md"].map((f) =>
+    parsePhaseFile(join(dir, "spec", f), f),
+  );
+  // BACKLOG puts 03 before 02; 01 is complete so its box is skipped.
+  const ordered = orderPhases(phases, [
+    { line: 1, number: 1, title: "A" },
+    { line: 2, number: 3, title: "C" },
+    { line: 3, number: 2, title: "B" },
+  ]);
+  expect(selectNextTask(ordered)?.phase).toBe(3);
+});
+
+test("prio-spec moves an incomplete phase to the top, anchoring complete ones", () => {
+  threePhases(); // 01 complete, 02 & 03 incomplete
+  // BACKLOG: 01 (complete) at top, then 02, 03
+  specFile(
+    "BACKLOG.md",
+    "# Backlog\n\n## Phases (priority order)\n\n- 01 A\n- 02 B\n- 03 C\n",
+  );
+  runPrioSpec(dir, "3", "0"); // move 03 to top of incomplete
+  const order = parseBacklog(join(dir, "spec", "BACKLOG.md")).map((e) => e.number);
+  // 01 complete stays anchored at top; 03 jumps ahead of 02 among incomplete
+  expect(order).toEqual([1, 3, 2]);
+});
+
+test("validator flags a phase missing from BACKLOG and an orphan entry", () => {
+  seedFromTemplate();
+  specFile("02-extra.md", "# Phase 02\n\nGoal: g.\n\nDepends on: None.\n\n- [ ] t\n");
+  // add 02 to README so index checks pass, but omit from BACKLOG; add orphan 99
+  const idx = join(dir, "spec", "README.md");
+  wf(
+    idx,
+    require("node:fs")
+      .readFileSync(idx, "utf8")
+      .replace(
+        "| 1 | [01-example-phase.md](01-example-phase.md) | Example scaffold phase — replace with your own | 🟡 2/4 | None |",
+        "| 1 | [01-example-phase.md](01-example-phase.md) | Example scaffold phase — replace with your own | 🟡 2/4 | None |\n| 2 | [02-extra.md](02-extra.md) | extra | ⬜ 0/1 | None |",
+      ),
+  );
+  wf(join(dir, "spec", "BACKLOG.md"), "# Backlog\n\n## Phases (priority order)\n\n- 01 Example\n- 99 ghost\n");
+  const rules = ruleIds(dir);
+  expect(rules).toContain("backlog-missing-phase"); // 02 not listed
+  expect(rules).toContain("backlog-orphan"); // 99 has no file
+});
+
+test("detect classifies a dillinger-like project and a fresh one", () => {
+  seedFromTemplate();
+  const d = detect(dir);
+  expect(d.specDir).toBe("spec");
+  // template has Goal/Depends + tasks -> dillinger-like or specloop (it has process files)
+  expect(["specloop", "dillinger-like"]).toContain(d.model);
 });
 
 test("parseIndex reads rows with links and progress", () => {

@@ -1,16 +1,15 @@
 import { loadConfig } from "../config.js";
-import { check } from "../validator/index.js";
+import { loadOrdered } from "../backlog.js";
 import { expectedEmoji, selectNextTask } from "../validator/parse.js";
 
 const DIM = "\x1b[2m";
 const BOLD = "\x1b[1m";
 const RST = "\x1b[0m";
 
-/** Print a rolled-up view of phase progress, read straight from the checkboxes. */
+/** Print a rolled-up view of phase progress in work order, from the checkboxes. */
 export function runStatus(rootDir: string, opts: { json?: boolean } = {}): number {
   const config = loadConfig(rootDir);
-  const result = check(rootDir, config);
-  const phases = [...result.phases].sort((a, b) => a.number - b.number);
+  const { ordered: phases, hasBacklog } = loadOrdered(rootDir, config);
 
   if (opts.json) {
     console.log(
@@ -42,7 +41,8 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
   const totalChecked = phases.reduce((n, p) => n + p.checked, 0);
   const totalTasks = phases.reduce((n, p) => n + p.total, 0);
 
-  console.log(`${BOLD}specloop status${RST} ${DIM}(${config.specDir}/)${RST}\n`);
+  const src = hasBacklog ? "BACKLOG order" : "numeric order";
+  console.log(`${BOLD}specloop status${RST} ${DIM}(${config.specDir}/, ${src})${RST}\n`);
   for (const p of phases) {
     const emoji = expectedEmoji(p.checked, p.total);
     const bar = progressBar(p.checked, p.total);

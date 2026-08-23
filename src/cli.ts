@@ -6,6 +6,9 @@ import { runStatus } from "./commands/status.js";
 import { runInit } from "./commands/init.js";
 import { runGoalCheck } from "./commands/goalCheck.js";
 import { runUpgrade } from "./commands/upgrade.js";
+import { runPrioTask } from "./commands/prioTask.js";
+import { runPrioSpec } from "./commands/prioSpec.js";
+import { runListSpec } from "./commands/listSpec.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -25,32 +28,37 @@ Usage:
   specloop <command> [options]
 
 Commands:
-  init [dir]            Scaffold the spec/ structure, AGENTS.md, and config
-                        into [dir] (default: current directory).
-  check                 Validate the spec structure; non-zero exit on errors.
-  status               Show phase progress read straight from the checkboxes.
-  upgrade <NN.T>        Raise a task's priority (bump up one level, or --to pN).
-  goal-check "<goal>"   Print the goal-completion-check prompt for "<goal>".
-  help, --help          Show this help.
-  version, --version    Show the version.
+  init [dir]              Scaffold the spec/ structure, BACKLOG, AGENTS.md, config.
+  check                   Validate the spec structure; non-zero exit on errors.
+  status                  Show phase progress + next box, in BACKLOG order.
+  list-spec [filter]      List phases in priority order (all|done|undone).
+  prio-spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
+  prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
+  upgrade [dir]           Adopt an existing project's spec model into specloop
+                          (report; --apply to scaffold non-destructively).
+  goal-check "<goal>"     Print the goal-completion-check prompt for "<goal>".
+  help, --help            Show this help.
+  version, --version      Show the version.
 
 Options:
-  --dir <path>          Project root to operate on (default: cwd).
-  --force               (init) overwrite an existing spec/ and files.
-  --json                (check, status) machine-readable output.
-  --to <p1|p2|p3>       (upgrade) set an explicit priority instead of bumping.
+  --dir <path>            Project root to operate on (default: cwd).
+  --force                 (init) overwrite an existing spec/ and files.
+  --apply                 (upgrade) perform the adoption instead of a dry run.
+  --json                  (check, status, list-spec) machine-readable output.
+  --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
 
-Priorities: p1 = high, p2 = medium, p3 = low; an untagged task is medium.
-The loop takes the highest-priority open box first (ties broken by phase
-order, then position). Tag a task by hand as \`- [ ] (p1) do the thing\`, or
-raise it with \`specloop upgrade\`.
+Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
+within a phase, task tags \`- [ ] (p1) …\` (p1 high, p2/untagged medium, p3 low)
+plus prio-task pick the box. The loop takes the top BACKLOG phase's highest
+box. Done-state is always derived from the checkboxes; BACKLOG stores order.
 
 Examples:
   specloop init
-  specloop check
   specloop status
-  specloop upgrade 07.3            # bump phase 07's 3rd task up one level
-  specloop upgrade 07.3 --to p1    # set it to high priority
+  specloop list-spec undone
+  specloop prio-spec 22 0          # move phase 22 to the top of the backlog
+  specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
+  specloop upgrade ./other-repo --apply
   specloop goal-check "the checkout flow is done"
 `;
 
@@ -70,6 +78,7 @@ export function main(argv: string[]): number {
   const dirFlag = takeFlagValue(rest, "--dir");
   const to = takeFlagValue(rest, "--to");
   const force = takeFlag(rest, "--force");
+  const apply = takeFlag(rest, "--apply");
   const json = takeFlag(rest, "--json");
   const positional = rest.filter((a) => !a.startsWith("--"));
   const rootDir = dirFlag ?? process.cwd();
@@ -81,8 +90,17 @@ export function main(argv: string[]): number {
       return runCheck(rootDir, { json });
     case "status":
       return runStatus(rootDir, { json });
+    case "list-spec":
+    case "listspec":
+      return runListSpec(rootDir, positional[0], { json });
+    case "prio-spec":
+    case "priospec":
+      return runPrioSpec(rootDir, positional[0], positional[1]);
+    case "prio-task":
+    case "priotask":
+      return runPrioTask(rootDir, positional[0], to);
     case "upgrade":
-      return runUpgrade(rootDir, positional[0], to);
+      return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply });
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));

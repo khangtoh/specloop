@@ -1,6 +1,6 @@
 {
   "name": "@khangtoh/specloop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Spec-driven loop engineering: a repeatable construct for driving agents through numbered phase specs with enforced structure and mandatory status handoffs.",
   "author": "khangtoh",
   "type": "module",

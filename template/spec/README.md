@@ -14,11 +14,12 @@ concretely enough that "is it done?" has a real answer>.
 - Every completed, partial, blocked, or documentation-only task handoff must
   include the canonical `Spec Summary/Status` report defined in
   [`spec-summary-status.md`](spec-summary-status.md).
-- Work phases in order: a phase's tasks assume prior phases are checked off,
-  unless its `Depends on:` line says otherwise.
-- The loop: an agent picks up the next unchecked box (respecting phase order
-  and `Depends on:`), does it, verifies it, updates its checkbox and the
-  Results/status records, produces the mandatory `Spec Summary/Status`
+- Phase **work order** lives in [`BACKLOG.md`](BACKLOG.md) (top = next), not in
+  the filename number — reorder it with `specloop prio-spec <NN> <pos>`. Each
+  phase's `Depends on:` still gates. Done-state is derived from the checkboxes.
+- The loop: an agent takes the top `BACKLOG.md` phase whose `Depends on:` is
+  met and its highest-priority box, does it, verifies it, updates its checkbox
+  and the Results/status records, produces the mandatory `Spec Summary/Status`
   handoff, commits, and moves on — repeating until the goal's acceptance
   phase is fully checked and its live evidence is recorded below.
 

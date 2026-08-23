@@ -4,6 +4,7 @@ import type { SpecloopConfig } from "../config.js";
 import {
   parsePhaseFile,
   parseIndex,
+  parseBacklog,
   findMalformedTaskLines,
   expectedEmoji,
   type PhaseFile,
@@ -215,6 +216,55 @@ export function check(rootDir: string, config: SpecloopConfig): CheckResult {
             message: `Phase file '${p.file}' exists but is not listed in the index table.`,
           });
         }
+      }
+    }
+  }
+
+  // 5. BACKLOG.md — the ranked work order (order stored, done-state derived).
+  const backlogPath = join(specDir, "BACKLOG.md");
+  if (!existsSync(backlogPath)) {
+    if (phases.length > 0) {
+      issues.push({
+        severity: "warn",
+        file: join(config.specDir, "BACKLOG.md"),
+        rule: "backlog-absent",
+        message:
+          "No BACKLOG.md — the loop falls back to numeric phase order. Run 'specloop init' or 'specloop upgrade --apply' to add one.",
+      });
+    }
+  } else {
+    const entries = parseBacklog(backlogPath);
+    const phaseNumbers = new Set(phases.map((p) => p.number));
+    const seen = new Set<number>();
+    for (const e of entries) {
+      if (seen.has(e.number)) {
+        issues.push({
+          severity: "error",
+          file: join(config.specDir, "BACKLOG.md"),
+          line: e.line,
+          rule: "backlog-duplicate",
+          message: `Phase ${e.number} is listed more than once in BACKLOG.md.`,
+        });
+      }
+      seen.add(e.number);
+      if (!phaseNumbers.has(e.number)) {
+        issues.push({
+          severity: "error",
+          file: join(config.specDir, "BACKLOG.md"),
+          line: e.line,
+          rule: "backlog-orphan",
+          message: `BACKLOG.md lists phase ${e.number}, which has no matching phase file.`,
+        });
+      }
+    }
+    for (const p of phases) {
+      if (!seen.has(p.number)) {
+        issues.push({
+          severity: "error",
+          file: join(config.specDir, "BACKLOG.md"),
+          rule: "backlog-missing-phase",
+          message: `Phase '${p.file}' exists but is not listed in BACKLOG.md.`,
+        });
       }
     }
   }

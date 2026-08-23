@@ -1,95 +1,254 @@
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  copyFileSync,
+  statSync,
+  mkdirSync,
+} from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadConfig } from "../config.js";
-import { parsePhaseFile, priorityRank, PRIORITY_RE, type Priority } from "../validator/parse.js";
+import { parsePhaseFile, extractNumber, phaseTitle } from "../validator/parse.js";
 
 const GRN = "\x1b[32m";
 const YEL = "\x1b[33m";
+const CYN = "\x1b[36m";
 const DIM = "\x1b[2m";
+const BOLD = "\x1b[1m";
 const RST = "\x1b[0m";
 
-const RANK_TO_PRIORITY: Record<number, Priority> = { 0: "p1", 1: "p2", 2: "p3" };
-const CHECKBOX_LINE = /^(\s*-\s\[[ xX]\]\s?)(.*)$/;
+type Model = "specloop" | "dillinger-like" | "omarchy-like" | "ad-hoc" | "none";
+
+interface Detection {
+  specDir: string | null; // relative
+  model: Model;
+  numbered: string[]; // numbered spec filenames
+  hasBacklog: boolean;
+  hasProcessFiles: { summaryStatus: boolean; goalCheck: boolean; ledger: boolean };
+  hasTasks: boolean; // any `- [ ]` inside spec files
+  hasGoalDepends: boolean; // Goal:/Depends on: headers
+  hasPrdSections: boolean; // Summary/Problem/Scope
+  hasAgents: boolean;
+}
+
+const PROCESS_FILES = {
+  summaryStatus: "spec-summary-status.md",
+  goalCheck: "goal-completion-check.md",
+  ledger: "agent-session-ledger.md",
+};
+
+function templateDir(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), "..", "..", "template");
+}
+
+/** Find the most likely spec directory and classify the model in use. */
+export function detect(rootDir: string): Detection {
+  const candidates = ["spec", "docs/specs", "specs"].map((d) => ({ rel: d, abs: join(rootDir, d) }));
+  const found = candidates.find((c) => existsSync(c.abs) && statSync(c.abs).isDirectory());
+
+  const base: Detection = {
+    specDir: null,
+    model: "none",
+    numbered: [],
+    hasBacklog: false,
+    hasProcessFiles: { summaryStatus: false, goalCheck: false, ledger: false },
+    hasTasks: false,
+    hasGoalDepends: false,
+    hasPrdSections: false,
+    hasAgents: existsSync(join(rootDir, "AGENTS.md")),
+  };
+  if (!found) return base;
+
+  const files = readdirSync(found.abs);
+  const numbered = files.filter((f) => /^\d{2,}-.*\.md$/.test(f)).sort();
+  const bodies = numbered.map((f) => {
+    try {
+      return readFileSync(join(found.abs, f), "utf8");
+    } catch {
+      return "";
+    }
+  });
+  const joined = bodies.join("\n");
+
+  const det: Detection = {
+    ...base,
+    specDir: found.rel,
+    numbered,
+    hasBacklog: files.includes("BACKLOG.md"),
+    hasProcessFiles: {
+      summaryStatus: files.includes(PROCESS_FILES.summaryStatus),
+      goalCheck: files.includes(PROCESS_FILES.goalCheck),
+      ledger: files.includes(PROCESS_FILES.ledger),
+    },
+    hasTasks: /^\s*-\s\[[ xX]\]/m.test(joined),
+    hasGoalDepends: /^\s*Goal:/im.test(joined) && /^\s*Depends on:/im.test(joined),
+    hasPrdSections: /^##\s+(Summary|Problem|Scope)\b/im.test(joined),
+  };
+
+  const p = det.hasProcessFiles;
+  if (p.summaryStatus && p.goalCheck && p.ledger) det.model = "specloop";
+  else if (det.hasGoalDepends && det.hasTasks) det.model = "dillinger-like";
+  else if (det.hasBacklog || det.hasPrdSections) det.model = "omarchy-like";
+  else if (numbered.length > 0) det.model = "ad-hoc";
+  else det.model = "none";
+  return det;
+}
 
 /**
- * Raise (or set) the priority of a task.
- *   specloop upgrade <NN.T> [--to p1|p2|p3]
- * NN = phase number, T = 1-based task position within that phase.
- * With --to, sets the priority explicitly; otherwise bumps it up one level
- * (untagged/medium -> p1, p3 -> p2, p2 -> p1).
+ * Inspect a project's existing spec model and adopt it into specloop.
+ *   specloop upgrade [dir] [--apply]
+ * Without --apply: report what was found and what adoption would do (dry run).
+ * With --apply: non-destructively scaffold missing specloop process files,
+ * an AGENTS binding, and generate BACKLOG.md from the existing numbered specs.
+ * Never overwrites existing spec content; re-authoring PRD-style specs into
+ * atomic-task phases is the agent's job (see the /spec-upgrade command).
  */
-export function runUpgrade(rootDir: string, ref: string, to?: string): number {
-  if (!ref) {
-    console.error(`Usage: specloop upgrade <NN.T> [--to p1|p2|p3]\n  e.g. specloop upgrade 07.3`);
-    return 1;
-  }
-  const m = ref.match(/^(\d{1,})[.:](\d{1,})$/);
-  if (!m) {
-    console.error(`Invalid task ref '${ref}'. Use <phase>.<task>, e.g. 07.3`);
-    return 1;
-  }
-  const phaseNum = parseInt(m[1], 10);
-  const taskIdx = parseInt(m[2], 10);
+export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): number {
+  const det = detect(rootDir);
+  console.log(`${BOLD}specloop upgrade${RST} ${DIM}(inspecting ${rootDir})${RST}\n`);
 
-  if (to !== undefined && !/^p[1-3]$/.test(to)) {
-    console.error(`Invalid --to '${to}'. Use p1 (high), p2 (medium), or p3 (low).`);
-    return 1;
+  if (det.model === "none" || !det.specDir) {
+    console.log(
+      `No existing spec model found (looked in spec/, docs/specs/, specs/).\n` +
+        `This looks like a fresh project — run ${CYN}specloop init${RST} instead.`,
+    );
+    return det.model === "none" ? 0 : 1;
   }
 
-  const config = loadConfig(rootDir);
-  const specDir = join(rootDir, config.specDir);
-  const phaseRe = new RegExp(config.phasePattern);
-  const file = existsSync(specDir)
-    ? readdirSync(specDir).find(
-        (f) => phaseRe.test(f) && parsePhaseFile(join(specDir, f), f).number === phaseNum,
-      )
-    : undefined;
-  if (!file) {
-    console.error(`No phase file found for phase ${phaseNum} in ${config.specDir}/.`);
-    return 1;
-  }
+  console.log(`Detected model: ${BOLD}${det.model}${RST}  ${DIM}in ${det.specDir}/${RST}`);
+  console.log(`  numbered specs:     ${det.numbered.length}`);
+  console.log(`  in-file tasks:      ${yesno(det.hasTasks)} ${DIM}(- [ ] checkboxes)${RST}`);
+  console.log(`  Goal:/Depends on:   ${yesno(det.hasGoalDepends)}`);
+  console.log(`  PRD sections:       ${yesno(det.hasPrdSections)} ${DIM}(Summary/Problem/Scope)${RST}`);
+  console.log(`  BACKLOG.md:         ${yesno(det.hasBacklog)}`);
+  console.log(
+    `  process files:      summary-status ${yesno(det.hasProcessFiles.summaryStatus)}, ` +
+      `goal-check ${yesno(det.hasProcessFiles.goalCheck)}, ledger ${yesno(det.hasProcessFiles.ledger)}`,
+  );
+  console.log(`  AGENTS.md:          ${yesno(det.hasAgents)}\n`);
 
-  const path = join(specDir, file);
-  const phase = parsePhaseFile(path, file);
-  const task = phase.tasks.find((t) => t.index === taskIdx);
-  if (!task) {
-    console.error(`Phase ${phaseNum} has no task ${taskIdx} (it has ${phase.tasks.length}).`);
-    return 1;
-  }
-
-  const current = task.priority;
-  let next: Priority;
-  if (to !== undefined) {
-    next = to as Priority;
-  } else {
-    const newRank = priorityRank(current) - 1;
-    if (newRank < 0) {
-      console.log(`${YEL}▲${RST} Phase ${phaseNum}.${taskIdx} is already p1 (highest). No change.`);
-      return 0;
-    }
-    next = RANK_TO_PRIORITY[newRank];
-  }
-
-  if (next === current) {
-    console.log(`${YEL}▲${RST} Phase ${phaseNum}.${taskIdx} is already ${next}. No change.`);
+  const actions = planActions(det, rootDir);
+  if (actions.length === 0) {
+    console.log(`${GRN}✔ Already a complete specloop layout.${RST} Nothing to adopt.`);
     return 0;
   }
 
-  // Rewrite exactly the task's line, replacing/inserting the priority tag.
-  const lines = readFileSync(path, "utf8").split(/\r?\n/);
-  const li = task.line - 1;
-  const cm = lines[li].match(CHECKBOX_LINE);
-  if (!cm) {
-    console.error(`Internal: line ${task.line} of ${file} is not a checkbox as expected.`);
-    return 1;
-  }
-  const bare = cm[2].replace(PRIORITY_RE, "");
-  lines[li] = `${cm[1]}(${next}) ${bare}`;
-  writeFileSync(path, lines.join("\n"));
+  console.log(`${BOLD}Adoption plan:${RST}`);
+  for (const a of actions) console.log(`  ${opts.apply ? "•" : "◦"} ${a.label}`);
+  console.log("");
 
-  const from = current ?? "untagged";
-  console.log(
-    `${GRN}✔${RST} Phase ${phaseNum}.${taskIdx}: ${from} ${DIM}→${RST} ${next}\n  ${DIM}${file}:${task.line}${RST}  ${task.text}`,
-  );
+  if (det.model === "omarchy-like" || det.hasPrdSections) {
+    console.log(
+      `${YEL}Note:${RST} PRD-style specs need re-authoring into atomic-task phases\n` +
+        `(Goal:/Depends on: + '- [ ]' tasks). specloop scaffolds the structure; use the\n` +
+        `${CYN}/spec-upgrade${RST} agent command to map each spec's Acceptance Criteria into tasks.\n`,
+    );
+  }
+
+  if (!opts.apply) {
+    console.log(`${DIM}Dry run. Re-run with ${RST}${CYN}--apply${RST}${DIM} to perform the adoption.${RST}`);
+    return 0;
+  }
+
+  const specAbs = join(rootDir, det.specDir);
+  for (const a of actions) a.run(rootDir, specAbs, det);
+  console.log(`\n${GRN}✔ Adoption applied.${RST} Run ${CYN}specloop check${RST} to validate.`);
   return 0;
+}
+
+interface Action {
+  label: string;
+  run: (rootDir: string, specAbs: string, det: Detection) => void;
+}
+
+function planActions(det: Detection, rootDir: string): Action[] {
+  const actions: Action[] = [];
+  const tpl = templateDir();
+
+  for (const [key, name] of Object.entries(PROCESS_FILES) as [keyof typeof PROCESS_FILES, string][]) {
+    if (!det.hasProcessFiles[key]) {
+      actions.push({
+        label: `add ${det.specDir}/${name}`,
+        run: (_r, specAbs) => copyIfAbsent(join(tpl, "spec", name), join(specAbs, name)),
+      });
+    }
+  }
+  if (!det.hasBacklog) {
+    actions.push({
+      label: `generate ${det.specDir}/BACKLOG.md from ${det.numbered.length} numbered specs`,
+      run: (_r, specAbs, d) => generateBacklog(specAbs, d),
+    });
+  }
+  if (!det.hasAgents) {
+    actions.push({
+      label: `add AGENTS.md (specloop binding)`,
+      run: (rootDir) => copyIfAbsent(join(tpl, "AGENTS.md"), join(rootDir, "AGENTS.md")),
+    });
+  }
+  if (!existsSync(join(rootDir, ".specloop.json"))) {
+    actions.push({
+      label: `add .specloop.json (validator config)`,
+      run: (rootDir, _s, d) => writeConfig(rootDir, d),
+    });
+  }
+  return actions;
+}
+
+function generateBacklog(specAbs: string, det: Detection): void {
+  const lines = [
+    "# Backlog",
+    "",
+    "Priority-ordered list of phases. **List position = work order (top = next).**",
+    "`NN` is a stable spec id, not a priority. Done-state is derived from each",
+    "phase's checkboxes — reprioritize with `specloop prio-spec <NN> <pos>`.",
+    "",
+    "## Phases (priority order)",
+    "",
+  ];
+  for (const f of det.numbered) {
+    const num = extractNumber(f);
+    if (num === null) continue;
+    const phase = parsePhaseFile(join(specAbs, f), f);
+    const title = phaseTitle(phase.title, num, f);
+    lines.push(`- ${String(num).padStart(2, "0")} ${title}`);
+  }
+  lines.push("");
+  writeFileSync(join(specAbs, "BACKLOG.md"), lines.join("\n"));
+  console.log(`${GRN}✔${RST} generated BACKLOG.md (${det.numbered.length} phases)`);
+}
+
+function writeConfig(rootDir: string, det: Detection): void {
+  const cfg = {
+    specDir: det.specDir,
+    indexFile: "README.md",
+    phasePattern: "^\\d{2,}-.*\\.md$",
+    requiredProcessFiles: [
+      "README.md",
+      "spec-summary-status.md",
+      "goal-completion-check.md",
+      "agent-session-ledger.md",
+    ],
+    requireGoalLine: true,
+    requireDependsOnLine: true,
+    enforceIndexCounts: true,
+    agentsFile: "AGENTS.md",
+  };
+  writeFileSync(join(rootDir, ".specloop.json"), JSON.stringify(cfg, null, 2) + "\n");
+  console.log(`${GRN}✔${RST} wrote .specloop.json (specDir: ${det.specDir})`);
+}
+
+function copyIfAbsent(src: string, dest: string): void {
+  if (existsSync(dest)) {
+    console.log(`${YEL}▲${RST} ${dest.split("/").pop()} exists — kept`);
+    return;
+  }
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(src, dest);
+  console.log(`${GRN}✔${RST} ${dest.split("/").pop()}`);
+}
+
+function yesno(b: boolean): string {
+  return b ? `${GRN}yes${RST}` : `${DIM}no${RST}`;
 }
