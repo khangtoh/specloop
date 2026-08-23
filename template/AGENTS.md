@@ -25,11 +25,15 @@ directly.
 
 ## The loop
 
-Work the next unchecked box in phase order, respecting each phase's
-`Depends on:` line:
+Work the highest-priority unchecked box among phases whose `Depends on:` line
+is satisfied:
 
-1. Pick the next unchecked `- [ ]` task in the lowest-numbered phase whose
-   dependencies are satisfied.
+1. Among all unchecked `- [ ]` tasks in dependency-eligible phases, pick the
+   highest priority. A task may carry a priority tag right after the checkbox —
+   `- [ ] (p1) …` (high), `(p2)` (medium), `(p3)` (low); an untagged task is
+   medium. Break ties by lowest phase number, then task position. Raise a
+   task's priority with `specloop upgrade <NN.T>` (or edit the tag by hand).
+   `specloop status` prints the next box under this ordering.
 2. Do it. Verify it in proportion to risk.
 3. Check the box, update Findings/Results, and reconcile `spec/README.md`'s
    phase-table progress/status for that phase.

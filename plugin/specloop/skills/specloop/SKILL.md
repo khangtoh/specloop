@@ -29,6 +29,10 @@ Under `spec/` in a specloop repo:
 ## Core rules
 
 - A task is **atomic**: completable and verifiable in one short sitting.
+- The loop takes the **highest-priority** open box among dependency-eligible
+  phases (ties → lowest phase, then position). A task may carry a tag right
+  after the checkbox: `- [ ] (p1) …` (high) · `(p2)`/untagged (medium) ·
+  `(p3)` (low). Raise one with `specloop upgrade <NN.T>`.
 - Check a box **only** when its acceptance language is met and verified — never
   because code was written or a similar task was done nearby.
 - Progress is `checked/total` counted from the actual boxes. Status emoji:
@@ -45,8 +49,9 @@ Slash commands (this plugin): `/spec-init`, `/spec-loop`, `/spec-status`,
 `/goal-check`.
 
 CLI (bun): `specloop init`, `specloop check`, `specloop status`,
-`specloop goal-check "<goal>"`. Run `specloop check` (or `bun run check:spec`)
-before every handoff and wire it into CI/prebuild.
+`specloop upgrade <NN.T> [--to pN]`, `specloop goal-check "<goal>"`. Run
+`specloop check` (or `bun run check:spec`) before every handoff and wire it
+into CI/prebuild.
 
 ## How to work
 

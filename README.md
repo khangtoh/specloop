@@ -63,9 +63,25 @@ binds Codex agents to the loop.
 specloop init                       # 1. scaffold the structure
 # edit spec/README.md: set the goal, decompose into spec/NN-*.md phases
 specloop check                      # 2. validate structure (wire into CI/prebuild)
-specloop status                     # 3. see progress read from the checkboxes
+specloop status                     # 3. see progress + the next box, read from checkboxes
+specloop upgrade 07.3 --to p1       #    raise a task's priority so it's picked sooner
 specloop goal-check "X is done"     # 4. audit a goal before you ship it
 ```
+
+### Task priority
+
+The loop takes the **highest-priority** open box among dependency-eligible
+phases (ties broken by lowest phase number, then position). Tag a task right
+after its checkbox — `- [ ] (p1) do the thing` — where `p1` is high, `p2`
+medium, `p3` low, and an untagged task is medium. Raise one without hand-editing:
+
+```bash
+specloop upgrade 07.3               # bump phase 07's 3rd task up one level
+specloop upgrade 07.3 --to p1       # set it explicitly to high
+```
+
+Priority reorders the *eligible* frontier; it never overrides a phase's
+`Depends on:` gating. `specloop check` flags a mistyped tag like `(p4)`.
 
 Then run the loop (with an agent): pick the next unchecked box in the
 lowest-numbered phase whose `Depends on:` is satisfied → do it → verify → check

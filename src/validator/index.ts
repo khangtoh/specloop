@@ -127,6 +127,18 @@ export function check(rootDir: string, config: SpecloopConfig): CheckResult {
         message: "Line looks like a task but is not a well-formed '- [ ]' / '- [x]' checkbox.",
       });
     }
+    // A leading `(pN)` that isn't p1–p3 is a mistyped priority tag.
+    for (const t of phase.tasks) {
+      if (t.priority === null && /^\(p\d+\)/i.test(t.text)) {
+        issues.push({
+          severity: "warn",
+          file: rel(path),
+          line: t.line,
+          rule: "invalid-priority",
+          message: `Task starts with '${t.text.match(/^\(p\d+\)/i)![0]}' but only (p1), (p2), (p3) are valid priorities.`,
+        });
+      }
+    }
   }
 
   // 4. Index (README) cross-checks.

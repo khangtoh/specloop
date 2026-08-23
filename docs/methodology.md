@@ -43,11 +43,19 @@ mapped phase as a gap.
 
 One iteration, run by an agent:
 
-> pick the next unchecked box (lowest-numbered phase whose `Depends on:` is
-> satisfied) → do it → **verify in proportion to risk** → check the box only if
-> its acceptance holds → update the phase's dated Findings, the README phase
-> table, and the session ledger → run the validator → emit the
-> `Spec Summary/Status` handoff → commit → repeat.
+> pick the highest-priority unchecked box among dependency-eligible phases → do
+> it → **verify in proportion to risk** → check the box only if its acceptance
+> holds → update the phase's dated Findings, the README phase table, and the
+> session ledger → run the validator → emit the `Spec Summary/Status` handoff →
+> commit → repeat.
+
+Selection is a total order, so it stays deterministic and resumable: any agent,
+at any time, picks the same next box. The order is `(priority, phase number,
+task position)`. Most tasks are untagged (medium), so by default this is just
+phase order — but a task tagged `(p1)` (or raised with `specloop upgrade`) is
+pulled ahead of the medium/low work in the eligible frontier. Priority never
+overrides a phase's `Depends on:` gating; it only reorders what's already
+eligible.
 
 Because each iteration is small and self-contained, it survives context limits,
 parallel agents, and hand-offs between humans and agents. The ledger is what

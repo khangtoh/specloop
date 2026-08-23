@@ -1,6 +1,6 @@
 import { loadConfig } from "../config.js";
 import { check } from "../validator/index.js";
-import { expectedEmoji } from "../validator/parse.js";
+import { expectedEmoji, selectNextTask } from "../validator/parse.js";
 
 const DIM = "\x1b[2m";
 const BOLD = "\x1b[1m";
@@ -25,6 +25,12 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
             emoji: expectedEmoji(p.checked, p.total),
             nextTask: p.tasks.find((t) => !t.checked)?.text ?? null,
           })),
+          next: (() => {
+            const n = selectNextTask(phases);
+            return n
+              ? { phase: n.phase, index: n.task.index, priority: n.task.priority, text: n.task.text }
+              : null;
+          })(),
         },
         null,
         2,
@@ -45,13 +51,14 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
     );
   }
 
-  const next = firstOpenTask(phases);
+  const next = selectNextTask(phases);
   console.log(
     `\n${BOLD}Overall:${RST} ${totalChecked}/${totalTasks} tasks across ${phases.length} phases.`,
   );
   if (next) {
+    const tag = next.task.priority ? ` ${DIM}(${next.task.priority})${RST}` : "";
     console.log(
-      `${BOLD}Next box:${RST} [Phase ${String(next.number).padStart(2, "0")}] ${next.text}`,
+      `${BOLD}Next box:${RST} [Phase ${String(next.phase).padStart(2, "0")}.${next.task.index}]${tag} ${next.task.text}`,
     );
   } else if (totalTasks > 0) {
     console.log(`${BOLD}Next box:${RST} none — every task is checked.`);
@@ -63,12 +70,4 @@ function progressBar(checked: number, total: number, width = 20): string {
   if (total === 0) return "░".repeat(width);
   const filled = Math.round((checked / total) * width);
   return "█".repeat(filled) + "░".repeat(width - filled);
-}
-
-function firstOpenTask(phases: { number: number; tasks: { checked: boolean; text: string }[] }[]) {
-  for (const p of phases) {
-    const t = p.tasks.find((t) => !t.checked);
-    if (t) return { number: p.number, text: t.text };
-  }
-  return null;
 }

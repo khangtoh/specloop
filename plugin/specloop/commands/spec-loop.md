@@ -13,9 +13,12 @@ standard) and `AGENTS.md`. Follow this loop exactly; do not shortcut it.
    the last session left running), and `spec/spec-summary-status.md` (the handoff
    format). Run `specloop status` to see live checkbox counts.
 2. If the user passed a phase number in `$ARGUMENTS`, focus on that phase.
-   Otherwise select the **next unchecked `- [ ]` task in the lowest-numbered
-   phase whose `Depends on:` line is satisfied**. Do not skip ahead past an
-   unmet dependency.
+   Otherwise select the **highest-priority unchecked `- [ ]` task among phases
+   whose `Depends on:` line is satisfied**. Priority tags sit just after the
+   checkbox — `(p1)` high, `(p2)` medium, `(p3)` low; an untagged task is
+   medium. Break ties by lowest phase number, then task position. `specloop
+   status` prints this next box. Do not skip ahead past an unmet dependency —
+   priority reorders the *eligible* frontier, it never overrides `Depends on:`.
 
 ## 1. Do one box
 

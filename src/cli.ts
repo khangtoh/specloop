@@ -5,6 +5,7 @@ import { runCheck } from "./commands/check.js";
 import { runStatus } from "./commands/status.js";
 import { runInit } from "./commands/init.js";
 import { runGoalCheck } from "./commands/goalCheck.js";
+import { runUpgrade } from "./commands/upgrade.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -28,6 +29,7 @@ Commands:
                         into [dir] (default: current directory).
   check                 Validate the spec structure; non-zero exit on errors.
   status               Show phase progress read straight from the checkboxes.
+  upgrade <NN.T>        Raise a task's priority (bump up one level, or --to pN).
   goal-check "<goal>"   Print the goal-completion-check prompt for "<goal>".
   help, --help          Show this help.
   version, --version    Show the version.
@@ -36,11 +38,19 @@ Options:
   --dir <path>          Project root to operate on (default: cwd).
   --force               (init) overwrite an existing spec/ and files.
   --json                (check, status) machine-readable output.
+  --to <p1|p2|p3>       (upgrade) set an explicit priority instead of bumping.
+
+Priorities: p1 = high, p2 = medium, p3 = low; an untagged task is medium.
+The loop takes the highest-priority open box first (ties broken by phase
+order, then position). Tag a task by hand as \`- [ ] (p1) do the thing\`, or
+raise it with \`specloop upgrade\`.
 
 Examples:
   specloop init
   specloop check
   specloop status
+  specloop upgrade 07.3            # bump phase 07's 3rd task up one level
+  specloop upgrade 07.3 --to p1    # set it to high priority
   specloop goal-check "the checkout flow is done"
 `;
 
@@ -58,6 +68,7 @@ export function main(argv: string[]): number {
   const cmd = args[0];
   const rest = args.slice(1);
   const dirFlag = takeFlagValue(rest, "--dir");
+  const to = takeFlagValue(rest, "--to");
   const force = takeFlag(rest, "--force");
   const json = takeFlag(rest, "--json");
   const positional = rest.filter((a) => !a.startsWith("--"));
@@ -70,6 +81,8 @@ export function main(argv: string[]): number {
       return runCheck(rootDir, { json });
     case "status":
       return runStatus(rootDir, { json });
+    case "upgrade":
+      return runUpgrade(rootDir, positional[0], to);
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));

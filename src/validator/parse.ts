@@ -1,9 +1,24 @@
 import { readFileSync } from "node:fs";
 
+export type Priority = "p1" | "p2" | "p3";
+
+/** Priority tag written just after the checkbox, e.g. `- [ ] (p1) do the thing`.
+ *  p1 = high, p2 = medium, p3 = low. An untagged task is treated as medium. */
+export const PRIORITY_RE = /^\((p[1-3])\)\s+/;
+const PRIORITY_RANK: Record<Priority, number> = { p1: 0, p2: 1, p3: 2 };
+export const UNTAGGED_RANK = 1; // medium, same slot as p2
+
+/** Lower rank = higher priority = selected sooner. Untagged sits at medium. */
+export function priorityRank(p: Priority | null): number {
+  return p ? PRIORITY_RANK[p] : UNTAGGED_RANK;
+}
+
 export interface Task {
-  line: number;
+  line: number; // 1-indexed line in the file
+  index: number; // 1-indexed position among the phase's checkbox tasks
   checked: boolean;
-  text: string;
+  priority: Priority | null;
+  text: string; // task text, priority tag stripped
 }
 
 export interface PhaseFile {
@@ -40,6 +55,39 @@ export function extractNumber(basename: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
+export interface OpenTaskRef {
+  phase: number;
+  file: string;
+  task: Task;
+}
+
+/**
+ * The next box the loop should take: the highest-priority open task, breaking
+ * ties by lowest phase number, then task position. `Depends on:` gating is the
+ * agent's judgment (its prose isn't machine-evaluated here) — this orders the
+ * frontier the agent chooses from.
+ */
+export function selectNextTask(phases: PhaseFile[]): OpenTaskRef | null {
+  let best: OpenTaskRef | null = null;
+  for (const p of phases) {
+    for (const t of p.tasks) {
+      if (t.checked) continue;
+      const candidate: OpenTaskRef = { phase: p.number, file: p.file, task: t };
+      if (best === null || compareOpenTasks(candidate, best) < 0) best = candidate;
+    }
+  }
+  return best;
+}
+
+/** Order: highest priority first, then lowest phase number, then task position. */
+export function compareOpenTasks(a: OpenTaskRef, b: OpenTaskRef): number {
+  return (
+    priorityRank(a.task.priority) - priorityRank(b.task.priority) ||
+    a.phase - b.phase ||
+    a.task.index - b.task.index
+  );
+}
+
 export function parsePhaseFile(path: string, basename: string): PhaseFile {
   const content = readFileSync(path, "utf8");
   const lines = content.split(/\r?\n/);
@@ -68,10 +116,14 @@ export function parsePhaseFile(path: string, basename: string): PhaseFile {
     }
     const c = raw.match(CHECKBOX);
     if (c) {
+      const rest = c[2].trim();
+      const pm = rest.match(PRIORITY_RE);
       tasks.push({
         line: i + 1,
+        index: tasks.length + 1,
         checked: c[1].toLowerCase() === "x",
-        text: c[2].trim(),
+        priority: pm ? (pm[1] as Priority) : null,
+        text: pm ? rest.slice(pm[0].length).trim() : rest,
       });
     }
   }
