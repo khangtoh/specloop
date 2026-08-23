@@ -48,7 +48,7 @@ BACKLOG + validator rules landed).
 - [ ] Test: the printed plan lists exactly the missing pieces — no more, no fewer.
 - [ ] Test: a complete specloop layout reports "nothing to adopt" (empty plan).
 - [ ] Test: the PRD re-authoring note appears only for omarchy-like / PRD inputs.
-- [ ] (p1) Test: a plain `upgrade` (no `--apply`) writes nothing — dir snapshot
+- [x] (p1) Test: a plain `upgrade` (no `--apply`) writes nothing — dir snapshot
       byte-identical before/after.
 
 ## C. `--apply` correctness (integration)
