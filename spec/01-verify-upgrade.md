@@ -22,7 +22,7 @@ BACKLOG + validator rules landed).
 - [x] (p1) Test: `upgrade --apply` never overwrites an existing `AGENTS.md`,
       process file, `BACKLOG.md`, or `.specloop.json` (seed them with sentinel
       content; assert unchanged + "kept" reported).
-- [ ] (p1) Test: existing `spec/NN-*.md` files are byte-identical before/after
+- [x] (p1) Test: existing `spec/NN-*.md` files are byte-identical before/after
       `--apply` (hash every phase file pre/post).
 - [ ] (p1) Test: idempotency — a second `upgrade --apply` reports "nothing to
       adopt" and writes nothing (before/after snapshot identical).
@@ -101,3 +101,5 @@ BACKLOG + validator rules landed).
   0.3.0 session; no automated `upgrade` tests existed yet.
 - _2026-08-23_ — Added `tests/upgrade.test.ts`: sentinels for all protected
   adoption files remain byte-identical after `upgrade --apply`, and each is reported kept.
+- _2026-08-23_ — Added `tests/upgrade-phases.test.ts`: SHA-256 snapshots prove every
+  pre-existing numbered phase file is byte-identical across `upgrade --apply`.

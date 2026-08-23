@@ -48,3 +48,18 @@ Complete Phase 01's first p1 non-overwrite safety test.
 ### State left running / open
 
 Next task: Phase 01 p1 phase-file byte-identity test.
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Complete Phase 01's second p1 phase-file byte-identity safety test.
+
+### What got done, in order
+
+1. Added SHA-256 pre/post verification for multiple numbered phase files, including CRLF content.
+2. Verified the focused test and `specloop check --dir .`.
+
+### State left running / open
