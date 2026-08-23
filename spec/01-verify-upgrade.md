@@ -24,7 +24,7 @@ BACKLOG + validator rules landed).
       content; assert unchanged + "kept" reported).
 - [x] (p1) Test: existing `spec/NN-*.md` files are byte-identical before/after
       `--apply` (hash every phase file pre/post).
-- [ ] (p1) Test: idempotency — a second `upgrade --apply` reports "nothing to
+- [x] (p1) Test: idempotency — a second `upgrade --apply` reports "nothing to
       adopt" and writes nothing (before/after snapshot identical).
 - [ ] Test: on a git-init'd fixture, `git status --porcelain` after `--apply`
       shows only additions (`??`), zero modifications (` M`) to tracked files.
@@ -103,3 +103,5 @@ BACKLOG + validator rules landed).
   adoption files remain byte-identical after `upgrade --apply`, and each is reported kept.
 - _2026-08-23_ — Added `tests/upgrade-phases.test.ts`: SHA-256 snapshots prove every
   pre-existing numbered phase file is byte-identical across `upgrade --apply`.
+- _2026-08-23_ — Added `tests/upgrade-idempotency.test.ts`: a full file-tree SHA-256
+  snapshot remains identical after the second `upgrade --apply`, which reports nothing to adopt.

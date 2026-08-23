@@ -63,3 +63,22 @@ Complete Phase 01's second p1 phase-file byte-identity safety test.
 2. Verified the focused test and `specloop check --dir .`.
 
 ### State left running / open
+
+Next task: Phase 01 p1 idempotency test.
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Complete Phase 01's third p1 idempotency test.
+
+### What got done, in order
+
+1. Added a recursive file-tree SHA-256 snapshot around the second `upgrade --apply`.
+2. Verified it reports nothing to adopt and preserves the snapshot.
+
+### State left running / open
+
+Next task: Phase 01 git-status safety test.
