@@ -29,6 +29,26 @@ validator checks against, and what you inspect to learn the method.
 | `AGENTS.md` | Binds all agents in the repo to the reporting standard and the loop. |
 | `.specloop.json` | Validator config. |
 
+## Architecture: three layers
+
+specloop's constructs group into three layers, each answering one question. The
+validator (`specloop check`) sits underneath all three, keeping every derived
+fact (counts, status, done-state) honest so no layer drifts from reality.
+
+| Layer | Question | Constructs |
+|---|---|---|
+| **Scheduling** | what to do next | `BACKLOG.md` (stored order)ᵖ + phase files/tasks (units) + `prio-spec`/`list-spec` (phase priority)ᵖ + `(pN)`/`upgrade` (task priority) |
+| **Verification** | is it right / is it done | `spec-summary-status` (per-iteration handoff) + `goal-completion-check` (whole-goal gate & stop condition) |
+| **Memory** | what happened | `agent-session-ledger` (narrative continuity) |
+
+The scheduling layer is *forward state* (what's next), memory is *backward
+state* (what happened), and verification is *derived truth* read straight from
+the checkboxes. Order is stored and human-owned; done-state is always derived.
+
+ᵖ Planned for 0.3.0 — see [`docs/roadmap-0.3.0.md`](docs/roadmap-0.3.0.md). Today
+order comes from the phase-number index and `Depends on:`; `(pN)`/`upgrade` task
+priority already ships.
+
 ## Install
 
 ### As a bun CLI
