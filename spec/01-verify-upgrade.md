@@ -31,15 +31,15 @@ BACKLOG + validator rules landed).
 
 ## A. Detection correctness (unit)
 
-- [ ] Test: project with the 3 process files → `detect().model === "specloop"`.
-- [ ] Test: Goal/Depends + `- [ ]` tasks, no process files → `"dillinger-like"`.
-- [ ] Test: `## Summary/Problem/Scope` (+/- BACKLOG), no Goal/Depends →
+- [x] Test: project with the 3 process files → `detect().model === "specloop"`.
+- [x] Test: Goal/Depends + `- [ ]` tasks, no process files → `"dillinger-like"`.
+- [x] Test: `## Summary/Problem/Scope` (+/- BACKLOG), no Goal/Depends →
       `"omarchy-like"`.
-- [ ] Test: numbered specs with none of those signals → `"ad-hoc"`.
-- [ ] Test: no `spec/`, `docs/specs/`, `specs/` dir → `"none"`, exit 0.
-- [ ] Test: spec-dir resolution reports the correct dir for each of `spec/`,
+- [x] Test: numbered specs with none of those signals → `"ad-hoc"`.
+- [x] Test: no `spec/`, `docs/specs/`, `specs/` dir → `"none"`, exit 0.
+- [x] Test: spec-dir resolution reports the correct dir for each of `spec/`,
       `docs/specs/`, `specs/`.
-- [ ] Test: every structural flag (`numbered`, `hasTasks`, `hasGoalDepends`,
+- [x] Test: every structural flag (`numbered`, `hasTasks`, `hasGoalDepends`,
       `hasPrdSections`, `hasBacklog`, `hasProcessFiles`, `hasAgents`) matches a
       hand-built fixture.
 
