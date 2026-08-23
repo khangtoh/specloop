@@ -1,13 +1,13 @@
 import { test, expect, beforeEach, afterEach } from "bun:test";
-
-function git(args: string[]): string {
-  return execFileSync("git", args, { cwd: dir, encoding: "utf8" });
-}
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { runUpgrade } from "../src/commands/upgrade.js";
+
+function git(args: string[]): string {
+  return execFileSync("git", args, { cwd: dir, encoding: "utf8" });
+}
 
 let dir: string;
 

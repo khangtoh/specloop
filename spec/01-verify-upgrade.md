@@ -111,3 +111,15 @@ BACKLOG + validator rules landed).
   had 4 `missing-goal`/`missing-depends-on` errors before re-authoring; after
   adding `Goal:`, `Depends on:`, and one atomic task to each phase, `specloop
   check` was clean (2 phases, 0/2 checked). Full `bun test` completed successfully.
+- _2026-08-23_ — **Independent completion audit** (goal-completion-check on this
+  phase). Traced all 28 checked boxes to implementation: `bun test` 46 pass / 0
+  fail / **0 skipped**; `specloop check --dir .` clean, 28/28, index consistent.
+  Section→test mapping confirmed substantive (not tautological): D uses SHA-256
+  snapshots + `git status --porcelain` parsing (only `??` additions, no tracked
+  modifications); A asserts all 5 models + every structural flag; B snapshots the
+  tree before/after a no-`--apply` run; C's compound claim asserts `check().ok`
+  for dillinger input **and** `missing-goal`/`missing-depends-on` for PRD input;
+  F fixtures are hermetic (`tests/fixtures/upgrade/`). Task G is manual (not
+  unit-testable) and backed by the recorded before/after above. **Verdict: MET,
+  no over-claim.** One cosmetic nit fixed in this pass: import order in
+  `tests/upgrade-git.test.ts`.

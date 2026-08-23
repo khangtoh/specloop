@@ -137,3 +137,30 @@ Autonomously complete Phase 01, the upgrade verification suite.
 ### State left running / open
 
 Phase 01 is complete. The repository-wide command-coverage goal remains open for future phases.
+
+
+---
+
+## Session: 2026-08-23 (branch `main`) — completion audit
+
+### Scope of this session
+
+Independently verify that Phase 01's 28 checked boxes reflect real,
+passing implementation (not inference), then two follow-ups: fix a cosmetic
+test nit and record the audit.
+
+### What got done, in order
+
+1. Ran goal-completion-check against Phase 01: `bun test` 46 pass / 0 fail /
+   0 skipped; `specloop check --dir .` clean (28/28, index consistent).
+2. Spot-read the highest-risk tests (D safety, A detection, B dry-run, C
+   apply-validation) and confirmed substantive assertions, not tautologies.
+   Verdict recorded in the phase Findings: **MET, no over-claim**.
+3. Fixed import order in `tests/upgrade-git.test.ts` (cosmetic; behavior
+   unchanged, suite still 46/46).
+
+### State left running / open
+
+Phase 01 verified complete. The repo-wide command-coverage goal in
+`spec/README.md` stays open — next phases would verify the other commands
+(`init`, `check`, `status`, `list-spec`, `prio-spec`, `prio-task`).
