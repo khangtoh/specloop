@@ -74,10 +74,10 @@ BACKLOG + validator rules landed).
 
 ## F. Real-repo end-to-end (integration, on copies)
 
-- [ ] Test: copy a dillinger-style spec fixture → `--apply` → BACKLOG lists all
+- [x] Test: copy a dillinger-style spec fixture → `--apply` → BACKLOG lists all
       phases in order → `check` clean. (Use a checked-in fixture, not a path
       outside the repo, so CI is hermetic.)
-- [ ] Test: copy an omarchy-style fixture → `--apply` → process files + BACKLOG
+- [x] Test: copy an omarchy-style fixture → `--apply` → process files + BACKLOG
       added → `check` reports PRD gaps (expected) → original fixture files
       untouched.
 
