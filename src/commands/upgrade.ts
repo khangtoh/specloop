@@ -131,6 +131,7 @@ export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): num
 
   const actions = planActions(det, rootDir);
   if (actions.length === 0) {
+    if (opts.apply) reportKeptFiles(det, rootDir);
     console.log(`${GRN}✔ Already a complete specloop layout.${RST} Nothing to adopt.`);
     return 0;
   }
@@ -153,6 +154,7 @@ export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): num
   }
 
   const specAbs = join(rootDir, det.specDir);
+  reportKeptFiles(det, rootDir);
   for (const a of actions) a.run(rootDir, specAbs, det);
   console.log(`\n${GRN}✔ Adoption applied.${RST} Run ${CYN}specloop check${RST} to validate.`);
   return 0;
@@ -162,6 +164,16 @@ interface Action {
   label: string;
   run: (rootDir: string, specAbs: string, det: Detection) => void;
 }
+/** Report protected existing files without adding them to the missing-file plan. */
+function reportKeptFiles(det: Detection, rootDir: string): void {
+  for (const [key, name] of Object.entries(PROCESS_FILES) as [keyof typeof PROCESS_FILES, string][]) {
+    if (det.hasProcessFiles[key]) console.log(`${YEL}▲${RST} ${name} exists — kept`);
+  }
+  if (det.hasBacklog) console.log(`${YEL}▲${RST} BACKLOG.md exists — kept`);
+  if (det.hasAgents) console.log(`${YEL}▲${RST} AGENTS.md exists — kept`);
+  if (existsSync(join(rootDir, ".specloop.json"))) console.log(`${YEL}▲${RST} .specloop.json exists — kept`);
+}
+
 
 function planActions(det: Detection, rootDir: string): Action[] {
   const actions: Action[] = [];

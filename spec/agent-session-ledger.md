@@ -31,3 +31,20 @@ closing one out.
 
 <Anything still deploying, any blocker handed to the next session, the
 next unchecked box to pick up.>
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Complete Phase 01's first p1 non-overwrite safety test.
+
+### What got done, in order
+
+1. Added the protected-file sentinel test and the `upgrade --apply` kept-file report.
+2. Verified the focused test and `specloop check --dir .`.
+
+### State left running / open
+
+Next task: Phase 01 p1 phase-file byte-identity test.

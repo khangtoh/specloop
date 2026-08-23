@@ -19,7 +19,7 @@ BACKLOG + validator rules landed).
 
 ## D. Safety — non-destructive & idempotent (do first)
 
-- [ ] (p1) Test: `upgrade --apply` never overwrites an existing `AGENTS.md`,
+- [x] (p1) Test: `upgrade --apply` never overwrites an existing `AGENTS.md`,
       process file, `BACKLOG.md`, or `.specloop.json` (seed them with sentinel
       content; assert unchanged + "kept" reported).
 - [ ] (p1) Test: existing `spec/NN-*.md` files are byte-identical before/after
@@ -98,4 +98,6 @@ BACKLOG + validator rules landed).
   tests during 0.3.0 build only); this phase makes it a durable, CI-gating suite.
   Task counts and models to date: `upgrade` dry-run + `--apply` smoke-tested by
   hand against dillinger-aws (`specloop`) and omarchy (`omarchy-like`) during the
-  0.3.0 session; no automated `upgrade` tests exist yet.
+  0.3.0 session; no automated `upgrade` tests existed yet.
+- _2026-08-23_ — Added `tests/upgrade.test.ts`: sentinels for all protected
+  adoption files remain byte-identical after `upgrade --apply`, and each is reported kept.
