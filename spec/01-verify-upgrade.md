@@ -26,7 +26,7 @@ BACKLOG + validator rules landed).
       `--apply` (hash every phase file pre/post).
 - [x] (p1) Test: idempotency — a second `upgrade --apply` reports "nothing to
       adopt" and writes nothing (before/after snapshot identical).
-- [ ] Test: on a git-init'd fixture, `git status --porcelain` after `--apply`
+- [x] Test: on a git-init'd fixture, `git status --porcelain` after `--apply`
       shows only additions (`??`), zero modifications (` M`) to tracked files.
 
 ## A. Detection correctness (unit)
@@ -105,3 +105,5 @@ BACKLOG + validator rules landed).
   pre-existing numbered phase file is byte-identical across `upgrade --apply`.
 - _2026-08-23_ — Added `tests/upgrade-idempotency.test.ts`: a full file-tree SHA-256
   snapshot remains identical after the second `upgrade --apply`, which reports nothing to adopt.
+- _2026-08-23_ — Added `tests/upgrade-git.test.ts`: a committed fixture reports only
+  untracked additions after adoption; its tracked phase remains untouched.

@@ -99,6 +99,23 @@ Define `specloop` autonomous execution scope.
 2. Documented the same behavior in the public README.
 
 
-Next task: Phase 01 git-status safety test.
 ### State left running / open
+
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Complete Phase 01's git-status adoption safety test.
+
+### What got done, in order
+
+1. Added a committed git fixture and verified adoption produces only untracked additions.
+2. Ran the focused test and structural validation.
+
+### State left running / open
+
+Next task: Phase 01 git-status safety test.
 
