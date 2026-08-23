@@ -26,7 +26,7 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 
 | # | File | Purpose | Status | Blocking dependency |
 |---|------|---------|--------|----------------------|
-| 1 | [01-verify-upgrade.md](01-verify-upgrade.md) | Automated suite verifying `specloop upgrade` detection + non-destructive adoption | 🟡 20/28 | None (0.3.0 shipped) |
+| 1 | [01-verify-upgrade.md](01-verify-upgrade.md) | Automated suite verifying `specloop upgrade` detection + non-destructive adoption | 🟡 24/28 | None (0.3.0 shipped) |
 
 ## Status
 

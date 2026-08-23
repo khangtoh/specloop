@@ -65,11 +65,11 @@ BACKLOG + validator rules landed).
 
 ## E. Edge cases (integration)
 
-- [ ] Test: empty spec dir (exists, no numbered files) → `"none"`, no crash.
-- [ ] Test: mixed models (some dillinger-like, some PRD) classify by the priority
+- [x] Test: empty spec dir (exists, no numbered files) → `"none"`, no crash.
+- [x] Test: mixed models (some dillinger-like, some PRD) classify by the priority
       rule; BACKLOG still lists every phase.
-- [ ] Test: a spec dir that already has `BACKLOG.md` is not regenerated (kept).
-- [ ] Test: odd H1s (`# 2FA setup`, `# Phase 3: Foo`, `# 03 — Bar`) → `phaseTitle`
+- [x] Test: a spec dir that already has `BACKLOG.md` is not regenerated (kept).
+- [x] Test: odd H1s (`# 2FA setup`, `# Phase 3: Foo`, `# 03 — Bar`) → `phaseTitle`
       output is correct with no over-stripping.
 
 ## F. Real-repo end-to-end (integration, on copies)
