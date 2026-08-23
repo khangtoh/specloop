@@ -53,12 +53,12 @@ BACKLOG + validator rules landed).
 
 ## C. `--apply` correctness (integration)
 
-- [ ] Test: missing process files are created with content equal to the template.
-- [ ] Test: generated `BACKLOG.md` lists all numbered specs in numeric order,
+- [x] Test: missing process files are created with content equal to the template.
+- [x] Test: generated `BACKLOG.md` lists all numbered specs in numeric order,
       titles cleaned (no `01 01 Foo` duplication; `2FA setup` not over-stripped).
-- [ ] Test: `.specloop.json` is written with the detected `specDir` (e.g.
+- [x] Test: `.specloop.json` is written with the detected `specDir` (e.g.
       `docs/specs`, not a hard-coded `spec`).
-- [ ] Test: `AGENTS.md` is added when absent.
+- [x] Test: `AGENTS.md` is added when absent.
 - [ ] Test: post-apply `specloop check` is clean for dillinger-like input and
       reports the expected re-authoring gaps (e.g. `missing-goal`) for PRD/ad-hoc
       input — i.e. the gaps are correct, not a defect.
