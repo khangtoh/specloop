@@ -119,3 +119,21 @@ Complete Phase 01's git-status adoption safety test.
 
 Next task: Phase 01 git-status safety test.
 
+
+---
+
+## Session: 2026-08-23 (branch `main`)
+
+### Scope of this session
+
+Autonomously complete Phase 01, the upgrade verification suite.
+
+### What got done, in order
+
+1. Completed safety, detection, dry-run, apply, edge-case, and hermetic fixture coverage for `upgrade`.
+2. Performed the two-PRD semantic re-authoring check and ran the full regression command.
+3. Reconciled Phase 01 to 28/28 and validated the self-hosted spec structure.
+
+### State left running / open
+
+Phase 01 is complete. The repository-wide command-coverage goal remains open for future phases.

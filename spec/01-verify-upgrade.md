@@ -83,13 +83,13 @@ BACKLOG + validator rules landed).
 
 ## G. Semantic step `/spec-upgrade` (manual / agent)
 
-- [ ] Manual: on an omarchy-style copy, run `/spec-upgrade`; confirm the agent
+- [x] Manual: on an omarchy-style copy, run `/spec-upgrade`; confirm the agent
       adds `Goal:`/`Depends on:` + `- [ ]` tasks from Acceptance Criteria for 2
       specs and `specloop check` gets greener. Record the before/after in Findings.
 
 ## H. Regression
 
-- [ ] Test: full `bun test` stays green; `init`/`check`/`status`/`list-spec`/
+- [x] Test: full `bun test` stays green; `init`/`check`/`status`/`list-spec`/
       `prio-spec`/`prio-task` behavior unchanged.
 
 ## Findings / Results
@@ -107,3 +107,7 @@ BACKLOG + validator rules landed).
   snapshot remains identical after the second `upgrade --apply`, which reports nothing to adopt.
 - _2026-08-23_ — Added `tests/upgrade-git.test.ts`: a committed fixture reports only
   untracked additions after adoption; its tracked phase remains untouched.
+- _2026-08-23_ — Manual semantic check: an isolated two-PRD omarchy-style copy
+  had 4 `missing-goal`/`missing-depends-on` errors before re-authoring; after
+  adding `Goal:`, `Depends on:`, and one atomic task to each phase, `specloop
+  check` was clean (2 phases, 0/2 checked). Full `bun test` completed successfully.
