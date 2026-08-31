@@ -44,6 +44,7 @@ function templateDir(): string {
 }
 
 /** Find the most likely spec directory and classify the model in use. */
+const OPTIONAL_RUN_STATE = "specloop-run-state.md";
 export function detect(rootDir: string): Detection {
   const candidates = ["spec", "docs/specs", "specs"].map((d) => ({ rel: d, abs: join(rootDir, d) }));
   const found = candidates.find((c) => existsSync(c.abs) && statSync(c.abs).isDirectory());
@@ -172,6 +173,9 @@ function reportKeptFiles(det: Detection, rootDir: string): void {
   if (det.hasBacklog) console.log(`${YEL}▲${RST} BACKLOG.md exists — kept`);
   if (det.hasAgents) console.log(`${YEL}▲${RST} AGENTS.md exists — kept`);
   if (existsSync(join(rootDir, ".specloop.json"))) console.log(`${YEL}▲${RST} .specloop.json exists — kept`);
+  if (det.specDir && existsSync(join(rootDir, det.specDir, OPTIONAL_RUN_STATE))) {
+    console.log(`${YEL}▲${RST} ${OPTIONAL_RUN_STATE} exists — kept`);
+  }
 }
 
 
@@ -191,6 +195,12 @@ function planActions(det: Detection, rootDir: string): Action[] {
     actions.push({
       label: `generate ${det.specDir}/BACKLOG.md from ${det.numbered.length} numbered specs`,
       run: (_r, specAbs, d) => generateBacklog(specAbs, d),
+    });
+  }
+  if (!existsSync(join(rootDir, det.specDir!, OPTIONAL_RUN_STATE))) {
+    actions.push({
+      label: `add ${det.specDir}/${OPTIONAL_RUN_STATE} (optional advisory run record)`,
+      run: (_r, specAbs) => copyIfAbsent(join(tpl, "spec", OPTIONAL_RUN_STATE), join(specAbs, OPTIONAL_RUN_STATE)),
     });
   }
   if (!det.hasAgents) {

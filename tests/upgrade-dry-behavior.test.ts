@@ -23,6 +23,7 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
     "  ◦ add spec/goal-completion-check.md",
     "  ◦ add spec/agent-session-ledger.md",
     "  ◦ generate spec/BACKLOG.md from 1 numbered specs",
+    "  ◦ add spec/specloop-run-state.md (optional advisory run record)",
     "  ◦ add AGENTS.md (specloop binding)",
     "  ◦ add .specloop.json (validator config)",
   ]);
@@ -30,7 +31,7 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
 
 test("a complete specloop layout has an empty adoption plan", () => {
   phase("Goal: g.\n\nDepends on: None.\n\n- [ ] t\n");
-  for (const name of ["spec-summary-status.md", "goal-completion-check.md", "agent-session-ledger.md", "BACKLOG.md"]) {
+  for (const name of ["spec-summary-status.md", "goal-completion-check.md", "agent-session-ledger.md", "BACKLOG.md", "specloop-run-state.md"]) {
     writeFileSync(join(dir, "spec", name), "present\n");
   }
   writeFileSync(join(dir, "AGENTS.md"), "present\n");

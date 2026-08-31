@@ -205,3 +205,5 @@ specloop phases. Authoring only — no implementation code was written.
 (`template/spec/specloop-run-state.md`). No implementation started; both
 phases are 0% by design. Sections E of Phase 02 are manual agent-behavior
 checks and must be closed with recorded transcript evidence, not assertion.
+
+- _2026-08-31_ — Phase 02 Sections A–D and F completed: added advisory run-state record support to templates, init, and upgrade; documented the autonomous contract; and added tests. Verification: `bun test` 53 pass / 0 fail; `bun run check:self` clean. Resume point: record manual behavior evidence in Section E, then complete Phase 02. Typecheck is environment-blocked by missing `@types/bun` (`TS2688`).

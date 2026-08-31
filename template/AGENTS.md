@@ -47,8 +47,7 @@ and task tags order the boxes within a phase:
 ## `specloop` execution command
 
 When the user sends exactly `specloop`, start or resume autonomous execution.
-It is an authorization to continue; do not stop after a checkbox merely to
-wait for another `specloop` message. Keep the user informed in commentary and
+It is an authorization to continue; do not stop after a checkbox merely to wait for another `specloop` message. Keep the user informed in commentary and
 use the mandatory final handoff only at the run's terminal condition.
 
 Choose the run scope before taking the next task:
@@ -60,11 +59,21 @@ Choose the run scope before taking the next task:
    eligible numbered phase from `spec/BACKLOG.md`, including every unchecked
    task in that phase.
 
+Only the exact, unadorned message `specloop` triggers a run. `specloop start`, `specloop run`, and `specloop go` are not run triggers; ask the user to confirm
+with the exact command instead.
+
+Write `spec/specloop-run-state.md` when a run starts, after each completed task,
+and when it pauses, blocks, or ends. The record is advisory, not evidence:
+completion is always derived from the checkboxes.
+
 In either mode, pause only for a genuine blocker requiring user input or an
 external state change, or when the user sends a different instruction. A
-message such as `specloop help` requests help only; it does not start or resume
-execution. Do not claim a goal run complete because a phase is complete, or a
-standard run complete because one task is complete.
+direct user instruction supersedes the run immediately. A status question gets
+a concise status answer and the run continues. A blocker must name the missing
+decision or external state and leave a resume point. `specloop help` requests help only; it does not start or resume execution. Never claim completion
+because of elapsed time, token budget, a checked box, or a phase boundary —
+only the terminal conditions end a run. Do not stop at a task or phase boundary:
+continue until a terminal condition is reached.
 
 ## Structural enforcement
 

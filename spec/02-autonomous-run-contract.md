@@ -33,60 +33,60 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
 
 ## A. Durable run-state record (do first)
 
-- [ ] (p1) Add `template/spec/specloop-run-state.md` with a fixed field block:
+- [x] (p1) Add `template/spec/specloop-run-state.md` with a fixed field block:
       run status (`idle` / `active` / `blocked`), stated goal, goal acceptance
       checkbox (file + exact text), current phase, current task, resume point,
       and last-updated date. Include a header comment stating the record is
       advisory and that done-state is always derived from checkboxes.
-- [ ] (p1) Add `spec/specloop-run-state.md` to this repo, seeded from the
+- [x] (p1) Add `spec/specloop-run-state.md` to this repo, seeded from the
       template and reflecting the run that authors this phase.
-- [ ] (p1) Scaffold the record in `src/commands/init.ts` so `specloop init`
+- [x] (p1) Scaffold the record in `src/commands/init.ts` so `specloop init`
       writes it alongside the other process files.
-- [ ] Offer the record in `src/commands/upgrade.ts` `--apply` as a
+- [x] Offer the record in `src/commands/upgrade.ts` `--apply` as a
       non-destructive addition (created when absent, reported "kept" when
       present) — never overwriting an existing file.
-- [ ] Confirm the record stays OUT of `requiredProcessFiles` in both
+- [x] Confirm the record stays OUT of `requiredProcessFiles` in both
       `.specloop.json` and `template/.specloop.json`, and that `specloop check`
       is green in a project that has no run-state file. Record the check output.
 
 ## B. Command contract — close the open questions
 
-- [ ] (p1) Extend `AGENTS.md`'s `specloop` execution-command section with the
+- [x] (p1) Extend `AGENTS.md`'s `specloop` execution-command section with the
       alias policy: only the exact message `specloop` triggers a run;
       `specloop start`, `specloop run`, and `specloop go` are explicitly NOT
       triggers and should be answered by asking the user to confirm.
-- [ ] (p1) State the run-state update duty in `AGENTS.md`: write the record
+- [x] (p1) State the run-state update duty in `AGENTS.md`: write the record
       when a run starts, after each completed task, and when a run pauses,
       blocks, or ends — and that the record is advisory, not evidence.
-- [ ] Add explicit stop/interrupt semantics to `AGENTS.md`: a direct user
+- [x] Add explicit stop/interrupt semantics to `AGENTS.md`: a direct user
       instruction supersedes the run immediately; a status question gets a
       concise status answer and the run continues; a blocker must name the
       missing decision or external state and leave a resume point.
-- [ ] Add the anti-premature-stop clause verbatim: never claim completion
+- [x] Add the anti-premature-stop clause verbatim: never claim completion
       because of elapsed time, token budget, a checked box, or a phase
       boundary — only the terminal conditions end a run.
 
 ## C. Doc-contract tests
 
-- [ ] (p1) Test (`tests/run-contract.test.ts`): `AGENTS.md` contains the exact
+- [x] (p1) Test (`tests/run-contract.test.ts`): `AGENTS.md` contains the exact
       `specloop` trigger clause, the goal-run vs standard-run split, and the
       three terminal conditions.
-- [ ] (p1) Test: `AGENTS.md` contains the "do not stop at a task or phase
+- [x] (p1) Test: `AGENTS.md` contains the "do not stop at a task or phase
       boundary" clause and the alias-rejection clause. This test is the guard
       against a future edit quietly deleting the autonomy contract.
-- [ ] Test: `AGENTS.md` and the root `README.md` agree that `specloop help` is
+- [x] Test: `AGENTS.md` and the root `README.md` agree that `specloop help` is
       informational and does not start a run.
-- [ ] Test: the run-state template parses — every required field label is
+- [x] Test: the run-state template parses — every required field label is
       present exactly once and the advisory disclaimer is included.
 
 ## D. Scaffolding tests
 
-- [ ] (p1) Test: `specloop init` on a temp dir writes `spec/specloop-run-state.md`
+- [x] (p1) Test: `specloop init` on a temp dir writes `spec/specloop-run-state.md`
       and the result passes `specloop check`.
-- [ ] Test: `upgrade --apply` creates the run-state file when absent and leaves
+- [x] Test: `upgrade --apply` creates the run-state file when absent and leaves
       a sentinel-seeded existing one byte-identical (extend the Phase 01
       protected-file pattern in `tests/upgrade.test.ts`).
-- [ ] Test: `specloop check` is green on a fixture project that has every other
+- [x] Test: `specloop check` is green on a fixture project that has every other
       process file but no run-state file (proves it stayed optional).
 
 ## E. Manual agent-behavior checklist (not unit-testable)
@@ -103,11 +103,11 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
 
 ## F. Documentation
 
-- [ ] Expand the root `README.md` autonomous-command paragraph into its own
+- [x] Expand the root `README.md` autonomous-command paragraph into its own
       subsection: the exact command, what it authorizes, the terminal
       conditions, how to stop it, the rejected aliases, and the explicit note
       that this is an agent-session command — `specloop` in a shell is the CLI.
-- [ ] Note the run-state record in the `specloop check` / process-file
+- [x] Note the run-state record in the `specloop check` / process-file
       documentation as an optional, advisory file.
 
 ## Findings / Results
@@ -117,6 +117,8 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
   excerpts backing every Section E manual task. Manual tasks are closed by
   recorded evidence, never by assertion.
 -->
+
+- _2026-08-31_ — Implemented Sections A–D and F: advisory run-state template and self-hosted record; `init` scaffolding; non-destructive `upgrade --apply`; contract/scaffold tests; and user documentation. Evidence: `bun test` 53 pass / 0 fail and `bun run check:self` clean. `bun run typecheck` is blocked by the local environment missing the Bun type definition (`TS2688`), not by a source diagnostic.
 
 - _2026-08-31_ — Phase authored. Prior state: the `specloop` execution-command
   contract existed in `AGENTS.md:47` and a one-paragraph summary in
