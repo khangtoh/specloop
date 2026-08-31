@@ -27,11 +27,14 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | # | File | Purpose | Status | Blocking dependency |
 |---|------|---------|--------|----------------------|
 | 1 | [01-verify-upgrade.md](01-verify-upgrade.md) | Automated suite verifying `specloop upgrade` detection + non-destructive adoption | ✅ 28/28 | None (0.3.0 shipped) |
+| 2 | [02-autonomous-run-contract.md](02-autonomous-run-contract.md) | Durable run state, alias/stop policy, and tests guarding the autonomous `specloop` contract | ⬜ 0/22 | None |
+| 3 | [03-preflight-check.md](03-preflight-check.md) | `specloop preflight` workspace checks; bare `specloop` runs them (breaking, 0.4.0) | ⬜ 0/26 | Phase 02 (run-state record) |
 
 ## Status
 
 - [ ] **specloop's commands are covered by an automated verification suite** —
-  starting with `upgrade` (Phase 01). Future phases cover the other commands.
+  `upgrade` (Phase 01) done; the autonomous run contract (Phase 02) and
+  `preflight` (Phase 03) next. Future phases cover the remaining commands.
 
 ## Non-goals
 

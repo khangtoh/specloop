@@ -164,3 +164,44 @@ test nit and record the audit.
 Phase 01 verified complete. The repo-wide command-coverage goal in
 `spec/README.md` stays open — next phases would verify the other commands
 (`init`, `check`, `status`, `list-spec`, `prio-spec`, `prio-task`).
+
+
+---
+
+## Session: 2026-08-31 (branch `main`) — plan intake: Phases 02 and 03
+
+### Scope of this session
+
+Turn the two plans in `specloop-tasks/` (authored outside this repo) into
+specloop phases. Authoring only — no implementation code was written.
+
+### What got done, in order
+
+1. Audited both plans against the repo. `autonomous-specloop-command.md` was
+   ~40% landed already (the execution-command contract in `AGENTS.md`, the
+   summary in `README.md`); `bootstrap-preflight-check.md` was 0% landed —
+   no preflight code exists in `src/`.
+2. Surfaced a conflict between the plans and had the user resolve it: the
+   autonomy plan calls bare `specloop` an agent-session command, while the
+   preflight plan requires the **CLI** to run checks before it prints or
+   selects work. Today the no-argument CLI branch prints `HELP` and exits 0.
+   **Decision: both** — bare `specloop` runs preflight *and* `specloop
+   preflight` exists as the explicit form; `specloop help` stays
+   informational. This is a breaking change, so Phase 03 ships as 0.4.0.
+3. Authored `spec/02-autonomous-run-contract.md` (22 tasks) and
+   `spec/03-preflight-check.md` (26 tasks); registered both in the index
+   table and `BACKLOG.md`.
+4. Locked two decisions inside Phase 02 rather than leaving them open:
+   `spec/specloop-run-state.md` stays **optional** (adding it to
+   `requiredProcessFiles` would fail `specloop check` in every existing
+   specloop project), and `specloop start`/`run`/`go` are **rejected** as run
+   triggers — only the exact message `specloop` starts a run.
+5. Ordered 03 after 02 because the preflight spec-state check reads the
+   run-state record Phase 02 creates.
+
+### State left running / open
+
+`specloop check --dir .` green: 3 phases, 28/76. Next box is Phase 02.1
+(`template/spec/specloop-run-state.md`). No implementation started; both
+phases are 0% by design. Sections E of Phase 02 are manual agent-behavior
+checks and must be closed with recorded transcript evidence, not assertion.
