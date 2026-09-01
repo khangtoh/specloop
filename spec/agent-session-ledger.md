@@ -221,3 +221,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Phase 03 initial report/no-Git fixture checks completed (7/26). Resume: complete remaining repository/Git/runtime/spec-state/artifact semantics and broader test matrix.
 
 - _2026-09-01_ — Phase 03 repository/Git checks completed (9/26); live preflight reports validation, branch, dirty state, identity, and origin. Resume: runtime/spec-state/artifact semantics.
+
+- _2026-09-01_ — Phase 03 blocked during runtime verification: `bun install --force` repeatedly reports cache-copy `ENOENT` for Bun declaration packages, so typecheck cannot resolve Bun/test types. Resume after repairing the Bun package cache, then rerun typecheck/full suite.

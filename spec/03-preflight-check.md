@@ -111,6 +111,8 @@ check reads; it must be treated as optional there and here).
   `specloop help` on the same fixture.
 -->
 
+- _2026-09-01_ — Runtime verification blocker: dependencies were installed, including `@types/node`, but Bun repeatedly failed to copy `@types/bun`, `bun-types`, and `undici-types` from its package cache (`ENOENT`). Consequently `bun run typecheck` cannot resolve Bun declarations. This is an environment/cache failure, not yet a project diagnostic.
+
 - _2026-09-01_ — Section B repository/Git evidence: live JSON preflight validated the root with `specloop check` and reported branch, dirty state, `user.name`/`user.email`, and `origin`; absent identity is explicitly reported as `unset`, not a pass condition.
 
 - _2026-09-01_ — Initial C/D evidence: a non-Git template fixture produced the five-entry structured result with nonempty actions; the `git` entry was `blocked`, exited 1, offered `git init`, and left the fixture unmodified. `bun test tests/preflight.test.ts` passed.

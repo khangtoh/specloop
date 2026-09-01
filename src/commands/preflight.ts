@@ -37,9 +37,10 @@ export function runPreflight(rootDir: string, opts: { json?: boolean } = {}): Pr
 
   const pkg = join(rootDir, "package.json");
   if (!existsSync(pkg)) checks.push({ id: "runtime", status: "blocked", message: "package.json is missing.", action: "Restore package.json." });
+  else if (!existsSync(join(rootDir, "node_modules"))) checks.push({ id: "runtime", status: "blocked", message: "Dependencies are not installed; runtime verification cannot run.", action: "bun install" });
   else {
     const expected = JSON.parse(readFileSync(pkg, "utf8")).engines?.bun ?? "unspecified";
-    checks.push({ id: "runtime", status: "pass", message: `Bun ${Bun.version}; required ${expected}.`, action: "Continue." });
+    checks.push({ id: "runtime", status: "pass", message: `Bun ${Bun.version}; required ${expected}; dependencies installed.`, action: "Continue." });
   }
   checks.push({ id: "spec-state", status: "pass", message: "Run-state is advisory; phase completion is derived from checkboxes.", action: "Continue." });
   checks.push({ id: "artifacts", status: "pass", message: "Workspace paths are available for spec artifacts.", action: "Continue." });
