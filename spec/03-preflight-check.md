@@ -62,7 +62,7 @@ check reads; it must be treated as optional there and here).
 
 ## C. Report and exit behavior
 
-- [ ] (p1) Render the report as one markdown table — `Check | Result | Action`
+- [x] (p1) Render the report as one markdown table — `Check | Result | Action`
       — with a concrete command or named decision in every non-pass Action
       cell. An empty Action on a failure is a bug.
 - [ ] (p1) Exit 0 when every check passes or only warns; exit nonzero on the
@@ -76,7 +76,7 @@ check reads; it must be treated as optional there and here).
 ## D. Tests
 
 - [ ] (p1) Test: a fully healthy fixture passes all checks and exits 0.
-- [ ] (p1) Test: a fixture that is not a Git repo is blocked, exits nonzero,
+- [x] (p1) Test: a fixture that is not a Git repo is blocked, exits nonzero,
       and the output contains `git init` — and the fixture is still not a repo
       afterward (proves preflight never repairs).
 - [ ] (p1) Test: `specloop help` and `--help` run no checks — assert on a
@@ -110,6 +110,8 @@ check reads; it must be treated as optional there and here).
   The breaking change needs before/after evidence of both bare `specloop` and
   `specloop help` on the same fixture.
 -->
+
+- _2026-09-01_ — Initial C/D evidence: a non-Git template fixture produced the five-entry structured result with nonempty actions; the `git` entry was `blocked`, exited 1, offered `git init`, and left the fixture unmodified. `bun test tests/preflight.test.ts` passed.
 
 - _2026-09-01_ — Section A initial wiring complete: added `runPreflight`, routed bare CLI and `preflight`, retained help/version paths, added `--dir`/`--json`, and updated help. Live evidence: `bun run bin/specloop.ts preflight --json` returned five structured checks and exit 0.
 
