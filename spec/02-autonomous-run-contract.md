@@ -94,7 +94,7 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
 - [x] Manual: send exactly `specloop` in a session with an active goal; confirm
       it selects the goal acceptance checkbox in `spec/README.md`, not a single
       task. Record the transcript excerpt in Findings.
-- [ ] Manual: drive a phase to 100% and confirm the run immediately begins the
+- [x] Manual: drive a phase to 100% and confirm the run immediately begins the
       next eligible BACKLOG phase without waiting for a new `specloop` message.
 - [x] Manual: send `specloop help`; confirm it answers with help and starts no
       run.
@@ -117,6 +117,8 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
   excerpts backing every Section E manual task. Manual tasks are closed by
   recorded evidence, never by assertion.
 -->
+
+- _2026-09-01_ — Manual E2 evidence: after the final Phase 02 manual checkbox was closed in this resumed goal run, the agent immediately selected the next eligible BACKLOG phase, Phase 03, without waiting for another `specloop` message.
 
 - _2026-09-01_ — Manual E4 evidence: during the active goal run, user sent “stop the specloop run now”; work halted immediately and the advisory record below preserves the resume point.
 

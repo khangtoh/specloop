@@ -213,3 +213,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Phase 02 Manual E3 completed: `specloop help` returned informational help only and started no run. Resume point: E4 direct stop, then E2 phase-to-phase continuation.
 
 - _2026-09-01_ — User directly stopped the active goal run. Phase 02 Manual E4 completed and the advisory record now leaves the resume point: validate phase-to-phase continuation (E2), then proceed to Phase 03.
+
+- _2026-09-01_ — Phase 02 completed 22/22. Manual E2 was observed in the resumed goal run: closing the final Phase 02 checkbox immediately advanced selection to eligible BACKLOG Phase 03, without another trigger message. Phase 03 is now active.
