@@ -209,3 +209,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-08-31_ — Phase 02 Sections A–D and F completed: added advisory run-state record support to templates, init, and upgrade; documented the autonomous contract; and added tests. Verification: `bun test` 53 pass / 0 fail; `bun run check:self` clean. Resume point: record manual behavior evidence in Section E, then complete Phase 02. Typecheck is environment-blocked by missing `@types/bun` (`TS2688`).
 
 - _2026-09-01_ — Phase 02 Manual E1 completed: user stated the acceptance-mapped goal, then sent exactly `specloop`; the run selected the goal acceptance path. Resume point: remaining manual E2–E4 evidence.
+
+- _2026-09-01_ — Phase 02 Manual E3 completed: `specloop help` returned informational help only and started no run. Resume point: E4 direct stop, then E2 phase-to-phase continuation.

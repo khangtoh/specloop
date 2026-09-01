@@ -96,7 +96,7 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
       task. Record the transcript excerpt in Findings.
 - [ ] Manual: drive a phase to 100% and confirm the run immediately begins the
       next eligible BACKLOG phase without waiting for a new `specloop` message.
-- [ ] Manual: send `specloop help`; confirm it answers with help and starts no
+- [x] Manual: send `specloop help`; confirm it answers with help and starts no
       run.
 - [ ] Manual: send a stop instruction mid-run; confirm work halts and the
       run-state record holds a usable resume point.
@@ -117,6 +117,8 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
   excerpts backing every Section E manual task. Manual tasks are closed by
   recorded evidence, never by assertion.
 -->
+
+- _2026-09-01_ — Manual E3 evidence: user sent `specloop help`; the response was informational only and no run work or state change occurred.
 
 - _2026-09-01_ — Manual E1 evidence: user stated the goal “specloop’s commands are covered by an automated verification suite,” which maps to `spec/README.md`’s acceptance checkbox, then sent exactly `specloop`; this goal run selected that acceptance path.
 
