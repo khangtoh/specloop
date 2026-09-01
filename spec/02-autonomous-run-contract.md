@@ -91,7 +91,7 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
 
 ## E. Manual agent-behavior checklist (not unit-testable)
 
-- [ ] Manual: send exactly `specloop` in a session with an active goal; confirm
+- [x] Manual: send exactly `specloop` in a session with an active goal; confirm
       it selects the goal acceptance checkbox in `spec/README.md`, not a single
       task. Record the transcript excerpt in Findings.
 - [ ] Manual: drive a phase to 100% and confirm the run immediately begins the
@@ -117,6 +117,8 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
   excerpts backing every Section E manual task. Manual tasks are closed by
   recorded evidence, never by assertion.
 -->
+
+- _2026-09-01_ — Manual E1 evidence: user stated the goal “specloop’s commands are covered by an automated verification suite,” which maps to `spec/README.md`’s acceptance checkbox, then sent exactly `specloop`; this goal run selected that acceptance path.
 
 - _2026-08-31_ — Implemented Sections A–D and F: advisory run-state template and self-hosted record; `init` scaffolding; non-destructive `upgrade --apply`; contract/scaffold tests; and user documentation. Evidence: `bun test` 53 pass / 0 fail and `bun run check:self` clean. `bun run typecheck` is blocked by the local environment missing the Bun type definition (`TS2688`), not by a source diagnostic.
 
