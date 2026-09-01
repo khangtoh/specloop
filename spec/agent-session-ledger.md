@@ -211,3 +211,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Phase 02 Manual E1 completed: user stated the acceptance-mapped goal, then sent exactly `specloop`; the run selected the goal acceptance path. Resume point: remaining manual E2–E4 evidence.
 
 - _2026-09-01_ — Phase 02 Manual E3 completed: `specloop help` returned informational help only and started no run. Resume point: E4 direct stop, then E2 phase-to-phase continuation.
+
+- _2026-09-01_ — User directly stopped the active goal run. Phase 02 Manual E4 completed and the advisory record now leaves the resume point: validate phase-to-phase continuation (E2), then proceed to Phase 03.

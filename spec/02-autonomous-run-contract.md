@@ -98,7 +98,7 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
       next eligible BACKLOG phase without waiting for a new `specloop` message.
 - [x] Manual: send `specloop help`; confirm it answers with help and starts no
       run.
-- [ ] Manual: send a stop instruction mid-run; confirm work halts and the
+- [x] Manual: send a stop instruction mid-run; confirm work halts and the
       run-state record holds a usable resume point.
 
 ## F. Documentation
@@ -117,6 +117,8 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
   excerpts backing every Section E manual task. Manual tasks are closed by
   recorded evidence, never by assertion.
 -->
+
+- _2026-09-01_ — Manual E4 evidence: during the active goal run, user sent “stop the specloop run now”; work halted immediately and the advisory record below preserves the resume point.
 
 - _2026-09-01_ — Manual E3 evidence: user sent `specloop help`; the response was informational only and no run work or state change occurred.
 
