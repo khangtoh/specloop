@@ -225,3 +225,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Phase 03 blocked during runtime verification: `bun install --force` repeatedly reports cache-copy `ENOENT` for Bun declaration packages, so typecheck cannot resolve Bun/test types. Resume after repairing the Bun package cache, then rerun typecheck/full suite.
 
 - _2026-09-01_ — User exited the autonomous run. Run state set to idle; resume only after repairing Bun’s failed installation of `@types/bun` and `typescript`.
+
+- _2026-09-01_ — Resumed run retried `bun install`; it still failed with `ENOENT` while copying `typescript`. Run blocked again pending external Bun cache/filesystem repair.
