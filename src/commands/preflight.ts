@@ -23,9 +23,14 @@ export function runPreflight(rootDir: string, opts: { json?: boolean } = {}): Pr
   }
 
   try {
-    const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: rootDir, encoding: "utf8" }).trim();
-    const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: rootDir, encoding: "utf8" }).trim().length > 0;
-    checks.push({ id: "git", status: dirty ? "warning" : "pass", message: `${branch}; working tree ${dirty ? "has changes" : "clean"}.`, action: dirty ? "Commit or stash intended changes before collecting evidence." : "Continue." });
+    const git = (args: string[]) => execFileSync("git", args, { cwd: rootDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const optional = (args: string[], fallback: string) => { try { return git(args); } catch { return fallback; } };
+    const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
+    const dirty = git(["status", "--porcelain"]).length > 0;
+    const name = optional(["config", "--get", "user.name"], "unset");
+    const email = optional(["config", "--get", "user.email"], "unset");
+    const origin = optional(["remote", "get-url", "origin"], "none");
+    checks.push({ id: "git", status: dirty ? "warning" : "pass", message: branch + "; working tree " + (dirty ? "has changes" : "clean") + "; user " + name + " <" + email + ">; origin " + origin + ".", action: dirty ? "Commit or stash intended changes before collecting evidence." : "Continue." });
   } catch {
     checks.push({ id: "git", status: "blocked", message: "Not inside a Git work tree or git is unavailable.", action: "git init" });
   }
