@@ -40,10 +40,10 @@ check reads; it must be treated as optional there and here).
 
 ## B. The five checks
 
-- [ ] (p1) **Repository root:** verify `AGENTS.md`, `spec/README.md`,
+- [x] (p1) **Repository root:** verify `AGENTS.md`, `spec/README.md`,
       `spec/BACKLOG.md` and the package manifest exist, and run the existing
       validator; a `specloop check` error is a blocked preflight.
-- [ ] (p1) **Git:** run `git rev-parse --is-inside-work-tree`; report the
+- [x] (p1) **Git:** run `git rev-parse --is-inside-work-tree`; report the
       branch, working-tree cleanliness, `user.name`/`user.email`, and whether
       an `origin` remote exists. Not a repo → blocked, with `git init` printed
       as the repair, not executed.
@@ -110,6 +110,8 @@ check reads; it must be treated as optional there and here).
   The breaking change needs before/after evidence of both bare `specloop` and
   `specloop help` on the same fixture.
 -->
+
+- _2026-09-01_ — Section B repository/Git evidence: live JSON preflight validated the root with `specloop check` and reported branch, dirty state, `user.name`/`user.email`, and `origin`; absent identity is explicitly reported as `unset`, not a pass condition.
 
 - _2026-09-01_ — Initial C/D evidence: a non-Git template fixture produced the five-entry structured result with nonempty actions; the `git` entry was `blocked`, exited 1, offered `git init`, and left the fixture unmodified. `bun test tests/preflight.test.ts` passed.
 

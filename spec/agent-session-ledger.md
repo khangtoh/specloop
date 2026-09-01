@@ -219,3 +219,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Phase 03 Section A completed (5/26): `preflight` is wired with bare-command behavior, flags, help text, and structured output. Live JSON preflight passed in this repository. Resume: Section B check semantics/tests.
 
 - _2026-09-01_ — Phase 03 initial report/no-Git fixture checks completed (7/26). Resume: complete remaining repository/Git/runtime/spec-state/artifact semantics and broader test matrix.
+
+- _2026-09-01_ — Phase 03 repository/Git checks completed (9/26); live preflight reports validation, branch, dirty state, identity, and origin. Resume: runtime/spec-state/artifact semantics.
