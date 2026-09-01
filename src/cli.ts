@@ -9,6 +9,7 @@ import { runUpgrade } from "./commands/upgrade.js";
 import { runPrioTask } from "./commands/prioTask.js";
 import { runPrioSpec } from "./commands/prioSpec.js";
 import { runListSpec } from "./commands/listSpec.js";
+import { runPreflight } from "./commands/preflight.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -32,6 +33,7 @@ Commands:
   check                   Validate the spec structure; non-zero exit on errors.
   status                  Show phase progress + next box, in BACKLOG order.
   list-spec [filter]      List phases in priority order (all|done|undone).
+  preflight                Check workspace readiness without changing it.
   prio-spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
   prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   upgrade [dir]           Adopt an existing project's spec model into specloop
@@ -44,7 +46,7 @@ Options:
   --dir <path>            Project root to operate on (default: cwd).
   --force                 (init) overwrite an existing spec/ and files.
   --apply                 (upgrade) perform the adoption instead of a dry run.
-  --json                  (check, status, list-spec) machine-readable output.
+  --json                  (check, status, list-spec, preflight) machine-readable output.
   --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
 
 Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
@@ -64,7 +66,8 @@ Examples:
 
 export function main(argv: string[]): number {
   const args = argv.slice(2);
-  if (args.length === 0 || args[0] === "help" || args[0] === "--help" || args[0] === "-h") {
+  if (args.length === 0) return runPreflight(process.cwd(), {}).exitCode;
+  if (args[0] === "help" || args[0] === "--help" || args[0] === "-h") {
     console.log(HELP);
     return 0;
   }
@@ -88,6 +91,8 @@ export function main(argv: string[]): number {
       return runInit(positional[0] ?? rootDir, { force });
     case "check":
       return runCheck(rootDir, { json });
+    case "preflight":
+      return runPreflight(rootDir, { json }).exitCode;
     case "status":
       return runStatus(rootDir, { json });
     case "list-spec":

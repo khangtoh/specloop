@@ -26,16 +26,16 @@ check reads; it must be treated as optional there and here).
 
 ## A. CLI wiring (do first)
 
-- [ ] (p1) Add `src/commands/preflight.ts` exporting `runPreflight(rootDir,
+- [x] (p1) Add `src/commands/preflight.ts` exporting `runPreflight(rootDir,
       opts)` returning a structured result (per-check status, message, repair
       command) plus the process exit code.
-- [ ] (p1) Route `preflight` in `src/cli.ts` and change the no-argument branch
+- [x] (p1) Route `preflight` in `src/cli.ts` and change the no-argument branch
       from printing `HELP` to calling `runPreflight`.
-- [ ] (p1) Keep `help`, `--help`, `-h`, `version`, `--version`, `-v` on their
+- [x] (p1) Keep `help`, `--help`, `-h`, `version`, `--version`, `-v` on their
       current paths, running zero checks.
-- [ ] Support `--dir <path>` and `--json` on preflight, matching the
+- [x] Support `--dir <path>` and `--json` on preflight, matching the
       `check`/`status` flag conventions.
-- [ ] Add `preflight` to the `HELP` text, and note there that bare `specloop`
+- [x] Add `preflight` to the `HELP` text, and note there that bare `specloop`
       runs it.
 
 ## B. The five checks
@@ -110,6 +110,8 @@ check reads; it must be treated as optional there and here).
   The breaking change needs before/after evidence of both bare `specloop` and
   `specloop help` on the same fixture.
 -->
+
+- _2026-09-01_ — Section A initial wiring complete: added `runPreflight`, routed bare CLI and `preflight`, retained help/version paths, added `--dir`/`--json`, and updated help. Live evidence: `bun run bin/specloop.ts preflight --json` returned five structured checks and exit 0.
 
 - _2026-08-31_ — Phase authored from `specloop-tasks/bootstrap-preflight-check.md`.
   Prior state: no preflight code anywhere in `src/`; bare `specloop` printed

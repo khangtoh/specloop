@@ -5,6 +5,6 @@ Run status: active
 Stated goal: specloop’s commands are covered by an automated verification suite.
 Goal acceptance checkbox: spec/README.md — specloop's commands are covered by an automated verification suite
 Current phase: Phase 03 — `specloop preflight` workspace checks
-Current task: Add `runPreflight(rootDir, opts)` command implementation.
-Resume point: Continue Phase 03 from its highest-priority unchecked task.
+Current task: Complete repository, Git, runtime, spec-state, and artifact preflight checks.
+Resume point: Complete Phase 03 Section B check semantics and tests.
 Last-updated date: 2026-09-01

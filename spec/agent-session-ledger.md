@@ -215,3 +215,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — User directly stopped the active goal run. Phase 02 Manual E4 completed and the advisory record now leaves the resume point: validate phase-to-phase continuation (E2), then proceed to Phase 03.
 
 - _2026-09-01_ — Phase 02 completed 22/22. Manual E2 was observed in the resumed goal run: closing the final Phase 02 checkbox immediately advanced selection to eligible BACKLOG Phase 03, without another trigger message. Phase 03 is now active.
+
+- _2026-09-01_ — Phase 03 Section A completed (5/26): `preflight` is wired with bare-command behavior, flags, help text, and structured output. Live JSON preflight passed in this repository. Resume: Section B check semantics/tests.

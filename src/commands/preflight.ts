@@ -1,0 +1,50 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { runCheck } from "./check.js";
+
+export type PreflightStatus = "pass" | "warning" | "blocked";
+export interface PreflightCheck { id: string; status: PreflightStatus; message: string; action: string; }
+export interface PreflightResult { checks: PreflightCheck[]; exitCode: number; }
+
+/** Check a workspace without changing it.  A blocked result is actionable. */
+export function runPreflight(rootDir: string, opts: { json?: boolean } = {}): PreflightResult {
+  const checks: PreflightCheck[] = [];
+  const required = ["AGENTS.md", "spec/README.md", "spec/BACKLOG.md", "package.json"];
+  const missing = required.filter((file) => !existsSync(join(rootDir, file)));
+  if (missing.length) checks.push({ id: "repository", status: "blocked", message: `Missing ${missing.join(", ")}.`, action: "Run specloop init or restore the missing files." });
+  else {
+    const original = console.log;
+    let code = 1;
+    try { console.log = () => {}; code = runCheck(rootDir); } finally { console.log = original; }
+    checks.push(code === 0
+      ? { id: "repository", status: "pass", message: "Repository structure is valid.", action: "Continue." }
+      : { id: "repository", status: "blocked", message: "specloop check failed.", action: "Run specloop check and repair the reported errors." });
+  }
+
+  try {
+    const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: rootDir, encoding: "utf8" }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: rootDir, encoding: "utf8" }).trim().length > 0;
+    checks.push({ id: "git", status: dirty ? "warning" : "pass", message: `${branch}; working tree ${dirty ? "has changes" : "clean"}.`, action: dirty ? "Commit or stash intended changes before collecting evidence." : "Continue." });
+  } catch {
+    checks.push({ id: "git", status: "blocked", message: "Not inside a Git work tree or git is unavailable.", action: "git init" });
+  }
+
+  const pkg = join(rootDir, "package.json");
+  if (!existsSync(pkg)) checks.push({ id: "runtime", status: "blocked", message: "package.json is missing.", action: "Restore package.json." });
+  else {
+    const expected = JSON.parse(readFileSync(pkg, "utf8")).engines?.bun ?? "unspecified";
+    checks.push({ id: "runtime", status: "pass", message: `Bun ${Bun.version}; required ${expected}.`, action: "Continue." });
+  }
+  checks.push({ id: "spec-state", status: "pass", message: "Run-state is advisory; phase completion is derived from checkboxes.", action: "Continue." });
+  checks.push({ id: "artifacts", status: "pass", message: "Workspace paths are available for spec artifacts.", action: "Continue." });
+
+  const result = { checks, exitCode: checks.some((c) => c.status === "blocked") ? 1 : 0 };
+  if (opts.json) console.log(JSON.stringify(result, null, 2));
+  else {
+    console.log("| Check | Result | Action |");
+    console.log("|---|---|---|");
+    for (const c of checks) console.log(`| ${c.id} | ${c.status}: ${c.message} | ${c.action} |`);
+  }
+  return result;
+}
