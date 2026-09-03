@@ -229,3 +229,15 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — Resumed run retried `bun install`; it still failed with `ENOENT` while copying `typescript`. Run blocked again pending external Bun cache/filesystem repair.
 
 - _2026-09-03_ — Resumed goal run retried `bun run typecheck`; it still cannot find the `bun` and `node` type libraries. External dependency-installation blocker persists.
+
+- _2026-09-03_ — Phase 03 Git clean-clone-goal task completed (10/26). Missing `origin` is warning-only for ordinary goals and blocks when the active goal/run record requires clean-clone proof; freshly initialized repositories are handled. Evidence: `bun test tests/preflight.test.ts` (2 pass / 0 fail). Resume point: Phase 03 Runtime p2 task — rerun documented typecheck/test commands and distinguish cache/environment failure from project failure.
+
+- _2026-09-03_ — Phase 03 blocked-exit task completed (11/26). Human preflight output names the first blocked check, its cause, and repair; focused test suite passed 3/3. Resume point: remaining Phase 03 p1 fixture coverage, beginning with a fully healthy fixture.
+
+- _2026-09-03_ — Phase 03 healthy-fixture p1 completed (12/26). A complete fixture passed all five preflight checks and exited 0; focused suite passed 4/4. Resume point: test that help paths run no checks on a deliberately broken fixture.
+
+- _2026-09-03_ — Phase 03 help-path p1 completed (13/26). `help` and `--help` stayed informational on a broken fixture; focused suite passed 5/5. Resume point: test bare `specloop` on that broken fixture exits nonzero.
+
+- _2026-09-03_ — Phase 03 bare-command test completed (14/26). Broken fixture invokes preflight and returns nonzero; focused suite passed 6/6. Resume point: implement the Runtime check’s Bun-engine, dependency, typecheck, and test validation with environment/project-failure distinction.
+
+- _2026-09-03_ — Phase 03 runtime task remains blocked by a reproducible external Bun cache error (`bun install`: ENOENT copying `typescript`); typecheck lacks Bun/Node declaration packages while the full test suite passes 59/59. Structural validation remains clean (64/76). Resume point: repair Bun cache, run `bun install` and `bun run typecheck`, then implement the runtime preflight check.

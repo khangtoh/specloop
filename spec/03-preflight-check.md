@@ -47,7 +47,7 @@ check reads; it must be treated as optional there and here).
       branch, working-tree cleanliness, `user.name`/`user.email`, and whether
       an `origin` remote exists. Not a repo → blocked, with `git init` printed
       as the repair, not executed.
-- [ ] (p1) **Git, clean-clone goals:** when the goal acceptance path needs
+- [x] (p1) **Git, clean-clone goals:** when the goal acceptance path needs
       clean-clone proof, a missing `origin` remote is blocked, not a warning —
       the run cannot produce that evidence.
 - [ ] **Runtime:** verify the Bun version against `engines.bun`, verify
@@ -65,7 +65,7 @@ check reads; it must be treated as optional there and here).
 - [x] (p1) Render the report as one markdown table — `Check | Result | Action`
       — with a concrete command or named decision in every non-pass Action
       cell. An empty Action on a failure is a bug.
-- [ ] (p1) Exit 0 when every check passes or only warns; exit nonzero on the
+- [x] (p1) Exit 0 when every check passes or only warns; exit nonzero on the
       first blocked check, naming the exact failing command and its cause.
 - [ ] Emit the same data under `--json` (stable keys: check id, status,
       message, action), so an agent can consume it without parsing the table.
@@ -75,14 +75,14 @@ check reads; it must be treated as optional there and here).
 
 ## D. Tests
 
-- [ ] (p1) Test: a fully healthy fixture passes all checks and exits 0.
+- [x] (p1) Test: a fully healthy fixture passes all checks and exits 0.
 - [x] (p1) Test: a fixture that is not a Git repo is blocked, exits nonzero,
       and the output contains `git init` — and the fixture is still not a repo
       afterward (proves preflight never repairs).
-- [ ] (p1) Test: `specloop help` and `--help` run no checks — assert on a
+- [x] (p1) Test: `specloop help` and `--help` run no checks — assert on a
       fixture broken enough that any check would block, and confirm exit 0 and
       help output.
-- [ ] Test: bare `specloop` in a broken fixture exits nonzero (guards the
+- [x] Test: bare `specloop` in a broken fixture exits nonzero (guards the
       breaking change against a regression back to help-on-no-args).
 - [ ] Test: missing `origin` is a warning for an ordinary goal and blocked for
       a clean-clone goal.
@@ -125,3 +125,15 @@ check reads; it must be treated as optional there and here).
   preflight plus a `preflight` subcommand was chosen over keeping help on the
   no-arg path, so the plan's "before it prints/selects work" requirement is
   actually enforced.
+
+- _2026-09-03_ — Clean-clone origin policy completed: an ordinary Git workspace without `origin` warns and continues; an advisory run-state/acceptance path that names clean-clone proof blocks with an explicit origin repair. Fresh `git init` repositories are recognized before their first commit. Evidence: `bun test tests/preflight.test.ts` — 2 pass / 0 fail.
+
+- _2026-09-03_ — Blocked-exit contract completed: preflight returns nonzero whenever a blocking check exists and, in human output, identifies the first blocker with its command/cause and repair action. Evidence: `bun test tests/preflight.test.ts` — 3 pass / 0 fail.
+
+- _2026-09-03_ — Fully healthy fixture test completed: a committed Git workspace with identity, origin, manifest, and dependencies passed all five current checks and exited 0. Evidence: `bun test tests/preflight.test.ts` — 4 pass / 0 fail.
+
+- _2026-09-03_ — Help-path isolation completed: both `help` and `--help` returned exit 0 and usage text on a deliberately broken fixture, with no preflight table. Evidence: `bun test tests/preflight.test.ts` — 5 pass / 0 fail.
+
+- _2026-09-03_ — Bare-command breaking-change regression completed: bare `specloop` on a broken fixture rendered the preflight report and exited nonzero rather than falling back to help. Evidence: `bun test tests/preflight.test.ts` — 6 pass / 0 fail.
+
+- _2026-09-03_ — Runtime task is blocked by the local Bun package cache: `bun install` fails copying `typescript` with `ENOENT`, and `bun run typecheck` consequently reports missing `bun` and `node` type definitions. `bun test` passes 59/59, so this is environment/cache failure rather than a project test failure. Resume after repairing the Bun cache and reinstalling dependencies.
