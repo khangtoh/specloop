@@ -227,3 +227,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-01_ — User exited the autonomous run. Run state set to idle; resume only after repairing Bun’s failed installation of `@types/bun` and `typescript`.
 
 - _2026-09-01_ — Resumed run retried `bun install`; it still failed with `ENOENT` while copying `typescript`. Run blocked again pending external Bun cache/filesystem repair.
+
+- _2026-09-03_ — Resumed goal run retried `bun run typecheck`; it still cannot find the `bun` and `node` type libraries. External dependency-installation blocker persists.
