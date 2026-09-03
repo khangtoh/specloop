@@ -241,3 +241,5 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-03_ — Phase 03 bare-command test completed (14/26). Broken fixture invokes preflight and returns nonzero; focused suite passed 6/6. Resume point: implement the Runtime check’s Bun-engine, dependency, typecheck, and test validation with environment/project-failure distinction.
 
 - _2026-09-03_ — Phase 03 runtime task remains blocked by a reproducible external Bun cache error (`bun install`: ENOENT copying `typescript`); typecheck lacks Bun/Node declaration packages while the full test suite passes 59/59. Structural validation remains clean (64/76). Resume point: repair Bun cache, run `bun install` and `bun run typecheck`, then implement the runtime preflight check.
+
+- _2026-09-03_ — User-directed 0.4.0 release: published `@khangtoh/specloop@0.4.0` to npm, committed `7c1755a` (`release: v0.4.0`), and pushed `main` plus lightweight tag `v0.4.0`. The autonomous Phase 03 run is paused by this direct release instruction; user directed that the previous Bun-install issue be skipped.
