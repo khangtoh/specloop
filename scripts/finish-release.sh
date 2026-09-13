@@ -7,17 +7,34 @@
 #
 #   bash scripts/finish-release.sh              # verify, publish, tag, push
 #   bash scripts/finish-release.sh --skip-verify
+#   bash scripts/finish-release.sh --otp 123456 # publish with a 2FA code
 #
-# Auth: needs a granular npm token with "bypass 2FA" and read/write on the
-# package. Either put it in ~/.npmrc or pass it for one run:
-#   NPM_TOKEN=npm_xxx bash scripts/finish-release.sh
+# Auth: npm requires two-factor authentication for direct publishing. Enable it
+# at https://www.npmjs.com/settings/<user>/tfa and pass a fresh code with --otp.
+# A one-time code expires in ~30s, so --otp implies --skip-verify; run the gates
+# separately (bun run verify:onboarding) before reaching for the code.
+# NPM_TOKEN=npm_xxx still works where a token is permitted to publish.
 
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 SKIP_VERIFY=""
-[ "${1:-}" = "--skip-verify" ] && SKIP_VERIFY=1
+OTP=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --skip-verify) SKIP_VERIFY=1; shift ;;
+    --otp) OTP="${2:-}"; [ -n "$OTP" ] || { echo "✖ --otp needs a code" >&2; exit 1; }; shift 2 ;;
+    --otp=*) OTP="${1#--otp=}"; shift ;;
+    *) echo "✖ unknown argument: $1" >&2; exit 1 ;;
+  esac
+done
+
+# A one-time code expires in about 30 seconds — the gates would outlive it.
+if [ -n "$OTP" ] && [ -z "$SKIP_VERIFY" ]; then
+  SKIP_VERIFY=1
+  echo "note: --otp given, skipping the verify gates so the code does not expire mid-run."
+fi
 
 step() { printf '\033[1m▶ %s\033[0m\n' "$1"; }
 
@@ -43,10 +60,12 @@ else
 
   # 3. Publish ----------------------------------------------------------------
   step "npm publish $VERSION"
+  PUBLISH_ARGS=()
+  [ -n "$OTP" ] && PUBLISH_ARGS+=(--otp "$OTP")
   if [ -n "${NPM_TOKEN:-}" ]; then
-    npm publish --//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+    npm publish "${PUBLISH_ARGS[@]}" --//registry.npmjs.org/:_authToken="$NPM_TOKEN"
   else
-    npm publish
+    npm publish "${PUBLISH_ARGS[@]}"
   fi
 fi
 
