@@ -18,6 +18,15 @@ manifests (`.claude-plugin/` and `.codex-plugin/`), one shared skill.
 phase specs, the loop, the `Spec Summary/Status` handoff, goal-completion-check,
 or the session ledger.
 
+## Per-repository install (no plugin needed)
+
+`specloop init` and `specloop upgrade --apply` copy this directory's `skills/`
+and `commands/` into the target repo's `.claude/` directory. Nothing here
+references `${CLAUDE_PLUGIN_ROOT}` — the files resolve only repo-relative
+`spec/` paths and the `specloop` CLI — so a plain copy works, and committing
+`.claude/` onboards every clone. Use `--skills none` to opt out, or
+`--skills link` when developing specloop itself.
+
 ## Companion CLI
 
 The `/spec-*` commands prefer the `specloop` bun CLI when it's on PATH

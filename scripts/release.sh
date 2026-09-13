@@ -37,6 +37,7 @@ step "releasing from $CUR ($BUMP bump${DRY:+, DRY RUN})"
 step "bun test";            bun test
 step "check template";      bun run bin/specloop.ts check --dir template
 step "check self-spec";     bun run bin/specloop.ts check --dir .
+step "verify onboarding";   bash scripts/verify-onboarding.sh
 if [ -d node_modules ]; then step "typecheck"; bun run typecheck; else echo "  (skipping typecheck — no node_modules)"; fi
 
 # 3. Bump package.json only (no git yet) ------------------------------------

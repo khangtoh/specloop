@@ -59,6 +59,20 @@ specloop init              # scaffold spec/ into the current repo
 
 Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 
+`init` also installs the `specloop` skill and the `/spec-*` commands into the
+repo's `.claude/` directory, so a fresh clone onboards its agent with no
+separate plugin install. Commit them and the whole team gets the loop. Control
+it with `--skills`:
+
+| `--skills` | Effect |
+|---|---|
+| `copy` (default) | Copy the skills and commands into `.claude/` — self-contained and committable. |
+| `link` | Symlink them into a local specloop checkout, for developing specloop itself. |
+| `none` | Scaffold `spec/` only and leave `.claude/` alone. |
+
+Existing files are never clobbered; `--force` restores them to the shipped
+version. Restart the agent session after an install to pick the assets up.
+
 ### As a Claude Code plugin
 
 ```
@@ -68,6 +82,11 @@ Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 
 Adds the `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`, `/prio-spec`,
 `/list-spec`, and `/spec-upgrade` slash commands plus the `specloop` skill.
+
+This is the *user-wide* install. It is optional: `specloop init` and `specloop
+upgrade --apply` already place the same skill and commands in the repository's
+own `.claude/` directory, which is what makes a cloned project work for
+everyone on it rather than only for whoever installed the plugin.
 
 ### As a Codex plugin
 
@@ -79,7 +98,7 @@ binds Codex agents to the loop.
 ## Use
 
 ```bash
-specloop init                       # 1. scaffold the structure (incl. BACKLOG.md)
+specloop init                       # 1. scaffold the structure (incl. BACKLOG.md + .claude/)
 # edit spec/README.md: set the goal, decompose into spec/NN-*.md phases
 specloop check                      # 2. validate structure (wire into CI/prebuild)
 specloop list-spec                  # 3. see the ranked backlog (undone by default)
@@ -135,9 +154,12 @@ by `specloop check`; completion always comes from the phase checkboxes.
 `specloop upgrade [dir]` inspects a project that already has a spec model
 (dillinger-style phases, an omarchy-style backlog, or ad-hoc numbered specs),
 reports what it found, and — with `--apply` — non-destructively scaffolds the
-missing specloop pieces (process files, `AGENTS.md`, config, and a generated
-`BACKLOG.md`). Re-authoring PRD-style specs into atomic-task phases is agent
-work: `/spec-upgrade`.
+missing specloop pieces: process files, `AGENTS.md`, config, a generated
+`BACKLOG.md`, a generated `spec/README.md` phase index whose per-phase progress
+and status emoji are derived from the existing checkboxes, and the same
+`.claude/` skills and commands `init` installs (`--skills` applies here too).
+An adopted repo passes `specloop check` immediately. Re-authoring PRD-style
+specs into atomic-task phases is agent work: `/spec-upgrade`.
 
 ## `specloop check` — what it enforces
 

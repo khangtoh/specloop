@@ -7,10 +7,16 @@ import {
   statSync,
   mkdirSync,
 } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "../config.js";
-import { parsePhaseFile, extractNumber, phaseTitle } from "../validator/parse.js";
+import {
+  describeAgentAssets,
+  installAgentAssets,
+  planAgentAssets,
+  type SkillsMode,
+} from "./agentAssets.js";
+import { parsePhaseFile, extractNumber, phaseTitle, expectedEmoji } from "../validator/parse.js";
 
 const GRN = "\x1b[32m";
 const YEL = "\x1b[33m";
@@ -106,7 +112,10 @@ export function detect(rootDir: string): Detection {
  * Never overwrites existing spec content; re-authoring PRD-style specs into
  * atomic-task phases is the agent's job (see the /spec-upgrade command).
  */
-export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): number {
+export function runUpgrade(
+  rootDir: string,
+  opts: { apply?: boolean; skills?: SkillsMode } = {},
+): number {
   const det = detect(rootDir);
   console.log(`${BOLD}specloop upgrade${RST} ${DIM}(inspecting ${rootDir})${RST}\n`);
 
@@ -130,9 +139,10 @@ export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): num
   );
   console.log(`  AGENTS.md:          ${yesno(det.hasAgents)}\n`);
 
-  const actions = planActions(det, rootDir);
+  const skills = opts.skills ?? "copy";
+  const actions = planActions(det, rootDir, skills);
   if (actions.length === 0) {
-    if (opts.apply) reportKeptFiles(det, rootDir);
+    if (opts.apply) reportKeptFiles(det, rootDir, skills);
     console.log(`${GRN}✔ Already a complete specloop layout.${RST} Nothing to adopt.`);
     return 0;
   }
@@ -155,7 +165,7 @@ export function runUpgrade(rootDir: string, opts: { apply?: boolean } = {}): num
   }
 
   const specAbs = join(rootDir, det.specDir);
-  reportKeptFiles(det, rootDir);
+  reportKeptFiles(det, rootDir, skills);
   for (const a of actions) a.run(rootDir, specAbs, det);
   console.log(`\n${GRN}✔ Adoption applied.${RST} Run ${CYN}specloop check${RST} to validate.`);
   return 0;
@@ -166,7 +176,7 @@ interface Action {
   run: (rootDir: string, specAbs: string, det: Detection) => void;
 }
 /** Report protected existing files without adding them to the missing-file plan. */
-function reportKeptFiles(det: Detection, rootDir: string): void {
+function reportKeptFiles(det: Detection, rootDir: string, skills: SkillsMode = "copy"): void {
   for (const [key, name] of Object.entries(PROCESS_FILES) as [keyof typeof PROCESS_FILES, string][]) {
     if (det.hasProcessFiles[key]) console.log(`${YEL}▲${RST} ${name} exists — kept`);
   }
@@ -176,10 +186,16 @@ function reportKeptFiles(det: Detection, rootDir: string): void {
   if (det.specDir && existsSync(join(rootDir, det.specDir, OPTIONAL_RUN_STATE))) {
     console.log(`${YEL}▲${RST} ${OPTIONAL_RUN_STATE} exists — kept`);
   }
+  if (skills !== "none") {
+    const assets = planAgentAssets(rootDir);
+    if (!assets.unavailable && assets.missing.length === 0 && assets.present.length > 0) {
+      console.log(`${YEL}▲${RST} .claude/ agent assets exist — kept`);
+    }
+  }
 }
 
 
-function planActions(det: Detection, rootDir: string): Action[] {
+function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy"): Action[] {
   const actions: Action[] = [];
   const tpl = templateDir();
 
@@ -190,6 +206,12 @@ function planActions(det: Detection, rootDir: string): Action[] {
         run: (_r, specAbs) => copyIfAbsent(join(tpl, "spec", name), join(specAbs, name)),
       });
     }
+  }
+  if (!existsSync(join(rootDir, det.specDir!, "README.md"))) {
+    actions.push({
+      label: `generate ${det.specDir}/README.md (phase index) from ${det.numbered.length} numbered specs`,
+      run: (rootDir, specAbs, d) => generateIndex(rootDir, specAbs, d),
+    });
   }
   if (!det.hasBacklog) {
     actions.push({
@@ -215,7 +237,53 @@ function planActions(det: Detection, rootDir: string): Action[] {
       run: (rootDir, _s, d) => writeConfig(rootDir, d),
     });
   }
+  if (skills !== "none") {
+    const assets = planAgentAssets(rootDir);
+    if (!assets.unavailable && assets.missing.length > 0) {
+      actions.push({
+        label: describeAgentAssets(assets),
+        run: (rootDir) => {
+          installAgentAssets(rootDir, { mode: skills });
+        },
+      });
+    }
+  }
   return actions;
+}
+
+/**
+ * Write the phase index the validator requires (`indexFile`, default
+ * `README.md`). The template's guidance text is kept verbatim; only the
+ * example row is replaced, with one row per detected phase whose progress and
+ * emoji are derived from that phase's own checkboxes so `specloop check`
+ * passes immediately after adoption.
+ */
+function generateIndex(rootDir: string, specAbs: string, det: Detection): void {
+  const rows: string[] = [];
+  for (const f of det.numbered) {
+    const num = extractNumber(f);
+    if (num === null) continue;
+    const phase = parsePhaseFile(join(specAbs, f), f);
+    const title = phaseTitle(phase.title, num, f);
+    const emoji = expectedEmoji(phase.checked, phase.total);
+    const depends = phase.dependsOn && phase.dependsOn.trim() ? phase.dependsOn.trim() : "None";
+    rows.push(`| ${num} | [${f}](${f}) | ${title} | ${emoji} ${phase.checked}/${phase.total} | ${depends} |`);
+  }
+
+  const template = readFileSync(join(templateDir(), "spec", "README.md"), "utf8");
+  const out: string[] = [];
+  for (const line of template.split("\n")) {
+    // Drop the template's example row; insert the real phases in its place.
+    if (/^\|\s*\d+\s*\|\s*\[01-example-phase\.md\]/.test(line)) {
+      out.push(...rows);
+      continue;
+    }
+    out.push(line);
+  }
+
+  const text = out.join("\n").replace("# <Project> — Spec Index", `# ${basename(rootDir)} — Spec Index`);
+  writeFileSync(join(specAbs, "README.md"), text);
+  console.log(`${GRN}✔${RST} generated README.md (${rows.length} phase rows)`);
 }
 
 function generateBacklog(specAbs: string, det: Detection): void {

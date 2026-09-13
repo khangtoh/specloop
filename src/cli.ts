@@ -10,6 +10,7 @@ import { runPrioTask } from "./commands/prioTask.js";
 import { runPrioSpec } from "./commands/prioSpec.js";
 import { runListSpec } from "./commands/listSpec.js";
 import { runPreflight } from "./commands/preflight.js";
+import { parseSkillsMode, SKILLS_MODES } from "./commands/agentAssets.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -29,7 +30,8 @@ Usage:
   specloop <command> [options]
 
 Commands:
-  init [dir]              Scaffold the spec/ structure, BACKLOG, AGENTS.md, config.
+  init [dir]              Scaffold the spec/ structure, BACKLOG, AGENTS.md, config,
+                          and the .claude/ skills + /spec-* commands.
   check                   Validate the spec structure; non-zero exit on errors.
   status                  Show phase progress + next box, in BACKLOG order.
   list-spec [filter]      List phases in priority order (all|done|undone).
@@ -37,7 +39,8 @@ Commands:
   prio-spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
   prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   upgrade [dir]           Adopt an existing project's spec model into specloop
-                          (report; --apply to scaffold non-destructively).
+                          (report; --apply to scaffold non-destructively, incl.
+                          the .claude/ skills + /spec-* commands).
   goal-check "<goal>"     Print the goal-completion-check prompt for "<goal>".
   help, --help            Show this help.
   version, --version      Show the version.
@@ -48,6 +51,9 @@ Options:
   --apply                 (upgrade) perform the adoption instead of a dry run.
   --json                  (check, status, list-spec, preflight) machine-readable output.
   --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
+  --skills <mode>         (init, upgrade) how the specloop skills and /spec-*
+                          commands land in .claude/: copy (default), link
+                          (symlink into a specloop checkout), or none.
 
 Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
 within a phase, task tags \`- [ ] (p1) …\` (p1 high, p2/untagged medium, p3 low)
@@ -60,6 +66,7 @@ Examples:
   specloop list-spec undone
   specloop prio-spec 22 0          # move phase 22 to the top of the backlog
   specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
+  specloop init --skills none      # scaffold spec/ only, no .claude/ assets
   specloop upgrade ./other-repo --apply
   specloop goal-check "the checkout flow is done"
 `;
@@ -81,6 +88,12 @@ export function main(argv: string[]): number {
   const dirFlag = takeFlagValue(rest, "--dir");
   const to = takeFlagValue(rest, "--to");
   const force = takeFlag(rest, "--force");
+  const skillsRaw = takeFlagValue(rest, "--skills");
+  const skills = parseSkillsMode(skillsRaw);
+  if (skillsRaw !== undefined && skills === undefined) {
+    console.error(`Invalid --skills value: ${skillsRaw}. Expected one of: ${SKILLS_MODES.join(", ")}.`);
+    return 1;
+  }
   const apply = takeFlag(rest, "--apply");
   const json = takeFlag(rest, "--json");
   const positional = rest.filter((a) => !a.startsWith("--"));
@@ -88,7 +101,7 @@ export function main(argv: string[]): number {
 
   switch (cmd) {
     case "init":
-      return runInit(positional[0] ?? rootDir, { force });
+      return runInit(positional[0] ?? rootDir, { force, skills });
     case "check":
       return runCheck(rootDir, { json });
     case "preflight":
@@ -105,7 +118,7 @@ export function main(argv: string[]): number {
     case "priotask":
       return runPrioTask(rootDir, positional[0], to);
     case "upgrade":
-      return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply });
+      return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills });
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));

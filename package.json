@@ -23,6 +23,7 @@
     "check:self": "bun run bin/specloop.ts check --dir .",
     "status": "bun run bin/specloop.ts status --dir .",
     "test": "bun test",
+    "verify:onboarding": "bash scripts/verify-onboarding.sh",
     "typecheck": "tsc --noEmit",
     "release": "bash scripts/release.sh"
   },

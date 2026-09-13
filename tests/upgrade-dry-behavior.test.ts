@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runUpgrade } from "../src/commands/upgrade.js";
+import { installAgentAssets } from "../src/commands/agentAssets.js";
 
 let dir: string;
 
@@ -22,20 +23,26 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
     "  ◦ add spec/spec-summary-status.md",
     "  ◦ add spec/goal-completion-check.md",
     "  ◦ add spec/agent-session-ledger.md",
+    "  ◦ generate spec/README.md (phase index) from 1 numbered specs",
     "  ◦ generate spec/BACKLOG.md from 1 numbered specs",
     "  ◦ add spec/specloop-run-state.md (optional advisory run record)",
     "  ◦ add AGENTS.md (specloop binding)",
     "  ◦ add .specloop.json (validator config)",
+    "  ◦ install 4 specloop skills and 7 /spec-* commands into .claude/",
   ]);
 });
 
 test("a complete specloop layout has an empty adoption plan", () => {
   phase("Goal: g.\n\nDepends on: None.\n\n- [ ] t\n");
-  for (const name of ["spec-summary-status.md", "goal-completion-check.md", "agent-session-ledger.md", "BACKLOG.md", "specloop-run-state.md"]) {
+  for (const name of ["spec-summary-status.md", "goal-completion-check.md", "agent-session-ledger.md", "BACKLOG.md", "specloop-run-state.md", "README.md"]) {
     writeFileSync(join(dir, "spec", name), "present\n");
   }
   writeFileSync(join(dir, "AGENTS.md"), "present\n");
   writeFileSync(join(dir, ".specloop.json"), "{}\n");
+  // A complete layout now includes the project-scoped agent assets.
+  const log = console.log;
+  console.log = () => {};
+  try { installAgentAssets(dir); } finally { console.log = log; }
   const output = clean(capture(() => runUpgrade(dir)));
   expect(output).toContain("Nothing to adopt.");
   expect(output).not.toContain("Adoption plan:");
