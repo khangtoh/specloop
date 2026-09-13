@@ -114,14 +114,23 @@ Depends on: None.
 
 - _2026-09-13_ — Release blocked at the publish step, not the build. `bun run
   release minor --dry` passed every gate (72 tests, template + self check, 62/62
-  onboarding, typecheck). The real run reached `npm publish` and npm returned
-  `E403: Two-factor authentication or granular access token with bypass 2fa
-  enabled is required`. The script's ordering held: `package.json` is bumped to
-  0.5.0, nothing was tagged or pushed, and npm still serves 0.4.0. The bump is
-  now committed alongside this record. Resume with:
-  `npm publish --otp=<code>` (or a granular token with 2FA bypass), then
-  `git tag v0.5.0 && git push --follow-tags origin main`. Do not re-run
-  `bun run release minor` — it would bump 0.5.0 to 0.6.0.
+  onboarding, typecheck) and `npm publish --dry-run` reports
+  `+ @khangtoh/specloop@0.5.0`, so the artifact is publishable. The real publish
+  returns `E403: Two-factor authentication or granular access token with bypass
+  2fa enabled is required`. The script's ordering held: nothing was tagged or
+  pushed and npm still serves 0.4.0; the 0.5.0 bump is committed.
+
+- _2026-09-13_ — Diagnosis corrected. The blocker is the *credential type*, not
+  an OTP prompt: `npm profile get` reports `two-factor auth: disabled` for
+  `khangtoh`, so no OTP can be generated and `npm publish --otp=<code>` cannot
+  work. `npm token list` shows a single granular token (id `988c23`, created
+  2026-08-22) which lacks the "bypass 2FA" capability npm now requires for
+  publishing. This clone has no repo-local `.npmrc` (the file is gitignored),
+  so it falls back to `~/.npmrc`; 0.4.0 was very likely published from an
+  environment holding a different, publish-capable token. Resolve by minting a
+  granular token with "bypass 2FA" and read/write on `@khangtoh/specloop`, or
+  by enabling account 2FA and using an OTP. `scripts/finish-release.sh` then
+  completes the release (publish, tag, push) without re-bumping the version.
 
 - _2026-09-13_ — The local Bun package cache that blocked Phase 03's runtime
   task has recovered: `bun install` succeeded (5 packages) and `bun run
