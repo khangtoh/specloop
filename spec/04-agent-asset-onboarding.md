@@ -112,6 +112,17 @@ Depends on: None.
   01 marked `upgrade` verified 28/28 without catching it because no test ran
   the validator over an adopted tree. `tests/upgrade-apply.test.ts` now does.
 
+- _2026-09-13_ — Release blocked at the publish step, not the build. `bun run
+  release minor --dry` passed every gate (72 tests, template + self check, 62/62
+  onboarding, typecheck). The real run reached `npm publish` and npm returned
+  `E403: Two-factor authentication or granular access token with bypass 2fa
+  enabled is required`. The script's ordering held: `package.json` is bumped to
+  0.5.0, nothing was tagged or pushed, and npm still serves 0.4.0. The bump is
+  now committed alongside this record. Resume with:
+  `npm publish --otp=<code>` (or a granular token with 2FA bypass), then
+  `git tag v0.5.0 && git push --follow-tags origin main`. Do not re-run
+  `bun run release minor` — it would bump 0.5.0 to 0.6.0.
+
 - _2026-09-13_ — The local Bun package cache that blocked Phase 03's runtime
   task has recovered: `bun install` succeeded (5 packages) and `bun run
   typecheck` now exits 0. Phase 03's own boxes are left untouched — that
