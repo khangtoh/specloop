@@ -84,7 +84,7 @@ Depends on: None.
 - [ ] Decide and document the project-local path Codex reads skills from, then
       extend the installer with an `--agent claude|codex|both` flag. Deferred:
       the Claude Code path is verified, the Codex one is not.
-- [ ] Publish the release to npm and confirm the published tarball installs and
+- [x] Publish the release to npm and confirm the published tarball installs and
       onboards a fresh repository.
 
 ## Findings / Results
@@ -131,6 +131,22 @@ Depends on: None.
   granular token with "bypass 2FA" and read/write on `@khangtoh/specloop`, or
   by enabling account 2FA and using an OTP. `scripts/finish-release.sh` then
   completes the release (publish, tag, push) without re-bumping the version.
+
+- _2026-09-13_ — Released as 0.5.0 and verified from the registry. Root cause of
+  the publish failures was stale authentication, not policy: `npm login`
+  refreshed the session token, and the publish that immediately followed still
+  returned `E403` before succeeding on the next attempt. A placeholder
+  `--otp 000000` was passed on the successful run and npm accepted it, so the
+  code was not what authorized the publish — the refreshed login was. Account
+  2FA remains disabled and npm warned during login that bypass-2FA tokens are
+  being restricted for direct publishing, so enabling 2FA is the durable fix
+  before the next release. Evidence: `+ @khangtoh/specloop@0.5.0`;
+  `npm view @khangtoh/specloop version` → `0.5.0`; pushed `6f75475..af52d8c`
+  with tag `v0.5.0`. Fresh-repo proof against the published package (not a local
+  tarball): `bun add -d @khangtoh/specloop` installed 0.5.0, `bunx specloop init`
+  wrote all 4 skills and 7 commands, `bunx specloop check` reported the
+  structure valid, and the installed `SKILL.md` is byte-identical to the
+  published one.
 
 - _2026-09-13_ — The local Bun package cache that blocked Phase 03's runtime
   task has recovered: `bun install` succeeded (5 packages) and `bun run
