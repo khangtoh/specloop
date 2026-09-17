@@ -1,3 +1,4 @@
+import { refreshAssets, type Agent } from "./refresh.js";
 import { cpSync, existsSync, readdirSync, mkdirSync, copyFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +17,7 @@ function templateDir(): string {
 
 export function runInit(
   targetDir: string,
-  opts: { force?: boolean; skills?: SkillsMode } = {},
+  opts: { force?: boolean; skills?: SkillsMode; agent?: Agent } = {},
 ): number {
   const tpl = templateDir();
   if (!existsSync(tpl)) {
@@ -35,7 +36,9 @@ export function runInit(
   mkdirSync(targetDir, { recursive: true });
 
   // spec/ directory (always).
-  cpSync(join(tpl, "spec"), specDest, { recursive: true });
+  cpSync(join(tpl, "spec"), specDest, { recursive: true,
+    filter: (_src, dest) => !(dest === join(specDest, "agent-session-ledger.md") && existsSync(dest)),
+  });
   console.log(`${GRN}✔${RST} spec/  ${DIM}(README, process files, example phase)${RST}`);
 
   // .specloop.json config.
@@ -45,7 +48,12 @@ export function runInit(
   copyIfAbsentOrForce(join(tpl, "AGENTS.md"), join(targetDir, "AGENTS.md"), opts.force);
 
   // Project-scoped agent assets, so the repo onboards without a plugin install.
-  const assets = installAgentAssets(targetDir, { mode: opts.skills ?? "copy", force: opts.force });
+  const assets = installAgentAssets(targetDir, { mode: opts.skills ?? "copy", force: opts.force, agent: opts.agent });
+  if (opts.skills !== "none") {
+    for (const a of refreshAssets(targetDir, { agent: opts.agent, apply: true, onlyIntegration: true })) {
+      if (a.status !== "current") console.log(`${a.status}: ${a.path}`);
+    }
+  }
 
   console.log(`\n${GRN}specloop initialized.${RST} Next steps:`);
   console.log(`  1. Edit ${DIM}spec/README.md${RST} — set the project goal and replace the example phase.`);
@@ -54,8 +62,8 @@ export function runInit(
   console.log(`  4. Run the loop: pick the next unchecked box, verify, check it, hand off, commit.`);
   if (assets.installed.length > 0) {
     console.log(
-      `\n${DIM}The specloop skill and /spec-* commands are installed in .claude/ for this` +
-        `\nrepository — restart the agent session to pick them up, then run /spec-loop.${RST}`,
+      `\n${DIM}Agent assets and hook configuration installed for this` +
+        `\nrepository — activity unverified. Review trust in /hooks and restart the runtime.${RST}`,
     );
   }
   return 0;

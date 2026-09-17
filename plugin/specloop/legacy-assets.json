@@ -1,0 +1,15 @@
+{
+  "skills/list-spec/SKILL.md": "1f3c50560816df917acc96236c194058dd942649b1339e2cb1095763aa46d498",
+  "skills/prio-spec/SKILL.md": "ff041d6ddee4813d91a971eca5d78db044f0b00b32c73d6b32f2233b6823000a",
+  "skills/spec-upgrade/SKILL.md": "c4efc965bb0c45ffad096d5dcd5ad29e942056f1de6f50a133e7083f00ed90fc",
+  "skills/specloop/SKILL.md": "c633ad205b73cdcbecaafefebbdef208be827cd641dd108506a375b5239c21bf",
+  "commands/list-spec.md": "4a142bb8af5d84cfb1654684a5d0684b070bb0f66e58539f4f01f406a7713355",
+  "commands/spec-status.md": "c1286729adaa912910c799378ea7e4c748f0aeb4b1359be118ae185c703cbbdd",
+  "commands/spec-upgrade.md": "f31019e68cfc5779f74b260d560ed6be10d1509d554602271b8744ea6d3afc56",
+  "commands/spec-init.md": "df33190baf731738c5afb7ae6cffa74070581dcf06481a808548d15fbf1688b7",
+  "commands/spec-loop.md": "c659db075696bce1595b1f3d7ef3195b7e069633799c8f21775072c78d42bea6",
+  "commands/goal-check.md": "c3d68105f4fa390ca019afe3a54a3b007c2406eecda419bf486182fa71d7f3b1",
+  "commands/prio-spec.md": "3b434a091ef564fc806b4c6d229391843640c1e6c68ca3bbe7489ffeb81f4388",
+  "AGENTS.md": "e34d7b49200b0acf1e445e14f7a402c5111404026ffc9bcf43ab8be612e40a9b",
+  "spec/spec-summary-status.md": "4f73306c18a3e9b8c39ea7dbac492addf834b7365b08e971313eb236d647e0e1"
+}

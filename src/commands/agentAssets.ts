@@ -1,3 +1,4 @@
+import { rememberInstalled, type Agent } from "./refresh.js";
 import {
   cpSync,
   existsSync,
@@ -44,10 +45,14 @@ export interface AgentAssetResult extends AgentAssetPlan {
  * `.claude/commands/<name>.md`; the shipped files reference only repo-relative
  * `spec/` paths and the `specloop` CLI, so they need no rewriting when copied.
  */
-const GROUPS = [
+const CLAUDE_GROUPS = [
   { src: "skills", dest: join(".claude", "skills") },
   { src: "commands", dest: join(".claude", "commands") },
 ] as const;
+
+function groups(agent: Agent) {
+  return [...(agent !== "codex" ? CLAUDE_GROUPS : []), ...(agent !== "claude" ? [{ src: "skills", dest: ".agents/skills" }] : [])];
+}
 
 /** Package root = two levels up from src/commands; `plugin` ships via package.json `files`. */
 export function pluginDir(): string {
@@ -92,11 +97,11 @@ export function parseSkillsMode(value: string | undefined): SkillsMode | undefin
 }
 
 /** Inspect the target without changing it — the dry-run half of the install. */
-export function planAgentAssets(targetDir: string, src: string = pluginDir()): AgentAssetPlan {
+export function planAgentAssets(targetDir: string, src: string = pluginDir(), agent: Agent = "claude"): AgentAssetPlan {
   if (!existsSync(src)) return { missing: [], present: [], unavailable: src };
 
   const plan: AgentAssetPlan = { missing: [], present: [] };
-  for (const group of GROUPS) {
+  for (const group of groups(agent)) {
     const from = join(src, group.src);
     if (!existsSync(from)) continue;
     for (const entry of readdirSync(from).sort()) {
@@ -114,11 +119,12 @@ export function planAgentAssets(targetDir: string, src: string = pluginDir()): A
  */
 export function installAgentAssets(
   targetDir: string,
-  opts: { mode?: SkillsMode; force?: boolean } = {},
+  opts: { mode?: SkillsMode; force?: boolean; agent?: Agent } = {},
 ): AgentAssetResult {
+  const agent = opts.agent ?? "claude";
   const mode = opts.mode ?? "copy";
   const src = pluginDir();
-  const result: AgentAssetResult = { ...planAgentAssets(targetDir, src), installed: [], mode };
+  const result: AgentAssetResult = { ...planAgentAssets(targetDir, src, agent), installed: [], mode };
   if (mode === "none") return result;
 
   if (result.unavailable) {
@@ -134,7 +140,7 @@ export function installAgentAssets(
     result.mode = "copy";
   }
 
-  for (const group of GROUPS) {
+  for (const group of groups(agent)) {
     const from = join(src, group.src);
     if (!existsSync(from)) continue;
     mkdirSync(join(targetDir, group.dest), { recursive: true });
@@ -156,12 +162,13 @@ export function installAgentAssets(
       console.log(`${GRN}✔${RST} ${rel}`);
     }
   }
+  rememberInstalled(targetDir, result.installed, agent);
   return result;
 }
 
 /** One line describing what an install would add, for a dry-run plan. */
 export function describeAgentAssets(plan: AgentAssetPlan): string {
-  const skills = plan.missing.filter((p) => p.includes(join(".claude", "skills"))).length;
+  const skills = plan.missing.filter((p) => p.includes("skills/")).length;
   const commands = plan.missing.filter((p) => p.includes(join(".claude", "commands"))).length;
-  return `install ${skills} specloop skill${skills === 1 ? "" : "s"} and ${commands} /spec-* command${commands === 1 ? "" : "s"} into .claude/`;
+  return `install ${skills} specloop skill${skills === 1 ? "" : "s"} and ${commands} /spec-* command${commands === 1 ? "" : "s"} into the selected agent directories`;
 }

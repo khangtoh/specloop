@@ -14,6 +14,8 @@ kept here), so there is nothing to sync.
 
 ## Phases (priority order)
 
+- 05 Automatic decision reconciliation
+
 - 04 Agent-asset onboarding for new and migrated repos
 - 01 Verify the `upgrade` command
 - 02 Autonomous `specloop` run contract

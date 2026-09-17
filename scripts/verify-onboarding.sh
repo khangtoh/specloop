@@ -151,7 +151,34 @@ mkdir -p "$OPT"
 assert_file   "$OPT/spec/README.md" "spec/ still scaffolded"
 assert_absent "$OPT/.claude"        ".claude/"
 
-# 5. Verdict -------------------------------------------------------------------
+# 5. Both runtimes and safe refresh from the packed package --------------------
+step "scenario D — both runtimes, hooks and safe refresh"
+BOTH="$WORK/both runtimes with spaces"
+mkdir -p "$BOTH"
+(
+  cd "$BOTH"
+  bun add -d "$TARBALL" --silent >/dev/null 2>&1
+  bunx specloop init --agent both
+  bunx specloop refresh --agent both
+  bunx specloop refresh --agent both --apply
+) > "$WORK/both.log" 2>&1 || { cat "$WORK/both.log"; exit 1; }
+for f in .agents/skills/specloop/SKILL.md .codex/hooks.json .claude/settings.json .specloop/hooks/reconcile.mjs .specloop/managed-assets.json spec/decision-reconciliation.md; do
+  assert_file "$BOTH/$f" "$f (packed install)"
+done
+assert_same "$BOTH/.specloop/hooks/reconcile.mjs" "$BOTH/node_modules/@khangtoh/specloop/plugin/specloop/hooks/reconcile.mjs" "shared runner matches packed source"
+(
+  cd "$BOTH"
+  bun -e 'const fs = require("fs"); for (const path of [".codex/hooks.json", ".claude/settings.json"]) { const c = JSON.parse(fs.readFileSync(path)); for (const e of ["SessionStart", "UserPromptSubmit", "Stop"]) if (c.hooks[e].length !== 1) process.exit(1); }'
+) && ok "both runtime configs contain one handler per event" || bad "runtime hook configuration differs"
+cp "$BOTH/spec/agent-session-ledger.md" "$WORK/ledger-before.md"
+echo "Custom instruction" >> "$BOTH/AGENTS.md"
+refresh_status=0
+(cd "$BOTH" && bunx specloop refresh --agent both --apply) > "$WORK/refresh.log" 2>&1 || refresh_status=$?
+[ "$refresh_status" -eq 2 ] && ok "custom instructions reported for manual merge" || bad "expected refresh exit 2"
+grep -q 'Custom instruction' "$BOTH/AGENTS.md" && ok "custom instructions preserved" || bad "custom instructions overwritten"
+assert_same "$BOTH/spec/agent-session-ledger.md" "$WORK/ledger-before.md" "refresh preserves ledger bytes"
+
+# 6. Verdict -------------------------------------------------------------------
 printf '\n%s%d passed, %d failed%s\n' "$BOLD" "$PASS" "$FAIL" "$RST"
 [ "$FAIL" -eq 0 ] || exit 1
 printf '%s✔ onboarding verified end to end%s\n' "$GRN" "$RST"

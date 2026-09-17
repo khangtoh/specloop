@@ -1,3 +1,4 @@
+import { AGENTS, runRefresh, type Agent } from "./commands/refresh.js";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,7 +32,8 @@ Usage:
 
 Commands:
   init [dir]              Scaffold the spec/ structure, BACKLOG, AGENTS.md, config,
-                          and the .claude/ skills + /spec-* commands.
+                          and selected agent skills, commands and hooks.
+  refresh [dir]          Refresh recognized agent assets (dry run; --apply to write).
   check                   Validate the spec structure; non-zero exit on errors.
   status                  Show phase progress + next box, in BACKLOG order.
   list-spec [filter]      List phases in priority order (all|done|undone).
@@ -40,7 +42,7 @@ Commands:
   prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   upgrade [dir]           Adopt an existing project's spec model into specloop
                           (report; --apply to scaffold non-destructively, incl.
-                          the .claude/ skills + /spec-* commands).
+                          selected agent skills, commands and hooks).
   goal-check "<goal>"     Print the goal-completion-check prompt for "<goal>".
   help, --help            Show this help.
   version, --version      Show the version.
@@ -48,11 +50,12 @@ Commands:
 Options:
   --dir <path>            Project root to operate on (default: cwd).
   --force                 (init) overwrite an existing spec/ and files.
-  --apply                 (upgrade) perform the adoption instead of a dry run.
+  --apply                 (upgrade, refresh) apply the inspected changes.
   --json                  (check, status, list-spec, preflight) machine-readable output.
   --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
+  --agent <runtime>      (init, upgrade, refresh) claude (default), codex, both.
   --skills <mode>         (init, upgrade) how the specloop skills and /spec-*
-                          commands land in .claude/: copy (default), link
+                          commands land: copy (default), link
                           (symlink into a specloop checkout), or none.
 
 Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
@@ -66,7 +69,7 @@ Examples:
   specloop list-spec undone
   specloop prio-spec 22 0          # move phase 22 to the top of the backlog
   specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
-  specloop init --skills none      # scaffold spec/ only, no .claude/ assets
+  specloop init --skills none      # scaffold spec/ only, no agent assets/hooks
   specloop upgrade ./other-repo --apply
   specloop goal-check "the checkout flow is done"
 `;
@@ -88,6 +91,12 @@ export function main(argv: string[]): number {
   const dirFlag = takeFlagValue(rest, "--dir");
   const to = takeFlagValue(rest, "--to");
   const force = takeFlag(rest, "--force");
+  const agentPresent = rest.includes("--agent");
+  const agentRaw = takeFlagValue(rest, "--agent");
+  if (agentPresent && !AGENTS.includes(agentRaw as Agent)) {
+    console.error("Invalid --agent value. Expected claude, codex, or both."); return 1;
+  }
+  const agent = (agentRaw ?? "claude") as Agent;
   const skillsRaw = takeFlagValue(rest, "--skills");
   const skills = parseSkillsMode(skillsRaw);
   if (skillsRaw !== undefined && skills === undefined) {
@@ -101,7 +110,9 @@ export function main(argv: string[]): number {
 
   switch (cmd) {
     case "init":
-      return runInit(positional[0] ?? rootDir, { force, skills });
+      return runInit(positional[0] ?? rootDir, { force, skills, agent });
+    case "refresh":
+      return runRefresh(dirFlag ?? positional[0] ?? process.cwd(), { apply, agent });
     case "check":
       return runCheck(rootDir, { json });
     case "preflight":
@@ -118,7 +129,7 @@ export function main(argv: string[]): number {
     case "priotask":
       return runPrioTask(rootDir, positional[0], to);
     case "upgrade":
-      return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills });
+      return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills, agent });
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));

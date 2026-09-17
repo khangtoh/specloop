@@ -38,8 +38,9 @@ mandatory completion procedure for every agent handoff.
 [`agent-session-ledger.md`](agent-session-ledger.md) — a dated log of
 what each agent session did, decided, and left running (distinct from
 the spec files, which are requirements/checklists, not narrative).
-Read this first when resuming after a break; append a new entry when
-closing one out.
+Read it before every task and after resumption or compaction. Follow
+[decision reconciliation](decision-reconciliation.md); append resolutions before
+dependent implementation and session entries for material work.
 
 ## Phases
 

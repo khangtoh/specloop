@@ -1,3 +1,4 @@
+import { refreshAssets, type Agent } from "./refresh.js";
 import {
   existsSync,
   readdirSync,
@@ -114,7 +115,7 @@ export function detect(rootDir: string): Detection {
  */
 export function runUpgrade(
   rootDir: string,
-  opts: { apply?: boolean; skills?: SkillsMode } = {},
+  opts: { apply?: boolean; skills?: SkillsMode; agent?: Agent } = {},
 ): number {
   const det = detect(rootDir);
   console.log(`${BOLD}specloop upgrade${RST} ${DIM}(inspecting ${rootDir})${RST}\n`);
@@ -140,7 +141,7 @@ export function runUpgrade(
   console.log(`  AGENTS.md:          ${yesno(det.hasAgents)}\n`);
 
   const skills = opts.skills ?? "copy";
-  const actions = planActions(det, rootDir, skills);
+  const actions = planActions(det, rootDir, skills, opts.agent);
   if (actions.length === 0) {
     if (opts.apply) reportKeptFiles(det, rootDir, skills);
     console.log(`${GRN}✔ Already a complete specloop layout.${RST} Nothing to adopt.`);
@@ -195,7 +196,7 @@ function reportKeptFiles(det: Detection, rootDir: string, skills: SkillsMode = "
 }
 
 
-function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy"): Action[] {
+function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy", agent: Agent = "claude"): Action[] {
   const actions: Action[] = [];
   const tpl = templateDir();
 
@@ -238,15 +239,23 @@ function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy
     });
   }
   if (skills !== "none") {
-    const assets = planAgentAssets(rootDir);
+    const assets = planAgentAssets(rootDir, undefined, agent);
     if (!assets.unavailable && assets.missing.length > 0) {
       actions.push({
         label: describeAgentAssets(assets),
         run: (rootDir) => {
-          installAgentAssets(rootDir, { mode: skills });
+          installAgentAssets(rootDir, { mode: skills, agent });
         },
       });
     }
+  }
+  if (skills !== "none") {
+    const integration = refreshAssets(rootDir, { agent, onlyIntegration: true });
+    if (integration.some(a => a.status === "add" || a.status === "update")) actions.push({
+      label: "install reconciliation instructions and hooks (activity unverified; review /hooks and restart)",
+      run: root => { for (const a of refreshAssets(root, { agent, apply: true, onlyIntegration: true })) if (a.status !== "current") console.log(`${a.status}: ${a.path}`); },
+    });
+    for (const a of integration.filter(a => a.status === "manual merge")) console.log(`manual merge: ${a.path} — preserved; run specloop refresh`);
   }
   return actions;
 }

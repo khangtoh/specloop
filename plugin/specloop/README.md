@@ -36,3 +36,18 @@ the spec files directly.
 
 See the repository root `README.md` and `docs/methodology.md` for the full
 method.
+
+
+## Decision reconciliation and project hooks
+
+Every skill and command includes the same reconciliation contract, including
+work outside `/spec-loop`. `specloop init --agent claude|codex|both` and
+`upgrade --apply` install project hooks with the shared runner in
+`.specloop/hooks/reconcile.mjs`. Codex skills go in `.agents/skills`;
+Claude retains `.claude/skills` and `.claude/commands`.
+
+`refresh --agent both` previews safe updates; add `--apply` to install them.
+Custom assets require manual merges. Ledger history is never overwritten.
+The marketplace plugin provides skills/commands; use the CLI project install
+for the reconciliation hooks. Installing files does not establish runtime
+trust or activation. See `docs/decision-reconciliation.md` in the package.

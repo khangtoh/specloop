@@ -81,7 +81,7 @@ Depends on: None.
       marketplace install in the root `README.md`.
 - [x] Note in `plugin/specloop/README.md` that the assets are plugin-root-free
       and therefore safe to copy per repository.
-- [ ] Decide and document the project-local path Codex reads skills from, then
+- [x] Decide and document the project-local path Codex reads skills from, then
       extend the installer with an `--agent claude|codex|both` flag. Deferred:
       the Claude Code path is verified, the Codex one is not.
 - [x] Publish the release to npm and confirm the published tarball installs and
@@ -152,3 +152,13 @@ Depends on: None.
   task has recovered: `bun install` succeeded (5 packages) and `bun run
   typecheck` now exits 0. Phase 03's own boxes are left untouched — that
   verification belongs to its own loop iteration.
+
+- _2026-09-16_ — Codex deferral superseded by Phase 05 under the user’s direct
+  implementation instruction. Claude remains default; safe refresh extends the
+  original non-overwrite policy without reopening historical completed tasks.
+
+- _2026-09-17_ — Remaining Codex onboarding task completed via Phase 05:
+  `--agent claude|codex|both`, `.agents/skills`, official skill-location
+  documentation, automated init/upgrade tests and packed onboarding checks.
+  The live Codex probe read the installed skill at that path. Runtime hook
+  acceptance remains separately open in Phase 05; no release performed.

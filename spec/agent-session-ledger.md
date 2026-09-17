@@ -249,3 +249,45 @@ checks and must be closed with recorded transcript evidence, not assertion.
 - _2026-09-13_ — 0.5.0 release attempted and blocked by npm two-factor authentication (`E403` on publish). Nothing was tagged or pushed and the registry still serves 0.4.0; the 0.5.0 bump in `package.json` is committed. Diagnosis corrected after investigation: account 2FA is *disabled*, so no OTP exists and `--otp` cannot work; the single granular token in `~/.npmrc` lacks the "bypass 2FA" capability npm requires for publishing, and this fresh clone has no repo-local `.npmrc` (gitignored) — 0.4.0 was likely published with a different token. Resume: mint a granular token with bypass-2FA and read/write on the package, then `NPM_TOKEN=npm_xxx bash scripts/finish-release.sh`, which publishes, tags `v0.5.0`, and pushes without re-bumping. Do not re-run `bun run release minor` (it would bump to 0.6.0).
 
 - _2026-09-13_ — Phase 04 released: `@khangtoh/specloop@0.5.0` published, tag `v0.5.0` pushed with `main` at `af52d8c`. The publish blocker was stale auth, not npm policy — `npm login` refreshed the session token and the next attempt succeeded; the placeholder `--otp 000000` on that run was accepted and therefore did not authorize anything. Two earlier diagnoses in this session were wrong (first prescribing an OTP with 2FA disabled, then concluding no credential could work); the record in the phase Findings is corrected. Verified from the registry in a throwaway repo: `bun add -d @khangtoh/specloop` → 0.5.0, `bunx specloop init` → 4 skills + 7 commands byte-identical to the published package, `bunx specloop check` valid. Phase 04 now 22/23. Resume point: the sole open box is the Codex project-local skill path (`--agent claude|codex|both`), deferred as unverified. Recommend enabling npm account 2FA before the next release.
+
+
+## Session: 2026-09-16 — automatic decision reconciliation intake
+
+**Previous decision:** Phase 04 and the 2026-09-13 ledger deferred Codex paths;
+existing assets were protected unless explicitly forced.
+
+**Conflicting instruction:** The user's implementation plan now requires Codex
+onboarding, automatic reconciliation, and safe dry-run/apply refresh.
+
+**Resolution:** Implement Phase 05 now under the direct request. Claude remains
+the compatibility default; add `.agents/skills` and `.codex/hooks.json` for Codex.
+Refresh may replace only byte-recognized shipped assets or unchanged managed
+assets. Custom assets require manual merging. This extends the prior protection;
+no historical checklist completion or ledger entry is undone. No publishing.
+
+**Scope and consequences:** Phase 04's remaining Codex task and Phase 05's new
+instruction/hook/refresh tasks are in scope. Live runtime acceptance requires
+observed runtime evidence, separately from simulated hook payload tests.
+
+
+## Session: 2026-09-17 — reconciliation implementation handoff
+
+Implemented Phase 05's contract, shared runner, both-runtime onboarding and
+safe refresh. Phase 04's deferred Codex path is now implemented and verified;
+its earlier deferral is superseded by the 2026-09-16 intake resolution above.
+The default remains Claude, custom assets require manual merging, historical
+ledger bytes survive refresh and forced init, and no publishing was attempted.
+
+Verification: 101 tests pass; typecheck and template/self structural validators
+pass; packed onboarding has 73 passing assertions. Added regression coverage
+for committed changes, resume/compact baselines, concurrent sessions, retry
+bounds, Plan Mode, legacy/customized assets, hook merges and paths with spaces.
+The final runner fix consolidates context plus an error into one JSON response.
+
+Resume point: Phase 05 is 11/14. Claude authentication is unavailable per auth
+inspection; Codex's live probe loaded the installed skill but received no visible
+hook context. Review runtime trust/activation, then execute the remaining live
+hook and realistic behavior scenarios documented in docs/decision-reconciliation.md.
+Evidence: spec/evidence/05-runtime-probe.md. Installed configuration and synthetic
+payload tests are explicitly not evidence that hooks are active. No unrelated
+user hooks were enabled via a broad trust bypass.

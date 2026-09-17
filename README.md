@@ -59,19 +59,41 @@ specloop init              # scaffold spec/ into the current repo
 
 Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 
-`init` also installs the `specloop` skill and the `/spec-*` commands into the
-repo's `.claude/` directory, so a fresh clone onboards its agent with no
-separate plugin install. Commit them and the whole team gets the loop. Control
-it with `--skills`:
+`init` and `upgrade --apply` install project-local agent assets and reconciliation
+hooks. Claude is the compatibility default; choose `--agent codex` or `--agent both`.
+Commit the installed files so every clone receives them.
 
-| `--skills` | Effect |
-|---|---|
-| `copy` (default) | Copy the skills and commands into `.claude/` — self-contained and committable. |
-| `link` | Symlink them into a local specloop checkout, for developing specloop itself. |
-| `none` | Scaffold `spec/` only and leave `.claude/` alone. |
+| Target | Skills / commands | Hook configuration |
+|---|---|---|
+| Claude | `.claude/skills`, `.claude/commands` | `.claude/settings.json` (merged) |
+| Codex | `.agents/skills` | `.codex/hooks.json` (merged) |
+| Shared | `AGENTS.md`, process contract | `.specloop/hooks/reconcile.mjs` |
 
-Existing files are never clobbered; `--force` restores them to the shipped
-version. Restart the agent session after an install to pick the assets up.
+`--skills copy` is the default. `link` symlinks skills/commands into a local
+specloop checkout; package-cache sources fall back to copy. `none` skips agent
+assets and hooks. `init --force` restores scaffold files and skills, but always
+preserves existing ledger history. Hook configurations use safe merging even
+with `--force`.
+
+For existing installations, preview and apply a safe refresh:
+
+```bash
+specloop refresh --agent both
+specloop refresh --agent both --apply
+```
+
+Refresh replaces only unchanged managed assets or byte-recognized shipped
+assets from 0.5.0. Customized instructions, skills, symlinks, and hooks are
+preserved and reported as `manual merge` (exit 2). Unrelated hooks and settings
+survive. No ledger is ever replaced by refresh. The committed
+`.specloop/managed-assets.json` records ownership hashes; it contains no session
+history. Merge the reported instruction changes manually and rerun the preview.
+
+Installed configuration does **not** establish active hooks. Review the runner
+and hook definitions, approve runtime trust, restart the session, and inspect
+`/hooks`. Bun must be on the runtime's PATH. See
+[reconciliation and runtime acceptance](docs/decision-reconciliation.md) for
+behavior, limitations, trust requirements and acceptance scenarios.
 
 ### As a Claude Code plugin
 

@@ -1,3 +1,4 @@
+import { refreshAssets } from "../src/commands/refresh.js";
 import { test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -28,7 +29,8 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
     "  ◦ add spec/specloop-run-state.md (optional advisory run record)",
     "  ◦ add AGENTS.md (specloop binding)",
     "  ◦ add .specloop.json (validator config)",
-    "  ◦ install 4 specloop skills and 7 /spec-* commands into .claude/",
+    "  ◦ install 4 specloop skills and 7 /spec-* commands into the selected agent directories",
+    "  ◦ install reconciliation instructions and hooks (activity unverified; review /hooks and restart)",
   ]);
 });
 
@@ -42,7 +44,7 @@ test("a complete specloop layout has an empty adoption plan", () => {
   // A complete layout now includes the project-scoped agent assets.
   const log = console.log;
   console.log = () => {};
-  try { installAgentAssets(dir); } finally { console.log = log; }
+  try { installAgentAssets(dir); refreshAssets(dir, { apply: true, onlyIntegration: true }); } finally { console.log = log; }
   const output = clean(capture(() => runUpgrade(dir)));
   expect(output).toContain("Nothing to adopt.");
   expect(output).not.toContain("Adoption plan:");
