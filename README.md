@@ -82,7 +82,7 @@ version. Restart the agent session after an install to pick the assets up.
 ```
 
 Adds the `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`, `/prio-spec`,
-`/list-spec`, and `/spec-upgrade` slash commands plus the `specloop` skill.
+`/list-spec`, `/spec-upgrade`, and `/spec-layout` slash commands plus the `specloop` skill.
 
 This is the *user-wide* install. It is optional: `specloop init` and `specloop
 upgrade --apply` already place the same skill and commands in the repository's

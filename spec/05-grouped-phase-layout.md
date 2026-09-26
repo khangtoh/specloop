@@ -115,3 +115,13 @@ Phases 03 and 04).
   → 12a–12i) and Phase 19 (43 tasks, 4 steps); 18 others keep. `group 12
   --apply` on a scratch copy kept 14/129, `git mv`-ed the root, relinked
   `spec/README.md`, and reported 4 files with prose mentions.
+- _2026-09-26_ — Renumbered 04 → 05 and rebased onto `origin/main` after the
+  first release attempt hit npm `E403` "cannot publish over 0.5.0": the local
+  clone predated upstream's Phase 04 (agent-asset onboarding, released 0.5.0 on
+  2026-09-13). Merged: upstream's generated phase index now uses
+  `discoverPhases`, so adopted grouped phases get `NN-x/README.md` rows; the
+  onboarded asset set grows to 5 skills + 8 commands (`spec-layout`). Fixed a
+  flake in `scripts/verify-onboarding.sh` (`tar | grep -q` under `pipefail`
+  SIGPIPE). Evidence after rebase: `bun test` 93 pass / 0 fail, `check:self`
+  valid (5 phases), `check:spec` valid, `tsc` exit 0,
+  `bash scripts/verify-onboarding.sh` "onboarding verified end to end" twice.

@@ -30,8 +30,8 @@ assert_dir()     { [ -d "$1" ] && ok "${2:-$1}" || bad "${2:-$1} — missing dir
 assert_absent()  { [ ! -e "$1" ] && ok "${2:-$1} absent" || bad "${2:-$1} — should not exist"; }
 assert_same()    { cmp -s "$1" "$2" && ok "$3" || bad "$3 — content differs"; }
 
-SKILLS=(list-spec prio-spec spec-upgrade specloop)
-COMMANDS=(goal-check.md list-spec.md prio-spec.md spec-init.md spec-loop.md spec-status.md spec-upgrade.md)
+SKILLS=(list-spec prio-spec spec-layout spec-upgrade specloop)
+COMMANDS=(goal-check.md list-spec.md prio-spec.md spec-init.md spec-layout.md spec-loop.md spec-status.md spec-upgrade.md)
 
 # 1. Pack exactly what npm publish would upload -------------------------------
 step "pack the publishable tarball"
@@ -40,12 +40,15 @@ TARBALL="$WORK/$(cd "$WORK" && npm pack "$ROOT" --silent)"
 printf '  %s%s%s\n' "$DIM" "$(basename "$TARBALL")" "$RST"
 
 # The packaging risk this whole feature depends on: plugin/ must ship.
+# List once: `tar | grep -q` under pipefail fails whenever grep exits early
+# and tar dies of SIGPIPE, which made these checks flaky.
+LISTING="$(tar -tzf "$TARBALL")"
 for s in "${SKILLS[@]}"; do
-  tar -tzf "$TARBALL" | grep -qx "package/plugin/specloop/skills/$s/SKILL.md" \
+  grep -qx "package/plugin/specloop/skills/$s/SKILL.md" <<<"$LISTING" \
     && ok "tarball ships skills/$s/SKILL.md" || bad "tarball is missing skills/$s/SKILL.md"
 done
 for c in "${COMMANDS[@]}"; do
-  tar -tzf "$TARBALL" | grep -qx "package/plugin/specloop/commands/$c" \
+  grep -qx "package/plugin/specloop/commands/$c" <<<"$LISTING" \
     && ok "tarball ships commands/$c" || bad "tarball is missing commands/$c"
 done
 
