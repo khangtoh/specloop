@@ -1,79 +1,107 @@
 ---
 name: specloop
-description: This skill should be used when working in a repository that uses the specloop methodology (a spec/ directory of numbered phase files driven by an agent loop), or when the user asks to "set up specloop", "scaffold a spec", "run the spec loop", "work the next spec box", "check spec status", "is this goal done", "validate spec structure", "spec-driven development for agents", or mentions phase checklists, the Spec Summary/Status handoff, goal-completion-check, or the agent session ledger.
-version: 0.1.0
+description: Manage specloop phase checklists, run spec work, audit completion, or display the specloop command menu when explicitly invoked without an action.
+metadata:
+  version: "0.2.0"
 ---
 
-# Skill: specloop
+# specloop
 
-specloop is a repeatable construct for driving agents through a project:
-requirements are decomposed into **numbered phase specs**, each a flat checklist
-of atomic tasks; an **agent loop** executes the next unchecked box, verifies it,
-and hands off in a mandatory report format; and a **bun validator** enforces the
-structure so it can't silently drift.
+Use the user's request to choose an action. Explicit invocation uses
+`$specloop` in Codex, `/specloop` in a Claude project install, or
+`/specloop:specloop` in a Claude marketplace install. Trailing user text is
+input to this skill; Claude may supply it as `ARGUMENTS:`. Do not require
+Claude-specific placeholder substitution in Codex.
 
-## The pieces
+## Menu and routing
 
-Under `spec/` in a specloop repo:
+An explicit skill invocation with no action, or with `help`, displays the menu
+below as the response and stops. Use the invoking runtime's prefix in the
+examples. Do not run preflight, start a loop, edit files, append the ledger,
+or produce a spec completion handoff just for a menu. The menu also works
+outside a specloop repository and without a CLI installed.
 
-| File | Role |
-|---|---|
-| `README.md` | Phase index: the `# | File | Purpose | Status | Blocking dependency` table, the overarching goal, and non-goals. |
-| `BACKLOG.md` | The ranked **work order** (`## Phases (priority order)`, one line per phase). Stores order only; done-state is derived. `prio-spec` edits it. |
-| `NN-title.md` | A phase: `Goal:` + `Depends on:` header, then flat `- [ ]` / `- [x]` atomic tasks, plus a dated `Findings / Results` log. |
-| `spec-summary-status.md` | The mandatory `Spec Summary/Status` handoff format every agent must emit. |
-| `goal-completion-check.md` | A reusable prompt that traces a goal → requirements → specs → checkboxes. |
-| `agent-session-ledger.md` | A dated narrative log of what each session did and left running. |
-| `AGENTS.md` (repo root) | Binds all agents to the reporting standard and the loop. |
-| `.specloop.json` (repo root) | Validator config. |
+| Action | Arguments | Purpose |
+|---|---|---|
+| `init` | `[goal] [--dir path] [setup options]` | Scaffold specs and decompose a project goal |
+| `upgrade` | `[dir] [--apply] [setup options]` | Inspect adoption; apply scaffolding and re-author specs when requested |
+| `refresh` | `[dir] [--apply] [--agent runtime]` | Preview or apply safe agent-asset updates |
+| `check` | `[--dir path] [--json]` | Validate spec structure |
+| `preflight` | `[--dir path] [--json]` | Check workspace readiness |
+| `status` | `[phase] [--dir path] [--json]` | Report actual checkbox progress |
+| `list` | `[all|done|undone] [--dir path] [--json]` | List phases in priority order; default undone |
+| `prio spec` | `<NN> <pos> [--dir path]` | Reorder a phase: 0 top, +N up, -N down |
+| `prio task` | `<NN.T> [--to p1|p2|p3] [--dir path]` | Set task priority or bump it one level |
+| `audit` | `"<goal>" [--dir path]` | Trace goal completion through requirements and evidence |
+| `loop` | `[phase]` | Execute spec work to the run's terminal condition |
+| `help` | None | Show this menu |
+| `version` | None | Show the installed CLI version |
 
-## Core rules
+Setup options: `--agent claude|codex|both`, `--skills copy|link|none`;
+`init` also accepts `--force`. Preserve the CLI's existing option semantics.
 
-- A task is **atomic**: completable and verifiable in one short sitting.
-- **Two priority levels compose**: `BACKLOG.md` ranks the *phases* (`prio-spec`
-  reorders it); within the chosen phase, task tags `- [ ] (p1) …` (high) ·
-  `(p2)`/untagged (medium) · `(p3)` (low) and `prio-task` order the *boxes*. The
-  loop takes the top BACKLOG phase whose `Depends on:` is met, then its highest
-  box. Order is stored in BACKLOG; **done-state is always derived** from the
-  checkboxes.
-- Check a box **only** when its acceptance language is met and verified — never
-  because code was written or a similar task was done nearby.
-- Progress is `checked/total` counted from the actual boxes. Status emoji:
-  ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked (blocked needs a named
-  dependency).
-- Every task handoff — complete, partial, or blocked — must include the
-  `Spec Summary/Status` section.
-- Keep `spec/README.md`'s phase table in sync with the phase files; the
-  validator fails the build when they disagree.
+For Codex show examples `$specloop status`, `$specloop list undone`,
+`$specloop prio spec 22 0`, `$specloop prio task 07.3 --to p1`, and
+`$specloop loop`. For Claude substitute the actual slash invocation prefix.
+Mention that shell commands use `specloop <action>` without `$` or `/`;
+`loop` is agent-only, and shell `audit` prints the prompt rather than auditing.
+Bare shell `specloop` runs preflight. Plain chat `specloop` starts an autonomous
+run; the explicit skill menu does not.
 
-## Commands
+Normalize legacy actions before routing: `list-spec`/`listspec` → `list`,
+`prio-spec`/`priospec` → `prio spec`, `prio-task`/`priotask` → `prio task`,
+`goal-check`/`goalcheck` → `audit`, `spec-init` → `init`, `spec-loop` → `loop`,
+`spec-status` → `status`, and `spec-upgrade` → `upgrade`. Old slash commands
+and skills remain supported. Unknown explicit actions or missing/invalid
+`prio` targets show usage and stop without changes. `start`, `run`, and `go`
+are not aliases for loop.
 
-Slash commands (this plugin): `/spec-init`, `/spec-loop`, `/spec-status`,
-`/goal-check`, `/prio-spec`, `/list-spec`, `/spec-upgrade`.
+Implicit use during an ordinary request follows that request; merely loading
+this skill is not a menu request or permission to start a loop. Explicit
+invocation with a natural-language request should fulfill that request when
+its intent is clear, otherwise ask for the intended action.
 
-CLI (bun): `specloop init`, `specloop check`, `specloop status`,
-`specloop list-spec [all|done|undone]`, `specloop prio-spec <NN> <pos>`,
-`specloop prio-task <NN.T> [--to pN]`, `specloop upgrade [dir] [--apply]`,
-`specloop goal-check "<goal>"`. Run `specloop check` (or `bun run check:spec`)
-before every handoff and wire it into CI/prebuild.
+## Action workflows
 
-Note: `upgrade` **adopts an existing project's spec model into specloop** (it is
-not task priority — that is `prio-task`).
+Resolve the selected target directory before project reads or edits; a `--dir`
+or directory argument applies to the whole workflow, not just its CLI calls.
 
-## How to work
+Read only the reference needed for the selected action, relative to this skill:
 
-1. **Setup** — `/spec-init` scaffolds `spec/` (+ `BACKLOG.md`) and decomposes the
-   goal into phases. For an existing spec/backlog/PRD project, `/spec-upgrade`
-   adopts it instead.
-2. **Execute** — `/spec-loop` runs the loop: take the top BACKLOG phase whose
-   `Depends on:` is met and its highest box → do it → verify → check it → update
-   Findings, the index, and the ledger → `specloop check` → emit
-   `Spec Summary/Status` → commit → repeat. Reprioritize with `/prio-spec`.
-3. **Audit** — `/goal-check "<goal>"` before telling anyone something ships;
-   `/spec-status` or `/list-spec` for a current rollup.
+- `init`: [setup](references/init.md). Treat free text as the goal; pass only
+  setup options and the target directory to the CLI, not the goal as a path.
+- `upgrade`: [adoption](references/upgrade.md). Without `--apply`, inspect
+  only; after explicit apply, scaffold and translate existing requirements.
+- `loop`: [execution](references/loop.md). Respect Plan Mode when active.
+- `audit`: [goal audit](references/audit.md). Perform the audit, rather than
+  returning only the CLI's printed prompt.
+- `status`: run `specloop status` with supplied CLI flags. An optional phase
+  filters the agent report, not the shell command. Read the phase's checkboxes
+  and report using the project's required status format. For `--json`, return
+  the requested machine-readable output without a prose wrapper.
+- `list`, `prio spec`, `prio task`, `check`, `preflight`, `refresh`, `version`:
+  run the corresponding CLI command, preserving argument boundaries and flags.
+  Never interpolate raw user text into shell code. Refresh remains a dry run
+  unless `--apply` is supplied. Pass through failures with the cause and repair;
+  do not silently install packages or replace a failing command with edits.
 
-Read `spec/spec-summary-status.md` in the target repo for the exact handoff
-tables and closing lines; it is the source of truth for reporting.
+Prefer `specloop` on PATH, then the project's installed binary. If neither
+exists, report that the CLI is unavailable and show
+`bun add -d @khangtoh/specloop`; do not claim checks or version succeeded.
+Read-only status/list and an audit may still be performed directly from the
+project files. Do not invent a path to templates that were not installed.
+
+## Spec invariants
+
+Before project work read its `spec/agent-session-ledger.md` and relevant specs.
+Use the configured spec directory when `.specloop.json` overrides `spec/`.
+`BACKLOG.md` ranks phases; `Depends on:` gates eligibility; task `(pN)` and
+position order boxes within a phase. Priority never overrides dependencies.
+Done-state comes from actual checkboxes. Check tasks only with evidence,
+update Findings/Results and the phase index, and follow the project's
+`spec-summary-status.md` handoff when reporting material work or status.
+Read-only menu/list requests need no ledger churn. Run `specloop check` before
+a material-work handoff. Existing custom assets and ledger history are protected.
 
 ## Decision reconciliation — every session
 

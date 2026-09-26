@@ -291,3 +291,41 @@ hook and realistic behavior scenarios documented in docs/decision-reconciliation
 Evidence: spec/evidence/05-runtime-probe.md. Installed configuration and synthetic
 payload tests are explicitly not evidence that hooks are active. No unrelated
 user hooks were enabled via a broad trust bypass.
+
+## Session: 2026-09-26 — short commands and skill menu intake
+
+**Previous decision:** Phase 02 reserves the plain `specloop` message for
+autonomous execution; Phases 04–05 ship hyphenated commands and safely managed
+Claude/Codex skills. Bare shell `specloop` runs preflight under Phase 03.
+
+**Conflicting instruction:** The user approved short action names, grouped
+`prio spec|task` with existing arguments, and a response menu when submitting
+`$specloop` in Codex or `/specloop` in Claude, then authorized implementation.
+
+**Resolution:** Phase 06 adds explicit skill menu and action routing, including
+`loop`, while retaining plain-message execution, shell preflight, and all old
+command aliases. The exact-only rule applies to plain-message run triggers;
+explicit skill `loop` is also authorized. Historical checkboxes remain intact.
+
+**Scope and consequences:** CLI routing, skill references, documentation,
+templates, onboarding/refresh verification, and live menu/action evidence.
+Custom asset protections and ledger history survive. No release or publishing.
+
+
+## Session: 2026-09-26 — command-menu implementation handoff
+
+Implemented Phase 06 to 7/8. Canonical CLI names now include `list`, `audit`,
+and `prio spec|task`; all previous aliases remain. The shared skill displays
+its menu on explicit bare invocation, routes actions with self-contained
+references, and distinguishes plain-message execution from explicit skill
+loop. Templates, current docs and CLI onboarding hints advertise the interface.
+
+Verification: 110 tests pass, typecheck and both structural validators pass,
+82 packed onboarding assertions pass, and skill validation passes. Native
+Codex 0.157.1 menu/list probes passed with no fixture-file changes; evidence
+is in `spec/evidence/06-command-menu.md`. Claude auth inspection reports
+`loggedIn: false`; its live acceptance box remains open. No publishing.
+
+Resume point: authenticate Claude and record the `/specloop` response menu
+and `/specloop list undone --json` routing in an isolated project, then close
+Phase 06's last checkbox. Existing Phase 03 and 05 acceptance gaps are unchanged.

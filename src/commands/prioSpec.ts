@@ -13,7 +13,7 @@ const ENTRY = /^\s*-\s+(?:\[[ xX]\]\s+)?(\d{2,})\b/;
 
 /**
  * Reprioritize one incomplete phase in spec/BACKLOG.md.
- *   specloop prio-spec <NN> <pos>
+ *   specloop prio spec <NN> <pos>
  *   pos == 0  → move to the top of the incomplete list
  *   pos > 0   → up N positions among incomplete phases
  *   pos < 0   → down N positions among incomplete phases
@@ -22,7 +22,7 @@ const ENTRY = /^\s*-\s+(?:\[[ xX]\]\s+)?(\d{2,})\b/;
  */
 export function runPrioSpec(rootDir: string, nnArg?: string, posArg?: string): number {
   if (!nnArg || posArg === undefined) {
-    console.error("Usage: specloop prio-spec <NN> <pos>   e.g. specloop prio-spec 22 0");
+    console.error("Usage: specloop prio spec <NN> <pos>   e.g. specloop prio spec 22 0");
     return 1;
   }
   const nn = parseInt(nnArg, 10);

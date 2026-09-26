@@ -6,7 +6,7 @@ argument-hint: "<the goal to check, e.g. 'the checkout flow is done'>"
 Check whether this goal is actually met: **$ARGUMENTS**
 
 Do not answer from impression. Follow `spec/goal-completion-check.md` exactly.
-If `specloop` is on PATH you can run `specloop goal-check "$ARGUMENTS"` to print
+If `specloop` is on PATH you can run `specloop audit "$ARGUMENTS"` to print
 the filled prompt; otherwise read `spec/goal-completion-check.md` and substitute
 the goal yourself.
 

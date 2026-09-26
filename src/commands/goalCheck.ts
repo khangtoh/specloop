@@ -9,7 +9,7 @@ import { loadConfig } from "../config.js";
  */
 export function runGoalCheck(rootDir: string, goal: string): number {
   if (!goal || !goal.trim()) {
-    console.error("Usage: specloop goal-check \"<the goal to check>\"");
+    console.error("Usage: specloop audit \"<the goal to check>\"");
     return 1;
   }
   const config = loadConfig(rootDir);

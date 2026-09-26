@@ -9,7 +9,7 @@ Reprioritize a phase in `spec/BACKLOG.md`. Arguments: `$ARGUMENTS` (`<NN> <pos>`
 - `pos` = signed move within the **incomplete** phases: `0` → top, `+N` → up N,
   `-N` → down N. Complete phases (all tasks checked) stay anchored.
 
-If `specloop` is on PATH, just run `specloop prio-spec $ARGUMENTS` — it moves the
+If `specloop` is on PATH, just run `specloop prio spec $ARGUMENTS` — it moves the
 single line, derives done-state from the phase files, and prints the new order.
 
 Otherwise do it by hand: in `spec/BACKLOG.md`, under `## Phases (priority order)`,

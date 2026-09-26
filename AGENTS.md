@@ -32,9 +32,9 @@ and task tags order the boxes within a phase:
    satisfied, and within it the highest-priority unchecked `- [ ]` task —
    `(p1)` high, `(p2)`/untagged medium, `(p3)` low, then task position. So
    **BACKLOG order picks the phase; `(pN)` picks the box.** Reprioritize phases
-   with `specloop prio-spec <NN> <pos>` and tasks with `specloop prio-task
+   with `specloop prio spec <NN> <pos>` and tasks with `specloop prio task
    <NN.T>` (or edit the tags/BACKLOG by hand). `specloop status` and `specloop
-   list-spec` print the order. (No `BACKLOG.md` → numeric phase order.)
+   list` print the order. (No `BACKLOG.md` → numeric phase order.)
 2. Do it. Verify it in proportion to risk.
 3. Check the box, update Findings/Results, and reconcile `spec/README.md`'s
    phase-table progress/status for that phase.
@@ -59,8 +59,16 @@ Choose the run scope before taking the next task:
    eligible numbered phase from `spec/BACKLOG.md`, including every unchecked
    task in that phase.
 
-Only the exact, unadorned message `specloop` triggers a run. `specloop start`, `specloop run`, and `specloop go` are not run triggers; ask the user to confirm
+For plain chat messages, only the exact, unadorned message `specloop` triggers a run. `specloop start`, `specloop run`, and `specloop go` are not run triggers; ask the user to confirm
 with the exact command instead.
+
+Explicit skill invocation is a separate interface: `$specloop` in Codex and
+`/specloop` in Claude project installs display the command menu without starting
+work. Appending `loop [phase]` explicitly starts a run with the same scope and
+terminal rules above; a supplied phase focuses the run on that phase while
+respecting dependencies. Claude marketplace installs use `/specloop:specloop`.
+Menu/help requests and unknown actions do not mutate project files or append
+the ledger. Merely loading the skill implicitly is not a menu or run trigger.
 
 Write `spec/specloop-run-state.md` when a run starts, after each completed task,
 and when it pauses, blocks, or ends. The record is advisory, not evidence:

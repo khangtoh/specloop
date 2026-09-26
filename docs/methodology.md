@@ -51,7 +51,7 @@ One iteration, run by an agent:
 
 Selection is a total order, so it stays deterministic and resumable: any agent,
 at any time, picks the same next box. The order is `(BACKLOG phase position,
-task priority, task position)` — **`prio-spec` picks the phase, `(pN)` picks the
+task priority, task position)` — **`prio spec` picks the phase, `(pN)` picks the
 box**. Order is stored in `BACKLOG.md` (human-owned, the steering surface);
 done-state is always *derived* from the checkboxes, so the two never disagree and
 the validator enforces it. Priority never overrides a phase's `Depends on:`
@@ -99,4 +99,4 @@ reality, because the thing that drifts stops the pipeline.
 - Write acceptance conditions a *different* agent could check.
 - Put decisions in the spec the moment you make them; the ledger records that
   you made them and why.
-- Run `goal-check` before telling anyone something ships. That's the whole point.
+- Run `audit` before telling anyone something ships. That's the whole point.

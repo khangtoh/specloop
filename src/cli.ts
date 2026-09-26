@@ -36,14 +36,14 @@ Commands:
   refresh [dir]          Refresh recognized agent assets (dry run; --apply to write).
   check                   Validate the spec structure; non-zero exit on errors.
   status                  Show phase progress + next box, in BACKLOG order.
-  list-spec [filter]      List phases in priority order (all|done|undone).
+  list [filter]           List phases in priority order (all|done|undone).
   preflight                Check workspace readiness without changing it.
-  prio-spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
-  prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
+  prio spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
+  prio task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   upgrade [dir]           Adopt an existing project's spec model into specloop
                           (report; --apply to scaffold non-destructively, incl.
                           selected agent skills, commands and hooks).
-  goal-check "<goal>"     Print the goal-completion-check prompt for "<goal>".
+  audit "<goal>"          Print the goal-completion-check prompt for "<goal>".
   help, --help            Show this help.
   version, --version      Show the version.
 
@@ -51,27 +51,36 @@ Options:
   --dir <path>            Project root to operate on (default: cwd).
   --force                 (init) overwrite an existing spec/ and files.
   --apply                 (upgrade, refresh) apply the inspected changes.
-  --json                  (check, status, list-spec, preflight) machine-readable output.
-  --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
+  --json                  (check, status, list, preflight) machine-readable output.
+  --to <p1|p2|p3>         (prio task) set an explicit priority instead of bumping.
   --agent <runtime>      (init, upgrade, refresh) claude (default), codex, both.
   --skills <mode>         (init, upgrade) how the specloop skills and /spec-*
                           commands land: copy (default), link
                           (symlink into a specloop checkout), or none.
 
-Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
+Compatibility aliases: list-spec/listspec, prio-spec/priospec,
+prio-task/priotask, goal-check/goalcheck.
+
+Agent menu: submit $specloop in Codex or /specloop in Claude Code.
+Claude marketplace installs use /specloop:specloop.
+Append an action, e.g. $specloop status or /specloop prio task 07.3.
+The agent also supports loop [phase]; the shell CLI has no loop command.
+Bare shell specloop runs preflight; help only displays this text.
+
+Two priority levels compose: prio spec picks the phase (BACKLOG order), and
 within a phase, task tags \`- [ ] (p1) …\` (p1 high, p2/untagged medium, p3 low)
-plus prio-task pick the box. The loop takes the top BACKLOG phase's highest
+plus prio task pick the box. The loop takes the top BACKLOG phase's highest
 box. Done-state is always derived from the checkboxes; BACKLOG stores order.
 
 Examples:
   specloop init
   specloop status
-  specloop list-spec undone
-  specloop prio-spec 22 0          # move phase 22 to the top of the backlog
-  specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
+  specloop list undone
+  specloop prio spec 22 0          # move phase 22 to the top of the backlog
+  specloop prio task 07.3 --to p1  # set phase 07's 3rd task to high
   specloop init --skills none      # scaffold spec/ only, no agent assets/hooks
   specloop upgrade ./other-repo --apply
-  specloop goal-check "the checkout flow is done"
+  specloop audit "the checkout flow is done"
 `;
 
 export function main(argv: string[]): number {
@@ -119,9 +128,15 @@ export function main(argv: string[]): number {
       return runPreflight(rootDir, { json }).exitCode;
     case "status":
       return runStatus(rootDir, { json });
+    case "list":
     case "list-spec":
     case "listspec":
       return runListSpec(rootDir, positional[0], { json });
+    case "prio":
+      if (positional[0] === "spec") return runPrioSpec(rootDir, positional[1], positional[2]);
+      if (positional[0] === "task") return runPrioTask(rootDir, positional[1], to);
+      console.error("Usage: specloop prio spec <NN> <pos> | specloop prio task <NN.T> [--to p1|p2|p3]");
+      return 1;
     case "prio-spec":
     case "priospec":
       return runPrioSpec(rootDir, positional[0], positional[1]);
@@ -130,6 +145,7 @@ export function main(argv: string[]): number {
       return runPrioTask(rootDir, positional[0], to);
     case "upgrade":
       return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills, agent });
+    case "audit":
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));

@@ -24,7 +24,7 @@ Set up specloop in this repository.
    `spec/spec-summary-status.md`.
 
 Do not start implementing tasks in this command — this only establishes the
-spec. Use `/spec-loop` to execute it.
+spec. Use `/specloop loop` (Claude) or `$specloop loop` (Codex) to execute it.
 
 ## Decision reconciliation — every session
 

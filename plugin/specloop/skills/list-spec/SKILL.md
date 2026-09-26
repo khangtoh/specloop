@@ -11,7 +11,7 @@ is derived** from each phase's checkboxes.
 Filter argument: `undone` (default, remaining backlog), `done` (completed), or
 `all`. Reject anything else.
 
-Prefer the CLI: `specloop list-spec [all|done|undone]`.
+Prefer the CLI: `specloop list [all|done|undone]`.
 
 Otherwise read `spec/BACKLOG.md`'s `## Phases (priority order)`; for each entry
 resolve `spec/NN-*.md`, count checkboxes, and print:

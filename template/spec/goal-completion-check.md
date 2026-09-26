@@ -12,7 +12,8 @@ this project back up, or before telling a stakeholder something ships.
 Copy the prompt below, fill in `{GOAL}` with the goal to check (a
 sentence is enough — "the checkout flow is done," "the migration is
 done," "Phase 4 is done"), and run it. Under specloop, the
-`/goal-check` plugin command wraps this prompt.
+`$specloop audit` (Codex) or `/specloop audit` (Claude) action wraps this
+prompt; `/goal-check` remains a compatibility command.
 
 ## The prompt
 

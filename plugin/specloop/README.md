@@ -3,20 +3,32 @@
 The specloop plugin for **Claude Code** and **Codex**. Same package, two
 manifests (`.claude-plugin/` and `.codex-plugin/`), one shared skill.
 
-## Commands
+## Commands and skill menu
 
-| Command | Purpose |
+Submit `$specloop` in Codex or `/specloop` in a Claude project install to see
+all commands, arguments, and examples. For a Claude marketplace plugin use
+`/specloop:specloop`. Append an action to the same invocation, for example
+`$specloop prio task 07.3 --to p1` or `/specloop list undone`.
+
+| Actions | Purpose |
 |---|---|
-| `/spec-init <goal>` | Scaffold `spec/` into the repo and decompose a goal into phase specs. |
-| `/spec-loop [phase]` | Run the loop: do the next unchecked box, verify, check it, hand off, commit, repeat. |
-| `/spec-status [phase]` | Report phase status from the actual checkboxes in the mandatory format. |
-| `/goal-check <goal>` | Audit whether a goal is truly met by tracing it through the spec chain. |
+| `init`, `upgrade`, `refresh` | Setup, adoption, and safe asset refresh |
+| `check`, `preflight` | Structure and workspace verification |
+| `status`, `list` | Checkbox progress and backlog listing |
+| `prio spec <NN> <pos>` | Phase priority (0 top, +N up, -N down) |
+| `prio task <NN.T> [--to pN]` | Task priority (explicit level or bump) |
+| `audit "<goal>"` | Evidence-based goal audit |
+| `loop [phase]` | Execute spec work to the scoped terminal condition |
+| `help`, `version` | Menu or installed CLI version |
 
-## Skill
+Bare skill invocation only displays the response menu. Plain chat `specloop`
+continues to start an autonomous run. Shell `specloop` runs preflight; the
+shell has no loop command and its audit command prints a prompt.
 
-`specloop` — activates when working in a specloop repo or when the user mentions
-phase specs, the loop, the `Spec Summary/Status` handoff, goal-completion-check,
-or the session ledger.
+The legacy `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`,
+`/prio-spec`, `/list-spec`, and `/spec-upgrade` commands and existing named
+skills remain compatible. Current workflows live inside the shared skill so
+both runtimes receive the necessary references through project installation.
 
 ## Per-repository install (no plugin needed)
 

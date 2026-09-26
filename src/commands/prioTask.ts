@@ -13,7 +13,7 @@ const CHECKBOX_LINE = /^(\s*-\s\[[ xX]\]\s?)(.*)$/;
 
 /**
  * Raise (or set) the priority of a task within a phase.
- *   specloop prio-task <NN.T> [--to p1|p2|p3]
+ *   specloop prio task <NN.T> [--to p1|p2|p3]
  * NN = phase number, T = 1-based task position within that phase.
  * With --to, sets the priority explicitly; otherwise bumps it up one level
  * (untagged/medium -> p1, p3 -> p2, p2 -> p1). Phase-level priority is
@@ -21,7 +21,7 @@ const CHECKBOX_LINE = /^(\s*-\s\[[ xX]\]\s?)(.*)$/;
  */
 export function runPrioTask(rootDir: string, ref: string, to?: string): number {
   if (!ref) {
-    console.error(`Usage: specloop prio-task <NN.T> [--to p1|p2|p3]\n  e.g. specloop prio-task 07.3`);
+    console.error(`Usage: specloop prio task <NN.T> [--to p1|p2|p3]\n  e.g. specloop prio task 07.3`);
     return 1;
   }
   const m = ref.match(/^(\d{1,})[.:](\d{1,})$/);

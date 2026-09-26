@@ -10,7 +10,7 @@ phase is done when every `- [ ]` in `spec/NN-*.md` is checked).
 Filter argument (`$ARGUMENTS`): `undone` (default) shows the remaining backlog,
 `done` shows completed phases, `all` shows both. Reject anything else.
 
-If `specloop` is on PATH, run `specloop list-spec $ARGUMENTS`. Otherwise read
+If `specloop` is on PATH, run `specloop list $ARGUMENTS`. Otherwise read
 `spec/BACKLOG.md`'s `## Phases (priority order)`, and for each entry resolve
 `spec/NN-*.md`, count its checkboxes, and print:
 

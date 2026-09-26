@@ -22,7 +22,7 @@ validator checks against, and what you inspect to learn the method.
 | Piece | What it is |
 |---|---|
 | `spec/README.md` | Phase index — the goal, the `# \| File \| Purpose \| Status \| Blocking dependency` table, and non-goals. |
-| `spec/BACKLOG.md` | The ranked **work order** — one line per phase; the loop takes the top. Stores order only; done-state is derived. `prio-spec` edits it. |
+| `spec/BACKLOG.md` | The ranked **work order** — one line per phase; the loop takes the top. Stores order only; done-state is derived. `prio spec` edits it. |
 | `spec/NN-title.md` | A phase — `Goal:` + `Depends on:` header, flat `- [ ]` / `- [x]` atomic tasks, and a dated `Findings / Results` log. |
 | `spec/spec-summary-status.md` | The mandatory `Spec Summary/Status` handoff every agent must emit. |
 | `spec/goal-completion-check.md` | A reusable prompt tracing a goal → requirements → specs → checkboxes. |
@@ -38,7 +38,7 @@ fact (counts, status, done-state) honest so no layer drifts from reality.
 
 | Layer | Question | Constructs |
 |---|---|---|
-| **Scheduling** | what to do next | `BACKLOG.md` (stored order) + phase files/tasks (units) + `prio-spec`/`list-spec` (phase priority) + `(pN)`/`prio-task` (task priority) |
+| **Scheduling** | what to do next | `BACKLOG.md` (stored order) + phase files/tasks (units) + `prio spec`/`list` (phase priority) + `(pN)`/`prio task` (task priority) |
 | **Verification** | is it right / is it done | `spec-summary-status` (per-iteration handoff) + `goal-completion-check` (whole-goal gate & stop condition) |
 | **Memory** | what happened | `agent-session-ledger` (narrative continuity) |
 
@@ -102,8 +102,9 @@ behavior, limitations, trust requirements and acceptance scenarios.
 /plugin install specloop@specloop
 ```
 
-Adds the `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`, `/prio-spec`,
-`/list-spec`, and `/spec-upgrade` slash commands plus the `specloop` skill.
+Adds the shared `specloop` skill and compatible legacy slash commands.
+Project installs expose `/specloop` in Claude and `$specloop` in Codex.
+Claude marketplace plugin skills use `/specloop:specloop`.
 
 This is the *user-wide* install. It is optional: `specloop init` and `specloop
 upgrade --apply` already place the same skill and commands in the repository's
@@ -123,25 +124,25 @@ binds Codex agents to the loop.
 specloop init                       # 1. scaffold the structure (incl. BACKLOG.md + .claude/)
 # edit spec/README.md: set the goal, decompose into spec/NN-*.md phases
 specloop check                      # 2. validate structure (wire into CI/prebuild)
-specloop list-spec                  # 3. see the ranked backlog (undone by default)
-specloop prio-spec 07 0             #    move phase 07 to the top of the work order
-specloop goal-check "X is done"     # 4. audit a goal before you ship it
+specloop list                       # 3. see the ranked backlog (undone by default)
+specloop prio spec 07 0             #    move phase 07 to the top of the work order
+specloop audit "X is done"           # 4. audit a goal before you ship it
 ```
 
 ### Priority — two levels that compose
 
-**`prio-spec` picks the phase; `(pN)`/`prio-task` picks the box within it.**
+**`prio spec` picks the phase; `(pN)`/`prio task` picks the box within it.**
 
 - **Phase order** lives in `spec/BACKLOG.md` (top = next). Reorder it with
-  `specloop prio-spec <NN> <pos>` (`0` = top, `+N` up, `-N` down among incomplete
-  phases). `specloop list-spec [all|done|undone]` renders it.
+  `specloop prio spec <NN> <pos>` (`0` = top, `+N` up, `-N` down among incomplete
+  phases). `specloop list [all|done|undone]` renders it.
 - **Task order** within a phase is a tag after the checkbox — `- [ ] (p1) do the
   thing` (p1 high, p2/untagged medium, p3 low). Raise one with
-  `specloop prio-task <NN.T> [--to pN]`.
+  `specloop prio task <NN.T> [--to pN]`.
 
 ```bash
-specloop prio-spec 22 0             # phase 22 to the top of the backlog
-specloop prio-task 07.3 --to p1     # phase 07's 3rd task to high
+specloop prio spec 22 0             # phase 22 to the top of the backlog
+specloop prio task 07.3 --to p1     # phase 07's 3rd task to high
 ```
 
 BACKLOG stores **order only**; done-state is always **derived** from the
@@ -152,7 +153,32 @@ flags a mistyped tag like `(p4)`.
 Then run the loop (with an agent): take the top BACKLOG phase whose `Depends on:`
 is satisfied and its highest box → do it → verify → check it → update Findings,
 the index, and the ledger → `specloop check` → emit the `Spec Summary/Status`
-handoff → commit → repeat. In Claude Code / Codex that's `/spec-loop`.
+handoff → commit → repeat. Use `/specloop loop` in Claude Code or `$specloop loop` in Codex.
+
+### Agent command menu
+
+Submit `$specloop` in Codex or `/specloop` in a Claude project to see the menu
+as the agent's response. Append an action to execute it:
+
+```text
+$specloop list undone
+$specloop prio spec 22 0
+$specloop prio task 07.3 --to p1
+$specloop audit "the checkout flow is done"
+$specloop loop
+```
+
+Use the slash prefix instead in Claude. The menu lists `init`, `upgrade`,
+`refresh`, `check`, `preflight`, `status`, `list`, `prio spec`, `prio task`,
+`audit`, `loop`, `help`, and `version`, with arguments and descriptions.
+It performs no project work. `loop [phase]` is an agent action, not a shell
+command; the shell's `audit` prints the audit prompt while the agent performs
+it. Agent `init [goal]` decomposes a goal; shell `init [dir]` scaffolds files.
+`upgrade` and `refresh` preview changes unless `--apply` is supplied.
+
+Old CLI names remain aliases: `list-spec`/`listspec`, `prio-spec`/`priospec`,
+`prio-task`/`priotask`, and `goal-check`/`goalcheck`. Existing `/spec-*`,
+`/goal-check`, `/prio-spec`, and `/list-spec` agent commands remain available.
 
 ### Autonomous agent runs
 
@@ -164,7 +190,8 @@ acceptance condition is met, the user directly interrupts it, or a genuine
 blocker names the missing decision or external state and a resume point.
 
 Use a direct instruction to stop. `specloop help` is informational and does not start a run. `specloop start`, `specloop run`, and `specloop go` are rejected
-aliases; only the exact message starts or resumes the agent-session run. This is
+aliases for plain messages. Explicit skill `loop [phase]` also starts a run,
+with an optional phase focus that respects dependencies. This is
 not the shell CLI: use `specloop help` in a terminal for CLI help.
 
 The optional `spec/specloop-run-state.md` is an advisory resume record. It is
@@ -181,7 +208,8 @@ missing specloop pieces: process files, `AGENTS.md`, config, a generated
 and status emoji are derived from the existing checkboxes, and the same
 `.claude/` skills and commands `init` installs (`--skills` applies here too).
 An adopted repo passes `specloop check` immediately. Re-authoring PRD-style
-specs into atomic-task phases is agent work: `/spec-upgrade`.
+specs into atomic-task phases is agent work: `/specloop upgrade --apply` or
+`$specloop upgrade --apply`.
 
 ## `specloop check` — what it enforces
 

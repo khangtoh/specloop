@@ -11,7 +11,7 @@ Reprioritize one **incomplete** phase in `spec/BACKLOG.md`. Arguments: `<NN> <po
 - `pos` = signed move among incomplete phases: `0` = top, `+N` = up N, `-N` = down N.
 - Complete phases (all tasks in `spec/NN-*.md` checked) stay anchored.
 
-Prefer the CLI: `specloop prio-spec <NN> <pos>`. It moves the single line,
+Prefer the CLI: `specloop prio spec <NN> <pos>`. It moves the single line,
 derives done-state from the phase files, and prints the new order.
 
 If the CLI isn't available, edit `spec/BACKLOG.md` by hand: under

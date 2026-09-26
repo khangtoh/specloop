@@ -10,7 +10,7 @@ own `spec/`, driven by its own loop and validated by `specloop check`.
 - Every numbered file under `spec/` is a phase: a flat checklist of **atomic
   tasks**, each verifiable in one short sitting.
 - Phase **work order** lives in [`BACKLOG.md`](BACKLOG.md) (top = next); reorder
-  with `specloop prio-spec <NN> <pos>`. Done-state is derived from the checkboxes.
+  with `specloop prio spec <NN> <pos>`. Done-state is derived from the checkboxes.
 - Every handoff includes the `Spec Summary/Status` report from
   [`spec-summary-status.md`](spec-summary-status.md).
 - Validate with `specloop check --dir .` (the `bun run check:spec` script checks
@@ -32,6 +32,7 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 4 | [04-agent-asset-onboarding.md](04-agent-asset-onboarding.md) | `init`/`upgrade` install the skill + `/spec-*` commands into a repo's `.claude/`; adopted repos validate; Codex added in Phase 05 | ✅ 23/23 | None |
 
 | 5 | [05-decision-reconciliation.md](05-decision-reconciliation.md) | Session reconciliation, runtime hooks and safe refresh | 🟡 11/14 | None |
+| 6 | [06-command-menu.md](06-command-menu.md) | Short commands and native skill response menu | 🟡 7/8 | Claude authentication for live acceptance |
 
 ## Status
 

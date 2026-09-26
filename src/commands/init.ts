@@ -60,6 +60,9 @@ export function runInit(
   console.log(`  2. Write your phases as ${DIM}spec/NN-title.md${RST} (copy ${DIM}spec/_TEMPLATE-phase.md${RST}).`);
   console.log(`  3. Run ${DIM}specloop check${RST} to validate the structure.`);
   console.log(`  4. Run the loop: pick the next unchecked box, verify, check it, hand off, commit.`);
+  if (opts.skills !== "none") {
+    console.log(`  Agent menu: submit $specloop in Codex or /specloop in Claude; append loop to execute.`);
+  }
   if (assets.installed.length > 0) {
     console.log(
       `\n${DIM}Agent assets and hook configuration installed for this` +

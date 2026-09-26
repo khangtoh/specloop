@@ -15,7 +15,7 @@ concretely enough that "is it done?" has a real answer>.
   include the canonical `Spec Summary/Status` report defined in
   [`spec-summary-status.md`](spec-summary-status.md).
 - Phase **work order** lives in [`BACKLOG.md`](BACKLOG.md) (top = next), not in
-  the filename number — reorder it with `specloop prio-spec <NN> <pos>`. Each
+  the filename number — reorder it with `specloop prio spec <NN> <pos>`. Each
   phase's `Depends on:` still gates. Done-state is derived from the checkboxes.
 - The loop: an agent takes the top `BACKLOG.md` phase whose `Depends on:` is
   met and its highest-priority box, does it, verifies it, updates its checkbox

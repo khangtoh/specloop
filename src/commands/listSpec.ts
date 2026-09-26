@@ -11,7 +11,7 @@ type Filter = "all" | "done" | "undone";
 
 /**
  * List phases in priority (BACKLOG) order with derived done-state.
- *   specloop list-spec [all|done|undone]   (default: undone)
+ *   specloop list [all|done|undone]   (default: undone)
  * The leading number is the 1-based priority position in the full order, so a
  * filtered view can legitimately show gaps.
  */
@@ -52,7 +52,7 @@ export function runListSpec(rootDir: string, arg?: string, opts: { json?: boolea
   }
 
   const src = hasBacklog ? "BACKLOG.md" : "numeric order (no BACKLOG.md)";
-  console.log(`${BOLD}specloop list-spec${RST} ${DIM}(${filter}, ${src})${RST}\n`);
+  console.log(`${BOLD}specloop list${RST} ${DIM}(${filter}, ${src})${RST}\n`);
   if (shown.length === 0) {
     console.log(filter === "done" ? "No done phases yet." : "No remaining phases.");
     return 0;

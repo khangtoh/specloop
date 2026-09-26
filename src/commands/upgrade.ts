@@ -156,7 +156,8 @@ export function runUpgrade(
     console.log(
       `${YEL}Note:${RST} PRD-style specs need re-authoring into atomic-task phases\n` +
         `(Goal:/Depends on: + '- [ ]' tasks). specloop scaffolds the structure; use the\n` +
-        `${CYN}/spec-upgrade${RST} agent command to map each spec's Acceptance Criteria into tasks.\n`,
+        `${CYN}/specloop upgrade --apply${RST} (Claude) or ${CYN}$specloop upgrade --apply${RST} (Codex)\n` +
+        `to map each spec's Acceptance Criteria into tasks (/spec-upgrade remains an alias).\n`,
     );
   }
 
@@ -301,7 +302,7 @@ function generateBacklog(specAbs: string, det: Detection): void {
     "",
     "Priority-ordered list of phases. **List position = work order (top = next).**",
     "`NN` is a stable spec id, not a priority. Done-state is derived from each",
-    "phase's checkboxes — reprioritize with `specloop prio-spec <NN> <pos>`.",
+    "phase's checkboxes — reprioritize with `specloop prio spec <NN> <pos>`.",
     "",
     "## Phases (priority order)",
     "",

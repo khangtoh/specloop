@@ -33,6 +33,10 @@ Depends on: the `specloop` execution-command section in `AGENTS.md` (landed in
 
 ## A. Durable run-state record (do first)
 
+_2026-09-26 supersession:_ Phase 06 extends the exact-only plain-message rule
+with an explicit skill `loop` action. Bare skill invocation shows a menu;
+plain `specloop` execution and rejected start/run/go aliases remain unchanged.
+
 - [x] (p1) Add `template/spec/specloop-run-state.md` with a fixed field block:
       run status (`idle` / `active` / `blocked`), stated goal, goal acceptance
       checkbox (file + exact text), current phase, current task, resume point,

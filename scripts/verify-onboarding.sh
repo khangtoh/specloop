@@ -166,6 +166,18 @@ for f in .agents/skills/specloop/SKILL.md .codex/hooks.json .claude/settings.jso
   assert_file "$BOTH/$f" "$f (packed install)"
 done
 assert_same "$BOTH/.specloop/hooks/reconcile.mjs" "$BOTH/node_modules/@khangtoh/specloop/plugin/specloop/hooks/reconcile.mjs" "shared runner matches packed source"
+for runtime_dir in .claude/skills .agents/skills; do
+  for ref in init upgrade audit loop; do
+    assert_same "$BOTH/$runtime_dir/specloop/references/$ref.md" \
+      "$BOTH/node_modules/@khangtoh/specloop/plugin/specloop/skills/specloop/references/$ref.md" \
+      "$runtime_dir/specloop/references/$ref.md matches packed source"
+  done
+done
+(
+  cd "$BOTH"
+  bunx specloop list all --json > "$WORK/list-new.json"
+  bunx specloop list-spec all --json > "$WORK/list-old.json"
+) && assert_same "$WORK/list-new.json" "$WORK/list-old.json" "packed list alias output agrees" || bad "packed list command failed"
 (
   cd "$BOTH"
   bun -e 'const fs = require("fs"); for (const path of [".codex/hooks.json", ".claude/settings.json"]) { const c = JSON.parse(fs.readFileSync(path)); for (const e of ["SessionStart", "UserPromptSubmit", "Stop"]) if (c.hooks[e].length !== 1) process.exit(1); }'
