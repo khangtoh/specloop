@@ -15,7 +15,7 @@ kept here), so there is nothing to sync.
 ## Phases (priority order)
 
 - 06 Short commands and native skill menu
-- 05 Automatic decision reconciliation
+- 07 Automatic decision reconciliation
 
 - 04 Agent-asset onboarding for new and migrated repos
 - 01 Verify the `upgrade` command

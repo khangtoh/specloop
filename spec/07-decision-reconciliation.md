@@ -1,4 +1,4 @@
-# Phase 05 — Automatic decision reconciliation
+# Phase 07 — Automatic decision reconciliation
 
 Goal: every specloop session reconciles instructions with recorded decisions;
 Claude and Codex hooks prompt review and detect missing ledger updates safely.
@@ -52,3 +52,7 @@ Depends on: None.
   remain open pending authenticated/trusted runtime activation and the complete
   behavior matrix in `docs/decision-reconciliation.md`. No broad hook trust
   bypass was used; unrelated user-level hooks are outside this acceptance task.
+
+- _2026-09-26_ — Renumbered from local Phase 05 to Phase 07 to preserve the
+  published grouped-layout Phase 05 during release integration. Existing
+  checklist completion and runtime evidence are unchanged.

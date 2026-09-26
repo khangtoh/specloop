@@ -329,3 +329,26 @@ is in `spec/evidence/06-command-menu.md`. Claude auth inspection reports
 Resume point: authenticate Claude and record the `/specloop` response menu
 and `/specloop list undone --json` routing in an isolated project, then close
 Phase 06's last checkbox. Existing Phase 03 and 05 acceptance gaps are unchanged.
+
+## Session: 2026-09-26 — 0.7.0 release reconciliation
+
+**Previous decision:** Phase 06 implementation was local-only with no release;
+local Phase 05 described decision reconciliation, while the fetched published
+branch independently used Phase 05 for grouped layouts and released 0.6.0.
+
+**Conflicting instruction:** The user now requests shipping a new version.
+Registry and origin inspection show 0.6.0 already published, with upstream
+layout/group commands absent from the local command-menu branch.
+
+**Resolution:** Publishing is now authorized. Merge origin/main without
+removing either feature set, preserve upstream's published Phase 05 identity,
+and renumber the local reconciliation phase to 07. Historical ledger references
+to local Phase 05 mean that reconciliation phase; its checklist remains intact.
+Phase 06's menu gains the upstream layout/group actions. Release 0.7.0 after
+combined verification, then verify the registry package and push main/tag.
+
+**Scope and consequences:** Resolve integration conflicts, retain the append-only
+ledger history from both branches, update current phase references and index,
+and align bundled plugin manifest versions to the release. Claude live menu
+acceptance and the reconciliation runtime gaps remain open; publication does
+not imply those checks passed.

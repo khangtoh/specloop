@@ -31,6 +31,11 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 - [x] Test fresh installs and safe refresh for both runtimes, including packaged references and customized-asset protection.
 - [x] Run tests, typecheck, template/self structural checks, packaged onboarding and skill validation.
 
+## Release
+
+- [ ] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
+- [ ] Publish 0.7.0, verify its registry package, and push main plus the release tag.
+
 ## Runtime acceptance
 
 - [x] Record live Codex evidence that the menu is read-only and explicit actions route correctly.
@@ -51,3 +56,7 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
   SHA-256 project snapshots stayed identical. Evidence:
   [command-menu proof](evidence/06-command-menu.md). Phase 06 is 7/8;
   Claude live acceptance awaits authentication (`loggedIn: false`).
+
+- _2026-09-26_ — Release scope supersedes the earlier no-publishing decision
+  under the user’s direct request. Target 0.7.0 includes upstream 0.6.0 and
+  keeps Claude live acceptance separate from package release verification.
