@@ -16,7 +16,9 @@ import {
   planAgentAssets,
   type SkillsMode,
 } from "./agentAssets.js";
-import { parsePhaseFile, extractNumber, phaseTitle, expectedEmoji } from "../validator/parse.js";
+import { discoverPhases, phaseTitle, expectedEmoji, type PhaseFile } from "../validator/parse.js";
+import { DEFAULT_CONFIG } from "../config.js";
+import { recommendLayout, printLayoutReport } from "../layout.js";
 
 const GRN = "\x1b[32m";
 const YEL = "\x1b[33m";
@@ -30,7 +32,8 @@ type Model = "specloop" | "dillinger-like" | "omarchy-like" | "ad-hoc" | "none";
 interface Detection {
   specDir: string | null; // relative
   model: Model;
-  numbered: string[]; // numbered spec filenames
+  numbered: string[]; // numbered spec filenames, and grouped folders as "NN-x/"
+  phases: PhaseFile[]; // parsed phases (flat + grouped)
   hasBacklog: boolean;
   hasProcessFiles: { summaryStatus: boolean; goalCheck: boolean; ledger: boolean };
   hasTasks: boolean; // any `- [ ]` inside spec files
@@ -59,6 +62,7 @@ export function detect(rootDir: string): Detection {
     specDir: null,
     model: "none",
     numbered: [],
+    phases: [],
     hasBacklog: false,
     hasProcessFiles: { summaryStatus: false, goalCheck: false, ledger: false },
     hasTasks: false,
@@ -69,20 +73,25 @@ export function detect(rootDir: string): Detection {
   if (!found) return base;
 
   const files = readdirSync(found.abs);
-  const numbered = files.filter((f) => /^\d{2,}-.*\.md$/.test(f)).sort();
-  const bodies = numbered.map((f) => {
-    try {
-      return readFileSync(join(found.abs, f), "utf8");
-    } catch {
-      return "";
-    }
-  });
+  const { phases } = discoverPhases(found.abs, DEFAULT_CONFIG.phasePattern);
+  const numbered = phases.map((p) => (p.layout === "grouped" ? `${p.name}/` : p.file));
+  // Grouped phases contribute every sub-spec body, not just the root.
+  const bodies = phases.flatMap((p) =>
+    p.parts.map((part) => {
+      try {
+        return readFileSync(part.path, "utf8");
+      } catch {
+        return "";
+      }
+    }),
+  );
   const joined = bodies.join("\n");
 
   const det: Detection = {
     ...base,
     specDir: found.rel,
     numbered,
+    phases,
     hasBacklog: files.includes("BACKLOG.md"),
     hasProcessFiles: {
       summaryStatus: files.includes(PROCESS_FILES.summaryStatus),
@@ -138,6 +147,11 @@ export function runUpgrade(
       `goal-check ${yesno(det.hasProcessFiles.goalCheck)}, ledger ${yesno(det.hasProcessFiles.ledger)}`,
   );
   console.log(`  AGENTS.md:          ${yesno(det.hasAgents)}\n`);
+
+  if (det.phases.length > 0) {
+    printLayoutReport(recommendLayout(det.phases), { indent: "  ", heading: "Layout:" });
+    console.log("");
+  }
 
   const skills = opts.skills ?? "copy";
   const actions = planActions(det, rootDir, skills);
@@ -260,11 +274,11 @@ function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy
  */
 function generateIndex(rootDir: string, specAbs: string, det: Detection): void {
   const rows: string[] = [];
-  for (const f of det.numbered) {
-    const num = extractNumber(f);
-    if (num === null) continue;
-    const phase = parsePhaseFile(join(specAbs, f), f);
-    const title = phaseTitle(phase.title, num, f);
+  for (const phase of det.phases) {
+    if (phase.number < 0) continue;
+    const num = phase.number;
+    const f = phase.file; // "NN-x.md", or "NN-x/README.md" for a grouped phase
+    const title = phaseTitle(phase.title, num, phase.name);
     const emoji = expectedEmoji(phase.checked, phase.total);
     const depends = phase.dependsOn && phase.dependsOn.trim() ? phase.dependsOn.trim() : "None";
     rows.push(`| ${num} | [${f}](${f}) | ${title} | ${emoji} ${phase.checked}/${phase.total} | ${depends} |`);
@@ -297,12 +311,10 @@ function generateBacklog(specAbs: string, det: Detection): void {
     "## Phases (priority order)",
     "",
   ];
-  for (const f of det.numbered) {
-    const num = extractNumber(f);
-    if (num === null) continue;
-    const phase = parsePhaseFile(join(specAbs, f), f);
-    const title = phaseTitle(phase.title, num, f);
-    lines.push(`- ${String(num).padStart(2, "0")} ${title}`);
+  for (const phase of det.phases) {
+    if (phase.number < 0) continue;
+    const title = phaseTitle(phase.title, phase.number, phase.name);
+    lines.push(`- ${String(phase.number).padStart(2, "0")} ${title}`);
   }
   lines.push("");
   writeFileSync(join(specAbs, "BACKLOG.md"), lines.join("\n"));

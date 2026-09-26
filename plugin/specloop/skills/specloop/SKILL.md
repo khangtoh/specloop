@@ -21,6 +21,7 @@ Under `spec/` in a specloop repo:
 | `README.md` | Phase index: the `# | File | Purpose | Status | Blocking dependency` table, the overarching goal, and non-goals. |
 | `BACKLOG.md` | The ranked **work order** (`## Phases (priority order)`, one line per phase). Stores order only; done-state is derived. `prio-spec` edits it. |
 | `NN-title.md` | A phase: `Goal:` + `Depends on:` header, then flat `- [ ]` / `- [x]` atomic tasks, plus a dated `Findings / Results` log. |
+| `NN-title/` | A grouped phase: `README.md` root (Goal/Depends on, shared context) + `NNa-*.md`, `NNb-*.md` sub-specs. Progress aggregates; task numbers run across the folder. |
 | `spec-summary-status.md` | The mandatory `Spec Summary/Status` handoff format every agent must emit. |
 | `goal-completion-check.md` | A reusable prompt that traces a goal → requirements → specs → checkboxes. |
 | `agent-session-ledger.md` | A dated narrative log of what each session did and left running. |
@@ -49,11 +50,12 @@ Under `spec/` in a specloop repo:
 ## Commands
 
 Slash commands (this plugin): `/spec-init`, `/spec-loop`, `/spec-status`,
-`/goal-check`, `/prio-spec`, `/list-spec`, `/spec-upgrade`.
+`/goal-check`, `/prio-spec`, `/list-spec`, `/spec-upgrade`, `/spec-layout`.
 
 CLI (bun): `specloop init`, `specloop check`, `specloop status`,
 `specloop list-spec [all|done|undone]`, `specloop prio-spec <NN> <pos>`,
-`specloop prio-task <NN.T> [--to pN]`, `specloop upgrade [dir] [--apply]`,
+`specloop prio-task <NN.T> [--to pN]`, `specloop layout`,
+`specloop group <NN> [--apply] [--no-split]`, `specloop upgrade [dir] [--apply]`,
 `specloop goal-check "<goal>"`. Run `specloop check` (or `bun run check:spec`)
 before every handoff and wire it into CI/prebuild.
 

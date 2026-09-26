@@ -18,6 +18,8 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
           phases: phases.map((p) => ({
             number: p.number,
             file: p.file,
+            layout: p.layout,
+            parts: p.parts.map((x) => ({ file: x.file, checked: x.checked, total: x.total })),
             title: p.title,
             checked: p.checked,
             total: p.total,
@@ -27,7 +29,14 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
           next: (() => {
             const n = selectNextTask(phases);
             return n
-              ? { phase: n.phase, index: n.task.index, priority: n.task.priority, text: n.task.text }
+              ? {
+                  phase: n.phase,
+                  index: n.task.index,
+                  priority: n.task.priority,
+                  text: n.task.text,
+                  file: n.file,
+                  line: n.task.line,
+                }
               : null;
           })(),
         },
@@ -49,6 +58,11 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
     console.log(
       `${emoji} ${String(p.number).padStart(2, "0")} ${p.title}\n   ${bar} ${p.checked}/${p.total}  ${DIM}${p.file}${RST}`,
     );
+    if (p.layout === "grouped") {
+      for (const part of p.parts) {
+        console.log(`     ${DIM}${part.checked}/${part.total}  ${part.file}${RST}`);
+      }
+    }
   }
 
   const next = selectNextTask(phases);
@@ -58,7 +72,7 @@ export function runStatus(rootDir: string, opts: { json?: boolean } = {}): numbe
   if (next) {
     const tag = next.task.priority ? ` ${DIM}(${next.task.priority})${RST}` : "";
     console.log(
-      `${BOLD}Next box:${RST} [Phase ${String(next.phase).padStart(2, "0")}.${next.task.index}]${tag} ${next.task.text}`,
+      `${BOLD}Next box:${RST} [Phase ${String(next.phase).padStart(2, "0")}.${next.task.index}]${tag} ${next.task.text}\n          ${DIM}${config.specDir}/${next.file}:${next.task.line}${RST}`,
     );
   } else if (totalTasks > 0) {
     console.log(`${BOLD}Next box:${RST} none — every task is checked.`);

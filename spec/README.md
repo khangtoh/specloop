@@ -30,6 +30,7 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 2 | [02-autonomous-run-contract.md](02-autonomous-run-contract.md) | Durable run state, alias/stop policy, and tests guarding the autonomous `specloop` contract | ✅ 22/22 | None |
 | 3 | [03-preflight-check.md](03-preflight-check.md) | `specloop preflight` workspace checks; bare `specloop` runs them (breaking, 0.4.0) | 🟡 14/26 | Phase 02 (run-state record) |
 | 4 | [04-agent-asset-onboarding.md](04-agent-asset-onboarding.md) | `init`/`upgrade` install the skill + `/spec-*` commands into a repo's `.claude/`; adopted repos validate | 🟡 22/23 | None |
+| 5 | [05-grouped-phase-layout.md](05-grouped-phase-layout.md) | Flat or folder-of-sub-specs phases; `layout` recommends, `group` migrates | 🟡 19/20 | None |
 
 ## Status
 

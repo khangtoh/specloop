@@ -17,4 +17,5 @@ kept here), so there is nothing to sync.
 - 04 Agent-asset onboarding for new and migrated repos
 - 01 Verify the `upgrade` command
 - 02 Autonomous `specloop` run contract
+- 05 Grouped phase layout (folder of sub-specs)
 - 03 `specloop preflight` workspace checks

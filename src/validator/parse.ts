@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 export type Priority = "p1" | "p2" | "p3";
 
@@ -14,30 +15,48 @@ export function priorityRank(p: Priority | null): number {
 }
 
 export interface Task {
-  line: number; // 1-indexed line in the file
+  file: string; // phase-relative source file: "NN-x.md", or "NN-x/NNa-y.md" in a group
+  line: number; // 1-indexed line in that file
   index: number; // 1-indexed position among the phase's checkbox tasks
   checked: boolean;
   priority: Priority | null;
   text: string; // task text, priority tag stripped
 }
 
-export interface PhaseFile {
-  file: string; // basename
+export type PhaseLayout = "flat" | "grouped";
+
+/** One markdown file that belongs to a phase (the phase file, or a group member). */
+export interface PhasePart {
+  file: string; // spec-relative path
   path: string; // absolute
+  title: string;
+  checked: number;
+  total: number;
+}
+
+export interface PhaseFile {
+  /** Spec-relative path of the phase root: "NN-x.md" (flat) or "NN-x/README.md" (grouped). */
+  file: string;
+  path: string; // absolute path of the root file
   number: number;
+  layout: PhaseLayout;
+  /** Grouped: the folder name. Flat: same as `file`. */
+  name: string;
   title: string;
   goal: string | null;
   dependsOn: string | null;
   tasks: Task[];
   checked: number;
   total: number;
+  /** Every file contributing tasks, root first then sub-specs in name order. */
+  parts: PhasePart[];
 }
 
 /** A row parsed from the index (README) phase table. */
 export interface IndexRow {
   line: number;
   number: number | null;
-  file: string | null; // linked target basename
+  file: string | null; // linked target, normalized spec-relative path
   purpose: string;
   emoji: string | null;
   checked: number | null;
@@ -49,6 +68,32 @@ const CHECKBOX = /^\s*-\s\[( |x|X)\]\s?(.*)$/;
 // A line that looks like it wanted to be a task but is malformed, e.g. `- [] x`,
 // `- [~]`, `-[ ]`, `* [ ]`.
 const MALFORMED = /^\s*[-*]\s*\[[^ xX]?\]|^\s*[-*]\[[ xX]?\]/;
+
+/** Root file of a grouped phase folder. */
+export const GROUP_ROOT = "README.md";
+const NUMBERED_DIR = /^\d{2,}-/;
+
+/**
+ * Line-by-line fenced-code tracker (CommonMark rules, indentation-tolerant so
+ * fences inside list items count). Returns true for fence lines and every line
+ * inside a fence. A backtick run followed by an info string that itself holds a
+ * backtick is inline code in prose, not a fence — "a ```mermaid fence renders
+ * as `<div>`" must not swallow the rest of the file.
+ */
+export function createFenceTracker(): (line: string) => boolean {
+  let open: { ch: string; len: number } | null = null;
+  return (line: string) => {
+    const m = line.match(/^\s*(`{3,}|~{3,})(.*)$/);
+    if (open) {
+      if (m && m[1][0] === open.ch && m[1].length >= open.len && m[2].trim() === "") open = null;
+      return true;
+    }
+    if (!m) return false;
+    if (m[1][0] === "`" && m[2].includes("`")) return false;
+    open = { ch: m[1][0], len: m[1].length };
+    return true;
+  };
+}
 
 export function extractNumber(basename: string): number | null {
   const m = basename.match(/^(\d{2,})-/);
@@ -89,7 +134,7 @@ export function selectNextTask(phasesInOrder: PhaseFile[]): OpenTaskRef | null {
       if (t.checked) continue;
       const rank: [number, number, number] = [phaseOrder, priorityRank(t.priority), t.index];
       if (bestRank === null || tupleLess(rank, bestRank)) {
-        best = { phase: p.number, file: p.file, task: t };
+        best = { phase: p.number, file: t.file, task: t };
         bestRank = rank;
       }
     }
@@ -116,14 +161,10 @@ export function parseBacklog(path: string): BacklogEntry[] {
   const lines = readFileSync(path, "utf8").split(/\r?\n/);
   const out: BacklogEntry[] = [];
   let inSection = false;
-  let inCode = false;
+  const inCode = createFenceTracker();
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
-    if (/^\s*```/.test(raw)) {
-      inCode = !inCode;
-      continue;
-    }
-    if (inCode) continue;
+    if (inCode(raw)) continue;
     if (/^##\s+/.test(raw)) inSection = BACKLOG_HEADING.test(raw);
     if (!inSection) continue;
     const m = raw.match(BACKLOG_ENTRY);
@@ -153,23 +194,29 @@ export function orderPhases(phases: PhaseFile[], backlog: BacklogEntry[] | null)
   return ordered;
 }
 
-export function parsePhaseFile(path: string, basename: string): PhaseFile {
-  const content = readFileSync(path, "utf8");
+export interface ParsedContent {
+  title: string | null;
+  goal: string | null;
+  dependsOn: string | null;
+  tasks: Omit<Task, "index" | "file">[];
+}
+
+/** Parse one markdown body: H1 title, Goal:/Depends on: lines, checkbox tasks. */
+export function parsePhaseContent(content: string): ParsedContent {
   const lines = content.split(/\r?\n/);
-  const tasks: Task[] = [];
+  const tasks: ParsedContent["tasks"] = [];
   let goal: string | null = null;
   let dependsOn: string | null = null;
-  let title = basename;
-  let inCode = false;
+  let title: string | null = null;
+  const inCode = createFenceTracker();
 
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
-    if (/^\s*```/.test(raw)) inCode = !inCode;
-    if (inCode) continue;
+    if (inCode(raw)) continue;
 
-    if (i === 0 || title === basename) {
+    if (title === null) {
       const h = raw.match(/^#\s+(.*)$/);
-      if (h && title === basename) title = h[1].trim();
+      if (h) title = h[1].trim();
     }
     if (goal === null) {
       const g = raw.match(/^\s*Goal:\s*(.*)$/i);
@@ -185,26 +232,111 @@ export function parsePhaseFile(path: string, basename: string): PhaseFile {
       const pm = rest.match(PRIORITY_RE);
       tasks.push({
         line: i + 1,
-        index: tasks.length + 1,
         checked: c[1].toLowerCase() === "x",
         priority: pm ? (pm[1] as Priority) : null,
         text: pm ? rest.slice(pm[0].length).trim() : rest,
       });
     }
   }
+  return { title, goal, dependsOn, tasks };
+}
 
+function toPart(file: string, path: string, parsed: ParsedContent): PhasePart {
+  return {
+    file,
+    path,
+    title: parsed.title ?? file,
+    checked: parsed.tasks.filter((t) => t.checked).length,
+    total: parsed.tasks.length,
+  };
+}
+
+function assemble(
+  root: { file: string; path: string; name: string; layout: PhaseLayout; number: number },
+  files: { file: string; path: string; parsed: ParsedContent }[],
+): PhaseFile {
+  const head = files[0].parsed;
+  const tasks: Task[] = [];
+  for (const f of files) {
+    for (const t of f.parsed.tasks) tasks.push({ ...t, file: f.file, index: tasks.length + 1 });
+  }
   const checked = tasks.filter((t) => t.checked).length;
   return {
-    file: basename,
-    path,
-    number: extractNumber(basename) ?? -1,
-    title,
-    goal,
-    dependsOn,
+    ...root,
+    title: head.title ?? root.name,
+    goal: head.goal,
+    dependsOn: head.dependsOn,
     tasks,
     checked,
     total: tasks.length,
+    parts: files.map((f) => toPart(f.file, f.path, f.parsed)),
   };
+}
+
+/** Parse a flat phase file (`spec/NN-slug.md`). */
+export function parsePhaseFile(path: string, basename: string): PhaseFile {
+  const parsed = parsePhaseContent(readFileSync(path, "utf8"));
+  return assemble(
+    { file: basename, path, name: basename, layout: "flat", number: extractNumber(basename) ?? -1 },
+    [{ file: basename, path, parsed }],
+  );
+}
+
+/** Sub-spec files of a grouped phase folder, in name order (root excluded). */
+export function groupMembers(dirPath: string): string[] {
+  return readdirSync(dirPath)
+    .filter((f) => f.endsWith(".md") && f !== GROUP_ROOT)
+    .filter((f) => statSync(join(dirPath, f)).isFile())
+    .sort();
+}
+
+/**
+ * Parse a grouped phase (`spec/NN-slug/README.md` + sub-specs). The root
+ * carries Goal:/Depends on:; tasks aggregate root-first, then sub-specs by name,
+ * numbered continuously so `prio-task NN.T` addresses the whole group.
+ */
+export function parseGroupedPhase(dirPath: string, dirName: string): PhaseFile {
+  const rootPath = join(dirPath, GROUP_ROOT);
+  const files = [
+    { file: `${dirName}/${GROUP_ROOT}`, path: rootPath },
+    ...groupMembers(dirPath).map((f) => ({ file: `${dirName}/${f}`, path: join(dirPath, f) })),
+  ].map((f) => ({ ...f, parsed: parsePhaseContent(readFileSync(f.path, "utf8")) }));
+  return assemble(
+    {
+      file: `${dirName}/${GROUP_ROOT}`,
+      path: rootPath,
+      name: dirName,
+      layout: "grouped",
+      number: extractNumber(dirName) ?? -1,
+    },
+    files,
+  );
+}
+
+export interface Discovery {
+  phases: PhaseFile[];
+  /** Numbered folders with no README.md root — not phases, reported as errors. */
+  rootlessGroups: string[];
+}
+
+/** Find every phase under the spec dir: flat files matching `phasePattern`
+ *  plus numbered folders holding a `README.md` root. Sorted by name. */
+export function discoverPhases(specDir: string, phasePattern: string): Discovery {
+  if (!existsSync(specDir)) return { phases: [], rootlessGroups: [] };
+  const phaseRe = new RegExp(phasePattern);
+  const phases: PhaseFile[] = [];
+  const rootlessGroups: string[] = [];
+  for (const entry of readdirSync(specDir).sort()) {
+    const abs = join(specDir, entry);
+    const isDir = statSync(abs).isDirectory();
+    if (!isDir && phaseRe.test(entry)) {
+      phases.push(parsePhaseFile(abs, entry));
+    } else if (isDir && NUMBERED_DIR.test(entry)) {
+      if (existsSync(join(abs, GROUP_ROOT))) phases.push(parseGroupedPhase(abs, entry));
+      else rootlessGroups.push(entry);
+    }
+  }
+  return { phases, rootlessGroups };
 }
 
 /** Return 1-indexed line numbers of malformed checkbox-like lines (outside code). */
@@ -212,13 +344,9 @@ export function findMalformedTaskLines(path: string): number[] {
   const content = readFileSync(path, "utf8");
   const lines = content.split(/\r?\n/);
   const out: number[] = [];
-  let inCode = false;
+  const inCode = createFenceTracker();
   for (let i = 0; i < lines.length; i++) {
-    if (/^\s*```/.test(lines[i])) {
-      inCode = !inCode;
-      continue;
-    }
-    if (inCode) continue;
+    if (inCode(lines[i])) continue;
     if (CHECKBOX.test(lines[i])) continue;
     if (MALFORMED.test(lines[i])) out.push(i + 1);
   }
@@ -226,6 +354,18 @@ export function findMalformedTaskLines(path: string): number[] {
 }
 
 const EMOJI_SET = ["✅", "🟡", "⬜", "⛔"];
+
+/**
+ * Normalize an index link target to a spec-relative phase path: drop any
+ * `#anchor` and leading `./`; a folder link (`NN-x/` or bare `NN-x`) means its
+ * `README.md` root.
+ */
+export function normalizePhaseLink(target: string): string {
+  let t = target.split("#")[0].trim().replace(/^(\.\/)+/, "");
+  if (t.endsWith("/")) t += GROUP_ROOT;
+  else if (NUMBERED_DIR.test(t) && !t.includes("/") && !/\.md$/i.test(t)) t += `/${GROUP_ROOT}`;
+  return t;
+}
 
 /** Parse the phase table out of the index file. */
 export function parseIndex(path: string): IndexRow[] {
@@ -247,7 +387,7 @@ export function parseIndex(path: string): IndexRow[] {
     const number = parseInt(cells[0], 10);
     const fileCell = cells[1];
     const linkMatch = fileCell.match(/\]\(([^)]+)\)/);
-    const file = linkMatch ? linkMatch[1].split("/").pop()! : null;
+    const file = linkMatch ? normalizePhaseLink(linkMatch[1]) : null;
     const statusCell = cells[cells.length - 2];
     const emoji = EMOJI_SET.find((e) => statusCell.includes(e)) ?? null;
     const prog = statusCell.match(/(\d+)\s*\/\s*(\d+)/);

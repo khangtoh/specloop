@@ -24,6 +24,7 @@ validator checks against, and what you inspect to learn the method.
 | `spec/README.md` | Phase index — the goal, the `# \| File \| Purpose \| Status \| Blocking dependency` table, and non-goals. |
 | `spec/BACKLOG.md` | The ranked **work order** — one line per phase; the loop takes the top. Stores order only; done-state is derived. `prio-spec` edits it. |
 | `spec/NN-title.md` | A phase — `Goal:` + `Depends on:` header, flat `- [ ]` / `- [x]` atomic tasks, and a dated `Findings / Results` log. |
+| `spec/NN-title/` | A large phase as a folder: `README.md` (Goal/Depends on) plus `NNa-*.md`, `NNb-*.md` sub-specs. See [Phase layout](#phase-layout--one-file-or-a-folder-of-sub-specs). |
 | `spec/spec-summary-status.md` | The mandatory `Spec Summary/Status` handoff every agent must emit. |
 | `spec/goal-completion-check.md` | A reusable prompt tracing a goal → requirements → specs → checkboxes. |
 | `spec/agent-session-ledger.md` | A dated narrative log of what each session did and left running. |
@@ -149,6 +150,40 @@ The optional `spec/specloop-run-state.md` is an advisory resume record. It is
 scaffolded by `init` and offered by `upgrade --apply`, but it is not required
 by `specloop check`; completion always comes from the phase checkboxes.
 
+### Phase layout — one file, or a folder of sub-specs
+
+A phase is either a **flat file** or a **folder**; every command treats them the
+same, and the phase keeps its number `NN` either way (so BACKLOG never changes).
+
+```
+spec/07-auth.md                  flat (default): one file, one checklist
+spec/12-security/                grouped: a folder of sub-specs
+  README.md                      root: Goal:, Depends on:, shared context
+  12a-retire-static-keys.md      sub-specs, in name order; tasks only,
+  12b-harden-ci.md               no Goal:/Depends on: needed
+```
+
+A grouped phase's progress is the **aggregate** of its root and sub-specs, and
+task numbers run across the whole folder (`prio-task 12.30` may land in `12c`).
+Keep phases flat until one gets unwieldy: many tasks, several independent
+sections, or parallel agents that would otherwise edit one file at once.
+
+```bash
+specloop layout                  # per-phase layout + keep / group / flatten advice
+specloop group 12                # dry run: proposed sub-specs, links to rewrite
+specloop group 12 --apply        # move to spec/12-*/README.md (git mv), split each
+                                 # task section into 12a-…, 12b-…, relink
+specloop group 12 --no-split --apply   # just move the file into a folder
+```
+
+`group` refuses to write if the checkbox totals would change or the folder
+already exists. It rewrites markdown links (inside the moved content and inbound
+from `spec/` and `AGENTS.md`) and lists other files that still mention the old
+path — scripts and prose are yours to update. `layout` only recommends grouping
+unfinished phases (> 40 tasks, or > 25 tasks across 3+ sections of 3+ tasks) and
+flattening a group with at most one sub-spec and ≤ 10 tasks; flattening is done
+by hand. `upgrade` prints the same advice when adopting a project.
+
 ### Adopt an existing project
 
 `specloop upgrade [dir]` inspects a project that already has a spec model
@@ -164,12 +199,15 @@ specs into atomic-task phases is agent work: `/spec-upgrade`.
 ## `specloop check` — what it enforces
 
 - `spec/` and the required process files exist.
-- Every `NN-*.md` phase file has a `Goal:` and a `Depends on:` line.
+- Every phase has a `Goal:` and a `Depends on:` line — in `NN-*.md`, or in
+  `NN-*/README.md` for a grouped phase (a numbered folder without a README is an
+  error).
 - Task lines are well-formed `- [ ]` / `- [x]` checkboxes (malformed ones are
-  flagged, code fences ignored).
+  flagged, code fences ignored — in every sub-spec too).
 - Every phase file is listed in the index, and no index row is an orphan.
 - Each index row's `checked/total` **and** status emoji match the real counts
-  in the phase file it links to (`⛔ blocked` is respected as a human override).
+  in the phase it links to — aggregate for a folder, which may be linked as
+  `NN-x/README.md` or `NN-x/` (`⛔ blocked` is respected as a human override).
 - `BACKLOG.md` lists every phase exactly once, with no orphan or duplicate
   entries (and warns when it's absent, falling back to numeric order).
 - `AGENTS.md` references the reporting standard.

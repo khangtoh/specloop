@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig } from "../config.js";
-import { parsePhaseFile, priorityRank, PRIORITY_RE, type Priority } from "../validator/parse.js";
+import { discoverPhases, priorityRank, PRIORITY_RE, type Priority } from "../validator/parse.js";
 
 const GRN = "\x1b[32m";
 const YEL = "\x1b[33m";
@@ -39,24 +39,22 @@ export function runPrioTask(rootDir: string, ref: string, to?: string): number {
 
   const config = loadConfig(rootDir);
   const specDir = join(rootDir, config.specDir);
-  const phaseRe = new RegExp(config.phasePattern);
-  const file = existsSync(specDir)
-    ? readdirSync(specDir).find(
-        (f) => phaseRe.test(f) && parsePhaseFile(join(specDir, f), f).number === phaseNum,
-      )
-    : undefined;
-  if (!file) {
+  const phase = discoverPhases(specDir, config.phasePattern).phases.find(
+    (p) => p.number === phaseNum,
+  );
+  if (!phase) {
     console.error(`No phase file found for phase ${phaseNum} in ${config.specDir}/.`);
     return 1;
   }
 
-  const path = join(specDir, file);
-  const phase = parsePhaseFile(path, file);
   const task = phase.tasks.find((t) => t.index === taskIdx);
   if (!task) {
     console.error(`Phase ${phaseNum} has no task ${taskIdx} (it has ${phase.tasks.length}).`);
     return 1;
   }
+  // In a grouped phase the task may live in a sub-spec, not the root.
+  const file = task.file;
+  const path = join(specDir, file);
 
   const current = task.priority;
   let next: Priority;

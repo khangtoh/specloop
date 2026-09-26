@@ -11,6 +11,8 @@ import { runPrioSpec } from "./commands/prioSpec.js";
 import { runListSpec } from "./commands/listSpec.js";
 import { runPreflight } from "./commands/preflight.js";
 import { parseSkillsMode, SKILLS_MODES } from "./commands/agentAssets.js";
+import { runLayout } from "./commands/layout.js";
+import { runGroup } from "./commands/group.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -38,6 +40,10 @@ Commands:
   preflight                Check workspace readiness without changing it.
   prio-spec <NN> <pos>    Reprioritize a phase in BACKLOG (0=top, +up, -down).
   prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
+  layout                  Show each phase's layout (flat file or folder of
+                          sub-specs) and recommend changes.
+  group <NN>              Move flat phase NN into a folder, one sub-spec per
+                          task section (dry run; --apply to write).
   upgrade [dir]           Adopt an existing project's spec model into specloop
                           (report; --apply to scaffold non-destructively, incl.
                           the .claude/ skills + /spec-* commands).
@@ -48,8 +54,9 @@ Commands:
 Options:
   --dir <path>            Project root to operate on (default: cwd).
   --force                 (init) overwrite an existing spec/ and files.
-  --apply                 (upgrade) perform the adoption instead of a dry run.
-  --json                  (check, status, list-spec, preflight) machine-readable output.
+  --no-split              (group) move into a folder without splitting sections.
+  --apply                 (upgrade, group) perform the adoption instead of a dry run.
+  --json                  (check, status, list-spec, preflight, layout) machine-readable output.
   --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
   --skills <mode>         (init, upgrade) how the specloop skills and /spec-*
                           commands land in .claude/: copy (default), link
@@ -67,6 +74,8 @@ Examples:
   specloop prio-spec 22 0          # move phase 22 to the top of the backlog
   specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
   specloop init --skills none      # scaffold spec/ only, no .claude/ assets
+  specloop layout                  # which phases should become folders?
+  specloop group 12 --apply        # split phase 12 into spec/12-*/ sub-specs
   specloop upgrade ./other-repo --apply
   specloop goal-check "the checkout flow is done"
 `;
@@ -94,6 +103,7 @@ export function main(argv: string[]): number {
     console.error(`Invalid --skills value: ${skillsRaw}. Expected one of: ${SKILLS_MODES.join(", ")}.`);
     return 1;
   }
+  const noSplit = takeFlag(rest, "--no-split");
   const apply = takeFlag(rest, "--apply");
   const json = takeFlag(rest, "--json");
   const positional = rest.filter((a) => !a.startsWith("--"));
@@ -117,6 +127,10 @@ export function main(argv: string[]): number {
     case "prio-task":
     case "priotask":
       return runPrioTask(rootDir, positional[0], to);
+    case "layout":
+      return runLayout(rootDir, { json });
+    case "group":
+      return runGroup(rootDir, positional[0], { apply, split: !noSplit });
     case "upgrade":
       return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills });
     case "goal-check":
