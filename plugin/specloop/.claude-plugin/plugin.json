@@ -1,7 +1,7 @@
 {
   "name": "specloop",
   "description": "Spec-driven loop engineering for agents: numbered phase specs, an enforced structure, a mandatory Spec Summary/Status handoff, and the loop that drives them.",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "author": {
     "name": "khangtoh"
   },
