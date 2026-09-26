@@ -162,3 +162,7 @@ Depends on: None.
   documentation, automated init/upgrade tests and packed onboarding checks.
   The live Codex probe read the installed skill at that path. Runtime hook
   acceptance remains separately open in Phase 05; no release performed.
+
+- _2026-09-26 supersession_ — References to the local reconciliation Phase 05
+  in the September 16–17 entries now refer to Phase 07 after release integration.
+  Published grouped-layout Phase 05 retains its own identity.

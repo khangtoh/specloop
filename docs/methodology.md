@@ -28,7 +28,11 @@ Work flows down a strict chain, and completion is only ever read back **up** it:
 2. **Requirements / decisions** — what the goal implies, recorded in a phase's
    `Decisions` section or in the README's Status/Non-goals.
 3. **Phases** — `spec/NN-title.md`, ordered, each with a `Goal:` and a
-   `Depends on:` line. A phase is a unit of dependency, not a unit of size.
+   `Depends on:` line. A phase is a unit of dependency, not a unit of size —
+   when one grows too big for a single file it becomes a folder,
+   `spec/NN-title/README.md` plus `NNa-*.md` sub-specs, with the same number,
+   the same dependency, and aggregate progress (`specloop layout` says when;
+   `specloop group NN` does the move).
 4. **Tasks** — flat `- [ ]` checkboxes inside a phase. Each is **atomic**:
    completable and verifiable in one short sitting. Atomicity is what lets an
    agent pick up exactly one and lets a reviewer accept or reject exactly one.

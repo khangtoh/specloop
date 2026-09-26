@@ -1,8 +1,8 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { SpecloopConfig } from "../config.js";
 import {
-  parsePhaseFile,
+  discoverPhases,
   parseIndex,
   parseBacklog,
   findMalformedTaskLines,
@@ -74,15 +74,23 @@ export function check(rootDir: string, config: SpecloopConfig): CheckResult {
   }
 
   // 3. Parse phase files.
-  const phaseRe = new RegExp(config.phasePattern);
-  const phaseFiles = readdirSync(specDir).filter((f) => phaseRe.test(f)).sort();
-  const phases: PhaseFile[] = [];
+  // A phase is a flat `NN-slug.md` file or a `NN-slug/` folder whose README.md
+  // is the root (Goal:/Depends on:) and whose other .md files are sub-specs.
+  const { phases, rootlessGroups } = discoverPhases(specDir, config.phasePattern);
   const seenNumbers = new Map<number, string>();
 
-  for (const f of phaseFiles) {
-    const path = join(specDir, f);
-    const phase = parsePhaseFile(path, f);
-    phases.push(phase);
+  for (const g of rootlessGroups) {
+    issues.push({
+      severity: "error",
+      file: join(config.specDir, g),
+      rule: "group-missing-root",
+      message: `Numbered folder '${g}/' has no README.md — a grouped phase needs a README.md root with Goal:/Depends on:.`,
+    });
+  }
+
+  for (const phase of phases) {
+    const path = phase.path;
+    const f = phase.file;
 
     if (seenNumbers.has(phase.number)) {
       issues.push({
@@ -119,21 +127,23 @@ export function check(rootDir: string, config: SpecloopConfig): CheckResult {
         message: "Phase file has no checkbox tasks.",
       });
     }
-    for (const ln of findMalformedTaskLines(path)) {
-      issues.push({
-        severity: "error",
-        file: rel(path),
-        line: ln,
-        rule: "malformed-task",
-        message: "Line looks like a task but is not a well-formed '- [ ]' / '- [x]' checkbox.",
-      });
+    for (const part of phase.parts) {
+      for (const ln of findMalformedTaskLines(part.path)) {
+        issues.push({
+          severity: "error",
+          file: rel(part.path),
+          line: ln,
+          rule: "malformed-task",
+          message: "Line looks like a task but is not a well-formed '- [ ]' / '- [x]' checkbox.",
+        });
+      }
     }
     // A leading `(pN)` that isn't p1–p3 is a mistyped priority tag.
     for (const t of phase.tasks) {
       if (t.priority === null && /^\(p\d+\)/i.test(t.text)) {
         issues.push({
           severity: "warn",
-          file: rel(path),
+          file: join(config.specDir, t.file),
           line: t.line,
           rule: "invalid-priority",
           message: `Task starts with '${t.text.match(/^\(p\d+\)/i)![0]}' but only (p1), (p2), (p3) are valid priorities.`,
@@ -148,12 +158,16 @@ export function check(rootDir: string, config: SpecloopConfig): CheckResult {
     if (existsSync(indexPath)) {
       const rows = parseIndex(indexPath);
       const byFile = new Map(phases.map((p) => [p.file, p]));
+      // Back-compat: a flat phase may be linked by any path ending in its name.
+      const flatByBase = new Map(
+        phases.filter((p) => p.layout === "flat").map((p) => [p.file, p]),
+      );
       const rowFiles = new Set<string>();
 
       for (const row of rows) {
         if (!row.file) continue;
-        rowFiles.add(row.file);
-        const phase = byFile.get(row.file);
+        const phase = byFile.get(row.file) ?? flatByBase.get(row.file.split("/").pop()!);
+        rowFiles.add(phase ? phase.file : row.file);
         if (!phase) {
           issues.push({
             severity: "error",

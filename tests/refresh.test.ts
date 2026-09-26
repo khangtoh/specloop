@@ -61,6 +61,22 @@ test('legacy shipped assets update, customized legacy files need manual merge', 
   refreshAssets(dir, { apply: true });
   expect(read('.claude/skills/specloop/SKILL.md')).toContain('Decision reconciliation');
 });
+test('published 0.6.0 skill refreshes without a manifest while customized bytes remain protected', () => {
+  runInit(dir, { agent: 'both' });
+  const legacy = readFileSync(join(import.meta.dir, 'fixtures/agent-assets/specloop-0.6.0.md'), 'utf8');
+  const claudePath = '.claude/skills/specloop/SKILL.md';
+  const codexPath = '.agents/skills/specloop/SKILL.md';
+  writeFileSync(join(dir, claudePath), legacy);
+  writeFileSync(join(dir, codexPath), legacy + '\nCustom project instruction\n');
+  rmSync(join(dir, '.specloop/managed-assets.json'));
+  const preview = refreshAssets(dir, { agent: 'both' });
+  expect(preview.find(a => a.path === claudePath)?.status).toBe('update');
+  expect(preview.find(a => a.path === codexPath)?.status).toBe('manual merge');
+  expect(read(claudePath)).toBe(legacy);
+  refreshAssets(dir, { agent: 'both', apply: true });
+  expect(read(claudePath)).toContain('Menu and routing');
+  expect(read(codexPath)).toBe(legacy + '\nCustom project instruction\n');
+});
 test('customized managed hook is preserved without duplicate; other events can install', () => {
   runInit(dir);
   const settings = JSON.parse(read('.claude/settings.json'));

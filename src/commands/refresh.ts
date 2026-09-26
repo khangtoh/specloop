@@ -75,7 +75,7 @@ export function refreshAssets(root: string, opts: { agent?: Agent; apply?: boole
   if (linked(root, manifestPath)) throw new Error("Refusing linked managed-assets manifest; manual merge required.");
   const manifest = readManifest(root);
   const oldManifest = JSON.stringify(manifest);
-  const legacy = JSON.parse(readFileSync(join(plugin, "legacy-assets.json"), "utf8")) as Record<string, string>;
+  const legacy = JSON.parse(readFileSync(join(plugin, "legacy-assets.json"), "utf8")) as Record<string, string | string[]>;
   const actions: RefreshAction[] = [];
   const assets = assetContents(agent, config.specDir);
   for (const [path, source] of assets) {
@@ -85,7 +85,9 @@ export function refreshAssets(root: string, opts: { agent?: Agent; apply?: boole
       actions.push({ path, status: "manual merge", detail: "linked or non-file asset preserved" }); continue;
     }
     const current = existsSync(dest) ? readFileSync(dest, "utf8") : undefined;
-    const recognized = current !== undefined && (manifest.files[path] === digest(current) || (source.legacy && legacy[source.legacy] === digest(current)));
+    const legacyHashes = source.legacy ? legacy[source.legacy] : undefined;
+    const recognized = current !== undefined && (manifest.files[path] === digest(current) ||
+      (Array.isArray(legacyHashes) ? legacyHashes.includes(digest(current)) : legacyHashes === digest(current)));
     const status = current === source.body ? "current" : current === undefined ? "add" : recognized ? "update" : "manual merge";
     actions.push({ path, status });
     if (opts.apply && status !== "manual merge") {

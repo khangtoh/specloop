@@ -116,6 +116,21 @@ test("audit preserves the actual quoted goal and the project's custom prompt", (
   expect(snapshot()).toEqual(before);
 });
 
+test("layout/group routing composes with canonical list and prio task on grouped phases", () => {
+  const before = snapshot();
+  expect(JSON.parse(run("layout", "--json").out).flat).toBe(3);
+  expect(run("group", "01", "--no-split").code).toBe(0);
+  expect(snapshot()).toEqual(before);
+  expect(run("group", "01", "--no-split", "--apply").code).toBe(0);
+  expect(existsSync(join(dir, "spec/01-first/README.md"))).toBe(true);
+  expect(JSON.parse(run("layout", "--json").out).grouped).toBe(1);
+  const list = run("list", "all", "--json");
+  expect(run("list-spec", "all", "--json")).toEqual(list);
+  expect(JSON.parse(list.out).phases[0].total).toBe(2);
+  expect(run("prio", "task", "01.2", "--to", "p1").code).toBe(0);
+  expect(read("spec/01-first/README.md")).toContain("- [ ] (p1) second task");
+});
+
 test("help advertises canonical commands and is informational outside a project", () => {
   const before = snapshot();
   const result = run("help");

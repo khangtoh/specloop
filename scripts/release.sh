@@ -60,7 +60,8 @@ step "commit + tag + push"
 git add package.json
 git commit -m "release: $NEW"
 git tag "$NEW"
-git push --follow-tags origin main
+# Push the tag by name: --follow-tags skips lightweight tags like this one.
+git push origin main "$NEW"
 
 step "done"
 echo "✔ published @khangtoh/specloop@${NEW#v} and pushed $NEW"

@@ -29,7 +29,7 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
     "  ◦ add spec/specloop-run-state.md (optional advisory run record)",
     "  ◦ add AGENTS.md (specloop binding)",
     "  ◦ add .specloop.json (validator config)",
-    "  ◦ install 4 specloop skills and 7 /spec-* commands into the selected agent directories",
+    "  ◦ install 5 specloop skills and 8 /spec-* commands into the selected agent directories",
     "  ◦ install reconciliation instructions and hooks (activity unverified; review /hooks and restart)",
   ]);
 });

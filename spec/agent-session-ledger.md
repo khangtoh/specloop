@@ -352,3 +352,23 @@ ledger history from both branches, update current phase references and index,
 and align bundled plugin manifest versions to the release. Claude live menu
 acceptance and the reconciliation runtime gaps remain open; publication does
 not imply those checks passed.
+
+
+## Imported upstream release history (preserved verbatim)
+
+- _2026-09-26_ — User-directed Phase 05 (grouped phase layout), opened while adopting specloop in dillinger-aws, whose Phase 11 is a folder and whose Phase 15 was miscounted by the naive fence toggle. Implemented 19/20: grouped discovery + aggregate counts, CommonMark fence tracker, `specloop layout`, `specloop group <NN> [--apply] [--no-split]`, group-aware status/list-spec/prio-task/upgrade, docs, `/spec-layout` command + Codex skill. Evidence: `bun test` 80/0, self/template checks valid, `tsc` clean with curl-fetched type packages; dillinger-aws validates 20 phases 259/454. Phase 05 moved to top of BACKLOG by user direction; Phase 03 remains paused at 14/26. Resume point: 0.6.0 release box.
+
+- _2026-09-26_ — User-directed 0.6.0 release ("push and merge, promote and bundle new version"): the first `bun run release minor` hit `E403` because the local clone was 5 commits behind origin (upstream Phase 04 had shipped 0.5.0 on 2026-09-13). Renumbered this work to Phase 05, rebased onto `origin/main`, re-verified, then released `@khangtoh/specloop@0.6.0` (`5d8fc79`, tag `v0.6.0`). Also fixed `scripts/release.sh`, which never pushed its lightweight tags (`v0.5.0` is still missing on origin), and a SIGPIPE flake in `scripts/verify-onboarding.sh`. Registry-installed 0.6.0 verified against dillinger-aws. Phase 05 complete 20/20. Resume point: Phase 04's open Codex `--agent` box, then Phase 03 (14/26).
+
+
+## Session: 2026-09-26 — release integration verified
+
+Merged origin/main at a63dc9d, retaining grouped-layout Phase 05 (20/20),
+renumbering reconciliation to Phase 07 (11/14), and preserving both branches'
+ledger history. Phase 06 is 8/10: the 15-action menu includes layout/group and
+canonical priority commands work on grouped phases. Refresh recognizes exact
+shipped 0.5.0 and 0.6.0 assets; modified copies still need a manual merge.
+Verification: 133 tests, typecheck, both structural checks, changed skill
+validation, and 90 packaged onboarding assertions pass. Next: bump all package
+and plugin release manifests to 0.7.0, publish, verify registry installation,
+and push main plus v0.7.0. Runtime acceptance gaps stay open.

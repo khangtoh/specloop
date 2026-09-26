@@ -17,6 +17,7 @@ all commands, arguments, and examples. For a Claude marketplace plugin use
 | `status`, `list` | Checkbox progress and backlog listing |
 | `prio spec <NN> <pos>` | Phase priority (0 top, +N up, -N down) |
 | `prio task <NN.T> [--to pN]` | Task priority (explicit level or bump) |
+| `layout`, `group <NN> [--apply] [--no-split]` | Inspect layouts or group a flat phase |
 | `audit "<goal>"` | Evidence-based goal audit |
 | `loop [phase]` | Execute spec work to the scoped terminal condition |
 | `help`, `version` | Menu or installed CLI version |

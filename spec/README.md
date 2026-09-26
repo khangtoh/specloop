@@ -31,8 +31,9 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 3 | [03-preflight-check.md](03-preflight-check.md) | `specloop preflight` workspace checks; bare `specloop` runs them (breaking, 0.4.0) | 🟡 14/26 | Phase 02 (run-state record) |
 | 4 | [04-agent-asset-onboarding.md](04-agent-asset-onboarding.md) | `init`/`upgrade` install the skill + `/spec-*` commands into a repo's `.claude/`; adopted repos validate; Codex added in Phase 07 | ✅ 23/23 | None |
 
-| 7 | [07-decision-reconciliation.md](05-decision-reconciliation.md) | Session reconciliation, runtime hooks and safe refresh | 🟡 11/14 | None |
-| 6 | [06-command-menu.md](06-command-menu.md) | Short commands and native skill response menu | 🟡 7/10 | Claude authentication for live acceptance |
+| 5 | [05-grouped-phase-layout.md](05-grouped-phase-layout.md) | Flat or folder-of-sub-specs phases; layout recommends, group migrates | ✅ 20/20 | None |
+| 7 | [07-decision-reconciliation.md](07-decision-reconciliation.md) | Session reconciliation, runtime hooks and safe refresh | 🟡 11/14 | None |
+| 6 | [06-command-menu.md](06-command-menu.md) | Short commands and native skill response menu | 🟡 8/10 | Claude authentication for live acceptance |
 
 ## Status
 

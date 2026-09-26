@@ -32,6 +32,8 @@ outside a specloop repository and without a CLI installed.
 | `list` | `[all|done|undone] [--dir path] [--json]` | List phases in priority order; default undone |
 | `prio spec` | `<NN> <pos> [--dir path]` | Reorder a phase: 0 top, +N up, -N down |
 | `prio task` | `<NN.T> [--to p1|p2|p3] [--dir path]` | Set task priority or bump it one level |
+| `layout` | `[--dir path] [--json]` | Inspect flat/grouped layouts and recommendations |
+| `group` | `<NN> [--apply] [--no-split] [--dir path]` | Preview or apply grouping into sub-specs |
 | `audit` | `"<goal>" [--dir path]` | Trace goal completion through requirements and evidence |
 | `loop` | `[phase]` | Execute spec work to the run's terminal condition |
 | `help` | None | Show this menu |
@@ -51,7 +53,7 @@ run; the explicit skill menu does not.
 Normalize legacy actions before routing: `list-spec`/`listspec` → `list`,
 `prio-spec`/`priospec` → `prio spec`, `prio-task`/`priotask` → `prio task`,
 `goal-check`/`goalcheck` → `audit`, `spec-init` → `init`, `spec-loop` → `loop`,
-`spec-status` → `status`, and `spec-upgrade` → `upgrade`. Old slash commands
+`spec-status` → `status`, `spec-upgrade` → `upgrade`, and `spec-layout` → `layout`. Old slash commands
 and skills remain supported. Unknown explicit actions or missing/invalid
 `prio` targets show usage and stop without changes. `start`, `run`, and `go`
 are not aliases for loop.
@@ -79,9 +81,9 @@ Read only the reference needed for the selected action, relative to this skill:
   filters the agent report, not the shell command. Read the phase's checkboxes
   and report using the project's required status format. For `--json`, return
   the requested machine-readable output without a prose wrapper.
-- `list`, `prio spec`, `prio task`, `check`, `preflight`, `refresh`, `version`:
+- `list`, `prio spec`, `prio task`, `check`, `preflight`, `refresh`, `layout`, `group`, `version`:
   run the corresponding CLI command, preserving argument boundaries and flags.
-  Never interpolate raw user text into shell code. Refresh remains a dry run
+  Never interpolate raw user text into shell code. Refresh and group remain dry runs
   unless `--apply` is supplied. Pass through failures with the cause and repair;
   do not silently install packages or replace a failing command with edits.
 
@@ -97,6 +99,9 @@ Before project work read its `spec/agent-session-ledger.md` and relevant specs.
 Use the configured spec directory when `.specloop.json` overrides `spec/`.
 `BACKLOG.md` ranks phases; `Depends on:` gates eligibility; task `(pN)` and
 position order boxes within a phase. Priority never overrides dependencies.
+A phase may be a flat `NN-title.md` file or a `NN-title/` folder with
+`README.md` and sub-specs. Aggregate grouped progress across all owned files;
+task indices span root tasks first, then sub-specs in filename order.
 Done-state comes from actual checkboxes. Check tasks only with evidence,
 update Findings/Results and the phase index, and follow the project's
 `spec-summary-status.md` handoff when reporting material work or status.

@@ -33,7 +33,7 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 
 ## Release
 
-- [ ] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
+- [x] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
 - [ ] Publish 0.7.0, verify its registry package, and push main plus the release tag.
 
 ## Runtime acceptance
@@ -60,3 +60,11 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 - _2026-09-26_ — Release scope supersedes the earlier no-publishing decision
   under the user’s direct request. Target 0.7.0 includes upstream 0.6.0 and
   keeps Claude live acceptance separate from package release verification.
+
+- _2026-09-26_ — Integrated published 0.6.0 (origin a63dc9d) with the local
+  menu and reconciliation features. Menu now has 15 actions including layout
+  and group. Added grouped-phase CLI routing coverage and recognized 0.6.0
+  asset hashes for safe refresh (customized bytes remain protected). Combined
+  verification: 133 tests pass, typecheck/structural checks and both changed
+  skill validators pass; packed onboarding 90/90. Phase 06 is 8/10 before
+  publication; Claude live acceptance remains open.
