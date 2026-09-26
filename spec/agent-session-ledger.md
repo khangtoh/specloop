@@ -428,3 +428,14 @@ The automation is a source update after 0.7.0. No second npm version was
 published and v0.7.0 remains at 570ef1b. Existing live acceptance gaps remain
 open. Next: commit this verified workflow and run its real nonpublishing dry
 run from a clean checkout before pushing the source update.
+
+
+## Session: 2026-09-27 — real release rehearsal passed
+
+From clean automation commit 639d87b, `bun run release patch --dry` passed
+registry/upstream/authentication reads, mandatory gates and 90 onboarding
+assertions using the generated prospective 0.7.1 artifact. Afterward the
+checkout was clean, all three manifests were 0.7.0, HEAD and v0.7.0 were
+unchanged, and no recovery state existed. Nothing was published, committed,
+tagged or pushed by the rehearsal. This entry records final rehearsal proof;
+the source workflow/runbook is ready to push. Phase 08 remains 7/7.

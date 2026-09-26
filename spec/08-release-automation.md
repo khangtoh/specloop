@@ -36,3 +36,8 @@ Depends on: None.
   whitespace checks pass. The new supplied-tarball onboarding path passes all
   90 assertions against the actual published 0.7.0 artifact. The runbook is
   `docs/releasing.md`. No extra npm version was published for automation testing.
+- _2026-09-27_ — Real `bun run release patch --dry` from clean commit 639d87b
+  passed all gates and 90 onboarding assertions for prospective 0.7.1. The
+  checkout remained clean, all three versions restored to 0.7.0, HEAD and
+  v0.7.0 stayed unchanged, and no pending release state remained. Origin still
+  pointed to the shipped release before the separate source-update push.
