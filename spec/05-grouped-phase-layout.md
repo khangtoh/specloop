@@ -88,7 +88,7 @@ Phases 03 and 04).
       `docs/methodology.md`, the plugin skill, and a `/spec-layout` command.
 - [x] Dogfood on dillinger-aws: `specloop check` passes with its Phase 11
       folder recognized, and `layout` output is recorded in Findings.
-- [ ] Bump to 0.6.0 (additive; no breaking change) and record the release.
+- [x] Bump to 0.6.0 (additive; no breaking change) and record the release.
 
 ## Findings / Results
 
@@ -125,3 +125,10 @@ Phases 03 and 04).
   SIGPIPE). Evidence after rebase: `bun test` 93 pass / 0 fail, `check:self`
   valid (5 phases), `check:spec` valid, `tsc` exit 0,
   `bash scripts/verify-onboarding.sh` "onboarding verified end to end" twice.
+- _2026-09-26_ — Released: `@khangtoh/specloop@0.6.0` published (npm PUT 202,
+  `latest` = 0.6.0 once processed), `main` pushed at `5d8fc79`, tag `v0.6.0`
+  pushed by name. Found that `release.sh`'s `--follow-tags` never pushed the
+  lightweight release tags — `v0.5.0` is absent from origin — fixed in
+  `a06f952` to push `"$NEW"` explicitly. Verified from the registry:
+  the 0.6.0 tarball's CLI reports 0.6.0, validates dillinger-aws (20 phases,
+  259/454) and ships all 8 commands including `spec-layout.md`.
