@@ -283,31 +283,33 @@ bun run typecheck   # tsc --noEmit
 
 ## Releasing
 
-One command promotes and publishes a new version:
+From a clean `main` checkout with dependencies installed, npm publishing
+credentials, and push access to `origin`, one command verifies and ships a new
+version:
 
 ```bash
 bun run release              # patch  (x.y.Z)
 bun run release minor        # minor  (x.Y.0)
 bun run release major        # major  (X.0.0)
-bun run release patch --dry  # rehearse: verify + preview, no publish/push
+bun run release minor --dry  # rehearse the same checks without publishing
 ```
 
-`scripts/release.sh` runs the whole flow in order and is **safe by
-construction** — it verifies before it bumps, and it touches git only after the
-publish succeeds:
+The release driver checks upstream and the npm registry before bumping, keeps
+the npm and both plugin versions aligned, runs the required checks, and tests
+the exact tarball it publishes. It verifies registry integrity, appends release
+evidence to the session ledger, then commits, tags, and explicitly pushes
+`main` and the release tag.
 
-1. **Preconditions** — must be on `main` with a clean working tree.
-2. **Verify** — `bun test`, `check --dir template`, `check --dir .` (and
-   `typecheck` when `node_modules` is present). A broken build never ships.
-3. **Bump** `package.json` only (no git yet).
-4. **`npm publish`** (uses the token in your project `.npmrc`).
-5. **Only after a successful publish** — commit `release: vX.Y.Z`, tag it, and
-   `git push --follow-tags origin main`.
+If an attempt stops with retained release state, repair the reported cause and
+resume the **same version**:
 
-Because the bump isn't committed until the publish lands, a failed publish never
-leaves a tagged, unpublished version — discard the uncommitted bump and retry.
-The CLI reads its version from `package.json`, so `specloop version` always
-matches the published release.
+```bash
+bash scripts/finish-release.sh
+```
+
+Do not run another bump or discard the release state after a partial publish.
+See [the release runbook](docs/releasing.md) for prerequisites, version choices,
+dry runs, authentication, and recovery.
 
 ## License
 

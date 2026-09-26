@@ -34,7 +34,7 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 ## Release
 
 - [x] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
-- [ ] Publish 0.7.0, verify its registry package, and push main plus the release tag.
+- [x] Publish 0.7.0, verify its registry package, and push main plus the release tag.
 
 ## Runtime acceptance
 
@@ -68,3 +68,10 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
   verification: 133 tests pass, typecheck/structural checks and both changed
   skill validators pass; packed onboarding 90/90. Phase 06 is 8/10 before
   publication; Claude live acceptance remains open.
+
+- _2026-09-27_ — Published and registry-verified 0.7.0; pushed release commit
+  570ef1b and tag v0.7.0. Fresh both-runtime install, actual 0.6.0 upgrade,
+  custom-file protection, ledger preservation and grouped canonical command
+  checks passed. Every tarball file matches the tag. Evidence:
+  [0.7.0 release](evidence/0.7.0-release.md). Phase 06 is 9/10; live Claude
+  acceptance is still pending authentication.

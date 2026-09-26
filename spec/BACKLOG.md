@@ -14,6 +14,7 @@ kept here), so there is nothing to sync.
 
 ## Phases (priority order)
 
+- 08 Automated publish and release workflow
 - 06 Short commands and native skill menu
 - 07 Automatic decision reconciliation
 

@@ -5,12 +5,18 @@
 # spec/ layout, node_modules, and the .claude/ agent assets — for both entry
 # points: `init` (new repo) and `upgrade --apply` (migrating an existing one).
 #
-#   bash scripts/verify-onboarding.sh
+#   bash scripts/verify-onboarding.sh [--tarball /absolute/path/package.tgz]
 #
 # Exits nonzero on the first failed assertion. Leaves nothing behind.
 
 set -euo pipefail
 
+TARBALL=""
+if [ "$#" -gt 0 ]; then
+  [ "$#" -eq 2 ] && [ "$1" = "--tarball" ] || { echo "usage: bash scripts/verify-onboarding.sh [--tarball path]" >&2; exit 1; }
+  [ -f "$2" ] || { echo "tarball does not exist: $2" >&2; exit 1; }
+  TARBALL="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
+fi
 cd "$(dirname "$0")/.."
 ROOT="$PWD"
 
@@ -34,8 +40,12 @@ SKILLS=(list-spec prio-spec spec-layout spec-upgrade specloop)
 COMMANDS=(goal-check.md list-spec.md prio-spec.md spec-init.md spec-layout.md spec-loop.md spec-status.md spec-upgrade.md)
 
 # 1. Pack exactly what npm publish would upload -------------------------------
-step "pack the publishable tarball"
-TARBALL="$WORK/$(cd "$WORK" && npm pack "$ROOT" --silent)"
+if [ -z "$TARBALL" ]; then
+  step "pack the publishable tarball"
+  TARBALL="$WORK/$(cd "$WORK" && npm pack "$ROOT" --silent)"
+else
+  step "verify the supplied release tarball"
+fi
 [ -f "$TARBALL" ] || { echo "npm pack produced no tarball" >&2; exit 1; }
 printf '  %s%s%s\n' "$DIM" "$(basename "$TARBALL")" "$RST"
 

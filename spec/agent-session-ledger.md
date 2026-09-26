@@ -372,3 +372,59 @@ Verification: 133 tests, typecheck, both structural checks, changed skill
 validation, and 90 packaged onboarding assertions pass. Next: bump all package
 and plugin release manifests to 0.7.0, publish, verify registry installation,
 and push main plus v0.7.0. Runtime acceptance gaps stay open.
+
+## Session: 2026-09-27 — automated release workflow intake
+
+**Previous decision:** Release scripts verify, bump only the npm manifest,
+publish from the working tree, and push; recovery and provenance checks are
+partly manual. The current 0.7.0 release was explicitly authorized separately.
+
+**Conflicting instruction:** The user invoked subagents to document publishing
+and releasing so the workflow is fully automated.
+
+**Resolution:** Implement Phase 08 with a shared release driver behind the
+existing normal/recovery commands. Automate registry/upstream preconditions,
+verification, synchronized manifests, exact-tarball publishing and verification,
+evidence recording, commit, tag and push. Keep dry-run nonpublishing and make
+partial-release recovery explicit. Authentication remains an external prerequisite.
+
+**Scope and consequences:** One delegated agent owns scripts/tests; another
+owns README/runbook documentation. The primary agent owns specs/ledger and
+finishes the already-published 0.7.0 verification/tag/push. Automation changes
+will be a subsequent source commit; never republish or move the 0.7.0 tag.
+Historical acceptance gaps remain open, and release automation must not
+check unrelated spec tasks based on publication alone.
+
+
+## Session: 2026-09-27 — 0.7.0 shipped
+
+Published @khangtoh/specloop@0.7.0, verified registry integrity and fresh
+installation plus an actual 0.6.0-to-0.7.0 refresh, and pushed release commit
+570ef1b with v0.7.0 explicitly. All 61 published files match the tagged source.
+Evidence: spec/evidence/0.7.0-release.md. Combined tests 133/133; packaged
+onboarding 90/90; typecheck and structural/skill validators pass. Phase 06
+is 9/10 with Claude live acceptance open; Phase 07 remains 11/14.
+
+The separately requested Phase 08 automation/runbook work continues on main
+in a subsequent source commit. Do not republish 0.7.0 or move its release tag.
+
+
+## Session: 2026-09-27 — release automation and runbook verified
+
+Completed Phase 08 (7/7) with delegated implementation, documentation and
+independent failure-path review. The shared release driver automates required
+checks, synchronized versions, exact-artifact onboarding/publication, registry
+integrity, append-only evidence, commit, tag and explicit main/tag push.
+Recovery retains the version/artifact and refuses unrelated edits, foreign
+tags and stale unpublished versions. Dry-run restores its manifest edits.
+
+Evidence: 145 tests pass (691 assertions), including 12 hermetic release tests
+(80 assertions); typecheck, template/self structural checks, Node/shell syntax
+and whitespace checks pass. Supplied-tarball onboarding passes 90 assertions
+against the published 0.7.0 package. See docs/releasing.md for release commands,
+authentication prerequisites and recovery before/after saved state.
+
+The automation is a source update after 0.7.0. No second npm version was
+published and v0.7.0 remains at 570ef1b. Existing live acceptance gaps remain
+open. Next: commit this verified workflow and run its real nonpublishing dry
+run from a clean checkout before pushing the source update.
