@@ -476,3 +476,17 @@ typecheck/structural checks, real package + 90/0 onboarding, registry-backed
 `NPM_TOKEN`, and the first live run happens after merge to `main`. Merging this
 change (VERSION added at 0.7.0, already tagged) triggers the workflow but it
 plans nothing to release.
+
+
+## Session: 2026-09-27 — first CI releases: specloop 0.8.0, ProductOS 0.3.0
+
+Merged specloop PR #1 and ProductOS PR #2. ProductOS's merge conflict (a
+concurrent full-word record ID change in the CHANGELOG Unreleased list) was
+resolved by keeping both entries. Bumped ProductOS to 0.3.0: CI verified,
+packaged and created the v0.3.0 GitHub Release in one run. Added
+docs/releases/0.8.0.md and bumped specloop to 0.8.0. Its release needed three
+attempts: E403 until the token allowed bypassing 2FA, then a registry
+visibility timeout after a successful publish, then resumption, which accepted
+the identical published bytes and tagged v0.8.0. The recovery design worked as
+intended. Phase 09 is 7/7. Open follow-ups: a longer npm visibility poll and
+a clearer E403 hint, changed in both kit copies together.

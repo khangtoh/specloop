@@ -24,8 +24,8 @@ push commits back to `main`.
 - [x] (p1) Add the release workflow: releases on a `VERSION` push to `main`, dry-runs on pull requests, resumes on re-run, and checks kit drift.
 - [x] Retire the local publish driver and update the README and release runbook.
 - [x] Test the kit hermetically, run the real verify/package pipeline and a registry-backed dry run for a new version, and lint the workflow.
-- [ ] Owner adds the `NPM_TOKEN` Actions secret.
-- [ ] Record the first live CI release: npm integrity, tag and GitHub Release from a `VERSION` push.
+- [x] Owner adds the `NPM_TOKEN` Actions secret.
+- [x] Record the first live CI release: npm integrity, tag and GitHub Release from a `VERSION` push.
 
 ## Findings / Results
 
@@ -38,3 +38,16 @@ push commits back to `main`.
   GitHub Release. actionlint 1.7.7 reports the workflow clean. Evidence:
   [release kit](evidence/09-release-kit.md). Live CI needs the secret and a
   merge to `main`; not yet run.
+- _2026-09-27_ — First live release, 0.8.0, from `Release v0.8.0` (`ef30ddf`),
+  took three attempts of workflow run 36296082027. Attempt 1: every check and
+  90/90 onboarding passed, then npm returned E403 because the token lacked
+  "bypass 2FA". The owner replaced the token. Attempt 2 published
+  `@khangtoh/specloop@0.8.0` (integrity
+  `sha512-LBcasQvgAVVsJ0in+leVf3bdOEglBCsZRCTLV3eYsh8U/bQdPFNpO2auaeU+wgdud4BtMnEi80+cWvDImBd9ig==`),
+  but npm took longer than the kit's ~60 s visibility poll, so the job failed
+  before tagging. Attempt 3 rebuilt identical bytes, accepted the published
+  artifact without republishing, and created tag `v0.8.0` at `ef30ddf` and the
+  GitHub Release with the tarball and `SHA256SUMS`. npm `latest` is 0.8.0.
+  The same day, ProductOS 0.3.0 released first time through its copy of the kit.
+  Follow-ups, not done: lengthen the npm visibility poll, and point the E403
+  failure at the bypass-2FA setting.
