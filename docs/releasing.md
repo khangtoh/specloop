@@ -13,7 +13,20 @@ publishes to npm.
 
 Add an npm token that can publish `@khangtoh/specloop` (an automation token or a
 granular token with publish rights) as the `NPM_TOKEN` secret under the
-repository's **Settings → Secrets and variables → Actions**. Without it the
+repository's **Settings → Secrets and variables → Actions**, or from a
+terminal with the GitHub CLI:
+
+```bash
+bash scripts/set-npm-token.sh                           # prompts; input is hidden
+op read op://vault/npm/token | bash scripts/set-npm-token.sh   # or pipe it in
+```
+
+The script needs `gh auth login` with admin access to the repository. It checks
+the token with `npm whoami` first, stores nothing if npm rejects it, then
+confirms the secret is listed. `--repo owner/name` targets another repository and
+`--skip-verify` skips the npm check. Rerun it to rotate an expiring token.
+
+Without the secret the
 workflow stops at publishing and tells you so; nothing is tagged. The token is
 written only as an `${NPM_TOKEN}` placeholder in a temporary npm config, never
 to the repository, logs or evidence.
