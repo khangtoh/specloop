@@ -1,0 +1,21 @@
+{
+  "name": "@khangtoh/specloop",
+  "kitSource": true,
+  "sync": [
+    { "file": "package.json", "json": "version" },
+    { "file": "plugin/specloop/.claude-plugin/plugin.json", "json": "version" },
+    { "file": "plugin/specloop/.codex-plugin/plugin.json", "json": "version" }
+  ],
+  "notes": "docs/releases/{version}.md",
+  "setup": [["bun", "install", "--frozen-lockfile"]],
+  "verify": [
+    ["bun", "test", "./tests"],
+    ["bun", "run", "typecheck"],
+    ["bun", "run", "check:spec"],
+    ["bun", "run", "check:self"],
+    ["node", "--test", "scripts/release-kit/release.test.mjs"]
+  ],
+  "package": ["npm", "pack", "--pack-destination", "{out}"],
+  "verifyArtifacts": [["bash", "scripts/verify-onboarding.sh", "--tarball", "{tarball}"]],
+  "publish": "npm"
+}

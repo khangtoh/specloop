@@ -457,3 +457,22 @@ Evidence: spec/evidence/06-argument-hints.md. Tests 148/148, typecheck,
 template/self structural checks, packed onboarding 90/90. Claude Code 2.1.283
 rendered all five hints inline. Phase 06 is 11/12 with live Claude menu
 acceptance still open. Source change only: no version bump, publish or tag.
+
+
+## Session: 2026-09-27 — VERSION-driven CI release kit (Phase 09)
+
+User request: a VERSION file in specloop and ProductOS, and a common release and
+package process that runs when VERSION changes. The user chose CI npm publishing,
+identical kit copies with a drift check, and a bump-only local command.
+Reconciled against Phase 08, whose local publish driver this supersedes (dated
+note added there; its boxes stay checked). Added `VERSION` (0.7.0),
+`release.config.json`, `scripts/release-kit/` and `.github/workflows/release.yml`,
+and removed `scripts/release.mjs`, `release.sh`, `finish-release.sh` and their
+tests. Release evidence now goes in the GitHub Release body, not this ledger.
+
+Evidence: spec/evidence/09-release-kit.md. Kit 14/14, repo tests 136/136,
+typecheck/structural checks, real package + 90/0 onboarding, registry-backed
+0.8.0 dry run, actionlint clean. Phase 09 is 5/7: the owner must add
+`NPM_TOKEN`, and the first live run happens after merge to `main`. Merging this
+change (VERSION added at 0.7.0, already tagged) triggers the workflow but it
+plans nothing to release.

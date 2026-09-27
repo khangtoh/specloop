@@ -1,136 +1,89 @@
 # Publishing a specloop release
 
-Use the release scripts from a source checkout. They automate verification,
-version synchronization, publishing, evidence, commit, tag, and push.
-Authentication and resolving divergent Git history still require maintainer
-access and judgment. These commands do not create a GitHub Release or publish
-to a separate plugin marketplace; the versioned plugins ship inside the npm
-package and source tag.
+`VERSION` at the repository root is the release version and the trigger. A push
+to `main` that changes it runs the [release workflow](../.github/workflows/release.yml),
+which releases that version once. There is no local publish command.
 
-## Prepare and choose a version
+The workflow and `scripts/release-kit/` are the shared release kit, byte-identical
+in specloop (the source copy) and ProductOS. Each repository describes its own
+steps in `release.config.json`; specloop's verifies with Bun, packs with npm and
+publishes to npm.
 
-Commit the intended changes and their spec evidence on `main`. Install the
-development dependencies with `bun install`. The release needs Bun, Node.js,
-npm, Git, network access to npm and `origin`, npm permission to publish
-`@khangtoh/specloop`, and permission to push `main` and tags.
+## One-time setup
 
-Use an existing authenticated npm configuration, or authenticate interactively:
+Add an npm token that can publish `@khangtoh/specloop` (an automation token or a
+granular token with publish rights) as the `NPM_TOKEN` secret under the
+repository's **Settings → Secrets and variables → Actions**. Without it the
+workflow stops at publishing and tells you so; nothing is tagged. The token is
+written only as an `${NPM_TOKEN}` placeholder in a temporary npm config, never
+to the repository, logs or evidence.
 
-```bash
-npm login
-npm whoami
-```
+## Release a version
 
-An automation environment can supply `NPM_TOKEN` through its secret store.
-The release driver uses a temporary npm configuration with an environment
-placeholder; do not put tokens in commands, tracked files, release evidence,
-or logs. Authentication requirements depend on the credential and account;
-`npm login` or an npm authentication prompt may need human interaction.
-The scripts do not manufacture an OTP or skip verification to accommodate one.
-
-Choose the bump explicitly when adding features or changing compatibility:
+Commit the intended changes on `main`, including `docs/releases/X.Y.Z.md` when
+the release needs user-facing notes. Then bump:
 
 | Command | Use |
 |---|---|
-| `bun run release` | Patch: compatible fixes; same as `bun run release patch` |
-| `bun run release minor` | Minor: new functionality |
-| `bun run release major` | Major: incompatible public interface changes |
-| `bun run release minor --dry` | Rehearse a minor release without publishing, committing, tagging, or pushing |
+| `bun run release patch` | Compatible fixes |
+| `bun run release minor` | New functionality |
+| `bun run release major` | Incompatible public interface changes |
+| `bun run release 1.0.0-rc.1` | An explicit version; a prerelease publishes under npm's `next` tag |
 
-`--dry-run` is an alias for `--dry`. A dry run runs the verification gates and
-restores its manifest edits. It reads remote refs without fetching them and can
-create temporary build or package artifacts. If upstream commits are missing
-locally, fetch and reconcile before retrying. A dry run does not prove that
-npm or Git will authorize the later write operations.
+`bump` needs a clean tree and a version newer than the current one with no
+existing tag. It writes `VERSION`, syncs `package.json` and both plugin manifests,
+commits `Release vX.Y.Z` and pushes `main`. On another branch, or with
+`--no-push`, it only commits: merge or push the commit to release. Editing
+`VERSION` by hand also works; the workflow then syncs the manifests inside the
+package and warns that the repository copies are stale.
 
-Before choosing the next version, a live release fetches upstream and checks
-the registry. Local `main` may contain new commits ahead of `origin/main`, but it
-must contain all upstream commits. The current npm version must match the
-registry's latest version before a new bump. A dirty tree, behind/diverged
-branch, version mismatch, or conflicting release tag stops the operation.
-The driver never force-pushes or silently discards another branch's work.
+`bun run release:check` confirms `VERSION` and the synced manifests agree.
 
-## What one command does
+## What the workflow does
 
-1. Check the branch, working tree, upstream history, registry version, and
-   release state before starting a new version.
-2. Run the full test suite, TypeScript check, and shipped-template and
-   repository spec checks. Typechecking is mandatory; missing dependencies
-   must be repaired rather than skipped.
-3. Synchronize `package.json` and both plugin manifests to the target version.
-4. Pack once and run onboarding verification against that exact tarball.
-   Publish the verified tarball rather than repacking the working directory.
-5. Read the published version from npm and compare its integrity with the
-   verified artifact. An existing version is accepted only when its artifact
-   matches; it is never overwritten.
-6. Append version, artifact integrity, and verification evidence to
-   `spec/agent-session-ledger.md`. Commit the release, create `vX.Y.Z`, and
-   explicitly push `main` and that tag to `origin`. Lightweight tags require
-   an explicit push; `--follow-tags` alone is insufficient.
+1. **plan** — reads `VERSION`. If `vX.Y.Z` already exists there is nothing to
+   do. A version older than an existing tag fails. Only `main` releases; any
+   other ref is a dry run.
+2. **verify** — `bun install --frozen-lockfile`, the test suite, typecheck, the
+   template and self spec checks, and the release-kit tests.
+3. **package** — `npm pack` once, then `scripts/verify-onboarding.sh --tarball`
+   against that exact file. Writes `SHA256SUMS` and `release-evidence.md`.
+4. **publish** — publishes that tarball. If the version is already on npm with
+   identical bytes it is accepted; different bytes stop the release, because
+   published versions are immutable. The registry integrity is then confirmed.
+5. **github-release** — creates `vX.Y.Z` at the released commit with
+   `docs/releases/X.Y.Z.md` (or generated notes), the verification evidence, the
+   tarball and `SHA256SUMS`. An existing release is left unchanged.
 
-The ledger records verification and the intended Git publication before the
-release commit. The command's final success output confirms that the push
-completed. Publishing does not close unrelated runtime-acceptance checkboxes.
-User-facing release notes, when needed, belong in `docs/releases/`; the driver
-does not invent feature summaries or acceptance evidence.
+A pull request that touches `VERSION`, `release.config.json` or the kit runs
+verify and package; if its version is new it also dry-runs publish and the
+GitHub Release. The separate `kit-drift` job does nothing here, since this is
+the source copy.
 
-For a standalone check of an existing artifact:
+## Resume a failed release
 
-```bash
-bash scripts/verify-onboarding.sh --tarball /absolute/path/to/package.tgz
-```
-
-Without `--tarball`, onboarding verification packs the current checkout itself.
-
-## Resume an interrupted release
-
-If a precondition or initial verification fails before a release state is
-saved, repair the cause and rerun the original `bun run release ...` command.
-No version has been bumped at that point. Once the driver reports retained
-release state, use `finish-release.sh` instead.
-
-After an interrupted release, keep its files and state in place. The driver retains
-`specloop-release.json` and its tarball directory `specloop-release/` in Git's
-metadata directory (normally `.git/`) so
-recovery can use the same version and artifact. It removes this state after
-success. These local recovery files are not committed.
-
-```bash
-bash scripts/finish-release.sh --dry  # inspect and verify recovery
-bash scripts/finish-release.sh        # complete the current version; no bump
-```
-
-Recovery still runs the required checks. Only the release driver's own
-expected version/ledger changes are accepted in a dirty recovery tree;
-unrelated edits must be resolved first. With no saved state, recovery requires
-a clean checkout whose current version is already committed. It verifies and
-packs that version, then either publishes it or confirms that the existing
-registry artifact matches before completing Git publication.
-
-An existing matching tag stays at its original commit; appending recovery
-evidence can advance `main` with a separate commit. Final output identifies
-both targets. Already-published recovery skips npm publishing authentication
-and publication, but still requires registry reads and Git access. An
-unpublished recovery target older than the registry's latest version stops
-instead of moving `latest` backwards.
+Fix the cause, then re-run the failed workflow run, or dispatch **release** on
+`main` from the Actions tab. Each step accepts completed work: an identical npm
+artifact is not republished and an existing tag or release is not replaced. Do
+not bump again to recover; that requests a different version.
 
 | Failure | Recovery |
 |---|---|
-| npm authentication or permission failure | Refresh authentication with `npm login`, or repair the publishing credential in the secret store. Rerun the original command if no state was saved; otherwise run `bash scripts/finish-release.sh`. Investigate the credential and permission cause rather than assuming every failure requires an OTP. |
-| npm publish may have succeeded but the response or registry check failed | Restore network/registry access and run `bash scripts/finish-release.sh`; it checks the existing version and artifact before retrying publication. |
-| Registry version already exists | Run `bash scripts/finish-release.sh` for the interrupted version. A matching artifact is reused; a mismatch blocks for investigation. Never attempt to replace published bytes. |
-| Tag creation or push failed | Restore Git access and run `bash scripts/finish-release.sh`. It verifies the existing release and retries the explicit branch/tag push without another version bump. |
-| Upstream advanced or histories diverged | Inspect `git fetch origin` and `git log --oneline --left-right main...origin/main`; reconcile deliberately. Do not force-push, delete recovery state, or move a published tag to conceal the conflict. |
-| Verification failed | Fix the reported failure and preserve any saved release state. Before publishing, resolve source changes through the driver's safety checks; if an artifact is already published, fixes belong in a subsequent release. |
+| `NPM_TOKEN is not set` or npm authentication fails | Add or repair the secret, then re-run. |
+| npm reports different bytes for the version | That version was published from other source. Release a new version. |
+| npm did not show the version after publishing | Re-run; the identical artifact is accepted and the tag follows. |
+| Tag or GitHub Release creation failed | Re-run; publishing is skipped as already done. |
+| `VERSION ... is older than existing tag` | Bump past the latest tag. |
 
-For independent confirmation, substitute the intended version and tag:
+For independent confirmation:
 
 ```bash
 npm view @khangtoh/specloop@X.Y.Z version dist.integrity --json
-git ls-remote origin refs/heads/main refs/tags/vX.Y.Z
+git ls-remote origin refs/tags/vX.Y.Z
 ```
 
-Legacy `--skip-verify` and `--otp` script options are unsupported. Use working
-npm authentication and the full verification path. Do not rerun
-`bun run release minor` to recover a partial minor release: it requests another
-version instead of finishing the existing one.
+## Changing the release kit
+
+Edit `scripts/release-kit/release.mjs`, its tests or `.github/workflows/release.yml`
+here, run `bun run test:release-kit`, then copy the same files to ProductOS.
+ProductOS's `kit-drift` job fails until its copy matches specloop's `main`.

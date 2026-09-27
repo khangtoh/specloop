@@ -41,3 +41,7 @@ Depends on: None.
   checkout remained clean, all three versions restored to 0.7.0, HEAD and
   v0.7.0 stayed unchanged, and no pending release state remained. Origin still
   pointed to the shipped release before the separate source-update push.
+- _2026-09-27_ — Superseded by [Phase 09](09-version-driven-release.md): the
+  local publish driver and `finish-release.sh` are removed; `VERSION` changes on
+  `main` now release through CI. This phase's checkboxes record the historical
+  work and stay checked.
