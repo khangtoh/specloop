@@ -1,6 +1,7 @@
 ---
 name: prio-spec
 description: Reprioritize a phase in a specloop project's spec/BACKLOG.md. Use when the user asks to run prio-spec, reprioritize a phase/spec, move a phase up or down, or change the backlog work order.
+argument-hint: "<NN> <pos>"
 ---
 
 # prio-spec

@@ -1,10 +1,20 @@
 {
-  "skills/list-spec/SKILL.md": "1f3c50560816df917acc96236c194058dd942649b1339e2cb1095763aa46d498",
-  "skills/prio-spec/SKILL.md": "ff041d6ddee4813d91a971eca5d78db044f0b00b32c73d6b32f2233b6823000a",
-  "skills/spec-upgrade/SKILL.md": "c4efc965bb0c45ffad096d5dcd5ad29e942056f1de6f50a133e7083f00ed90fc",
+  "skills/list-spec/SKILL.md": [
+    "1f3c50560816df917acc96236c194058dd942649b1339e2cb1095763aa46d498",
+    "936ae0062fe9c6bb44ddd49cc50f7f5172bc748ec5dcb4c94e3b89843ffcb5ee"
+  ],
+  "skills/prio-spec/SKILL.md": [
+    "ff041d6ddee4813d91a971eca5d78db044f0b00b32c73d6b32f2233b6823000a",
+    "40f1cc7823bff07a26a51eb5ad635ae433a0cebdee05d7eb69cec67b30786cf7"
+  ],
+  "skills/spec-upgrade/SKILL.md": [
+    "c4efc965bb0c45ffad096d5dcd5ad29e942056f1de6f50a133e7083f00ed90fc",
+    "06ee83fb7bd925dac440553fb5610c7affde8e7a93997ac1323ede2a15fcc6ed"
+  ],
   "skills/specloop/SKILL.md": [
     "c633ad205b73cdcbecaafefebbdef208be827cd641dd108506a375b5239c21bf",
-    "d6f01f5c425ae7192b5f5a50e548e264cbea6af8c2005c284e2d87130f810ebf"
+    "d6f01f5c425ae7192b5f5a50e548e264cbea6af8c2005c284e2d87130f810ebf",
+    "53825719a76ca5a0291fcc02f8f2dd0f19aebc4a2b26d492b4b33c58f0829c8a"
   ],
   "commands/list-spec.md": "4a142bb8af5d84cfb1654684a5d0684b070bb0f66e58539f4f01f406a7713355",
   "commands/spec-status.md": "c1286729adaa912910c799378ea7e4c748f0aeb4b1359be118ae185c703cbbdd",
@@ -16,5 +26,8 @@
   "AGENTS.md": "e34d7b49200b0acf1e445e14f7a402c5111404026ffc9bcf43ab8be612e40a9b",
   "spec/spec-summary-status.md": "4f73306c18a3e9b8c39ea7dbac492addf834b7365b08e971313eb236d647e0e1",
   "commands/spec-layout.md": "8b8923fdfe67b1ab65b530c3890e98d14b6756e2dbd33924ec4fab53613911a9",
-  "skills/spec-layout/SKILL.md": "79c27831ea70944d12810c3be626bd9a9bf0e4e4e67e972b575c259384a9450b"
+  "skills/spec-layout/SKILL.md": [
+    "79c27831ea70944d12810c3be626bd9a9bf0e4e4e67e972b575c259384a9450b",
+    "ea8a1c9a5a802bad72af0e9a4b4b4d8c8e58ac052b4077ee68c6ad8480112af2"
+  ]
 }

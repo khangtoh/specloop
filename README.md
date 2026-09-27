@@ -177,6 +177,16 @@ command; the shell's `audit` prints the audit prompt while the agent performs
 it. Agent `init [goal]` decomposes a goal; shell `init [dir]` scaffolds files.
 `upgrade`, `refresh`, and `group` preview changes unless `--apply` is supplied.
 
+While you type, Claude Code shows each skill's `argument-hint` inline, so
+`/specloop ` previews the actions before you submit:
+
+```text
+/specloop  [loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]
+```
+
+Codex has no inline hint. Its skill copies keep the same text under `metadata:`,
+because the Agent Skills spec does not allow a top-level `argument-hint`.
+
 Old CLI names remain aliases: `list-spec`/`listspec`, `prio-spec`/`priospec`,
 `prio-task`/`priotask`, and `goal-check`/`goalcheck`. Existing `/spec-*`,
 `/goal-check`, `/prio-spec`, `/list-spec`, and `/spec-layout` agent commands remain available.
@@ -283,33 +293,23 @@ bun run typecheck   # tsc --noEmit
 
 ## Releasing
 
-From a clean `main` checkout with dependencies installed, npm publishing
-credentials, and push access to `origin`, one command verifies and ships a new
-version:
+`VERSION` is the release trigger. Pushing a change to it on `main` makes the
+[release workflow](.github/workflows/release.yml) verify, pack, test and
+publish that exact tarball to npm, then tag `vX.Y.Z` with a GitHub Release:
 
 ```bash
-bun run release              # patch  (x.y.Z)
-bun run release minor        # minor  (x.Y.0)
-bun run release major        # major  (X.0.0)
-bun run release minor --dry  # rehearse the same checks without publishing
+bun run release patch        # or minor, major, or an explicit X.Y.Z
 ```
 
-The release driver checks upstream and the npm registry before bumping, keeps
-the npm and both plugin versions aligned, runs the required checks, and tests
-the exact tarball it publishes. It verifies registry integrity, appends release
-evidence to the session ledger, then commits, tags, and explicitly pushes
-`main` and the release tag.
+That command only bumps: it writes `VERSION`, syncs `package.json` and both
+plugin manifests, commits `Release vX.Y.Z` and pushes `main`. On another branch
+it commits without pushing, and merging the commit releases it. CI needs an
+`NPM_TOKEN` Actions secret. To resume a failed release, re-run the workflow:
+already-published identical bytes and an existing tag are accepted, never
+replaced.
 
-If an attempt stops with retained release state, repair the reported cause and
-resume the **same version**:
-
-```bash
-bash scripts/finish-release.sh
-```
-
-Do not run another bump or discard the release state after a partial publish.
-See [the release runbook](docs/releasing.md) for prerequisites, version choices,
-dry runs, authentication, and recovery.
+The same release kit, `scripts/release-kit/`, runs in ProductOS; this
+repository holds its source copy. See [the release runbook](docs/releasing.md).
 
 ## License
 

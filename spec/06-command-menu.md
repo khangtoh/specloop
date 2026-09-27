@@ -22,6 +22,12 @@ Claude project installs expose `/specloop`; marketplace installs expose
 `/specloop:specloop`. Codex uses `$specloop`. These are response menus after
 submission, not custom autocomplete pickers. Existing aliases stay available.
 
+_2026-09-27 amendment:_ skills also declare Claude's `argument-hint`, the inline
+text Claude Code shows after `/specloop ` while typing (the same mechanism
+impeccable uses). It is a hint, not a picker; the response menu is unchanged.
+The source keeps the hint top-level for Claude; Codex copies carry it under
+`metadata:` so they stay valid Agent Skills frontmatter.
+
 ## Implementation
 
 - [x] (p1) Add canonical CLI routing for list, audit and prio spec|task, preserving aliases, arguments and exit behavior; reject missing or invalid priority targets without mutations.
@@ -35,6 +41,11 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 
 - [x] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
 - [x] Publish 0.7.0, verify its registry package, and push main plus the release tag.
+
+## Inline argument hints
+
+- [x] Declare `argument-hint` on every shipped skill (grouped action list for `specloop`), write Codex copies with the hint under `metadata:`, and recognize 0.7.0 skill bytes for safe refresh.
+- [x] Test hint coverage, both runtime forms and 0.7.0 refresh, and record live Claude Code evidence that the hints render.
 
 ## Runtime acceptance
 
@@ -75,3 +86,14 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
   checks passed. Every tarball file matches the tag. Evidence:
   [0.7.0 release](evidence/0.7.0-release.md). Phase 06 is 9/10; live Claude
   acceptance is still pending authentication.
+
+- _2026-09-27_ — User request: show impeccable-style hints when a specloop
+  skill is invoked in the agent CLI. Added `argument-hint` to the five skills
+  (the `/spec-*` commands already had one). Codex copies move the hint under
+  `metadata:` at install/refresh (copy mode; links share the Claude form);
+  0.7.0 skill digests added to legacy assets. Tests 148/148, typecheck and
+  structural checks pass, packed onboarding 90/90, and Codex copies pass the
+  Agent Skills validator. Claude Code 2.1.283 renders all five hints inline.
+  Evidence: [argument hints](evidence/06-argument-hints.md). Phase 06 is
+  11/12; the open box is still live Claude menu/routing acceptance, which
+  needs an authenticated session to run a turn.

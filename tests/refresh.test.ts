@@ -77,6 +77,19 @@ test('published 0.6.0 skill refreshes without a manifest while customized bytes 
   expect(read(claudePath)).toContain('Menu and routing');
   expect(read(codexPath)).toBe(legacy + '\nCustom project instruction\n');
 });
+test('published 0.7.0 skills refresh to hinted frontmatter for both runtimes without a manifest', () => {
+  runInit(dir, { agent: 'both' });
+  const legacy = readFileSync(join(import.meta.dir, 'fixtures/agent-assets/specloop-0.7.0.md'), 'utf8');
+  const paths = ['.claude/skills/specloop/SKILL.md', '.agents/skills/specloop/SKILL.md'];
+  for (const path of paths) writeFileSync(join(dir, path), legacy);
+  rmSync(join(dir, '.specloop/managed-assets.json'));
+  const preview = refreshAssets(dir, { agent: 'both' });
+  for (const path of paths) expect(preview.find(a => a.path === path)?.status).toBe('update');
+  refreshAssets(dir, { agent: 'both', apply: true });
+  expect(read(paths[0])).toMatch(/^argument-hint: "\[loop\|/m);
+  expect(read(paths[1])).toMatch(/^metadata:\n  argument-hint: "\[loop\|/m);
+  expect(refreshAssets(dir, { agent: 'both' }).filter(a => paths.includes(a.path)).map(a => a.status)).toEqual(['current', 'current']);
+});
 test('customized managed hook is preserved without duplicate; other events can install', () => {
   runInit(dir);
   const settings = JSON.parse(read('.claude/settings.json'));

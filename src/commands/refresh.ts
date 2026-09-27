@@ -35,12 +35,32 @@ function write(root: string, path: string, body: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), body);
 }
+/**
+ * Shipped skills carry Claude's top-level `argument-hint`, the inline hint Claude
+ * shows after `/specloop `. The Agent Skills spec Codex follows allows no such
+ * key, so Codex copies keep the hint under `metadata:` instead.
+ */
+export function codexSkill(body: string): string {
+  const end = body.indexOf("\n---", 4);
+  if (!body.startsWith("---\n") || end < 0) return body;
+  const lines = body.slice(4, end).split("\n");
+  const at = lines.findIndex(line => line.startsWith("argument-hint:"));
+  if (at < 0) return body;
+  const [hint] = lines.splice(at, 1);
+  const metadata = lines.indexOf("metadata:");
+  if (metadata < 0) lines.push("metadata:", "  " + hint);
+  else lines.splice(metadata + 1, 0, "  " + hint);
+  return "---\n" + lines.join("\n") + body.slice(end);
+}
 export function assetContents(agent: Agent, specDir = "spec"): Map<string, { body: string; legacy?: string }> {
   const files = new Map<string, { body: string; legacy?: string }>();
-  const collect = (source: string, target: string, legacy: string) => {
+  const collect = (source: string, target: string, legacy: string, codex = false) => {
     for (const item of readdirSync(source, { withFileTypes: true })) {
-      if (item.isDirectory()) collect(join(source, item.name), join(target, item.name), join(legacy, item.name));
-      else files.set(join(target, item.name), { body: readFileSync(join(source, item.name), "utf8"), legacy: join(legacy, item.name) });
+      if (item.isDirectory()) collect(join(source, item.name), join(target, item.name), join(legacy, item.name), codex);
+      else {
+        const body = readFileSync(join(source, item.name), "utf8");
+        files.set(join(target, item.name), { body: codex && item.name === "SKILL.md" ? codexSkill(body) : body, legacy: join(legacy, item.name) });
+      }
     }
   };
   if (agent !== "codex") {
@@ -48,7 +68,7 @@ export function assetContents(agent: Agent, specDir = "spec"): Map<string, { bod
     collect(join(plugin, "commands"), ".claude/commands", "commands");
     files.set("CLAUDE.md", { body: "@AGENTS.md\n" });
   }
-  if (agent !== "claude") collect(join(plugin, "skills"), ".agents/skills", "skills");
+  if (agent !== "claude") collect(join(plugin, "skills"), ".agents/skills", "skills", true);
   files.set(".specloop/hooks/reconcile.mjs", { body: readFileSync(join(plugin, "hooks/reconcile.mjs"), "utf8") });
   files.set("AGENTS.md", { body: readFileSync(join(packageRoot, "template/AGENTS.md"), "utf8"), legacy: "AGENTS.md" });
   for (const name of ["decision-reconciliation.md", "spec-summary-status.md"]) {
