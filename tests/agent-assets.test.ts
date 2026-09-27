@@ -71,6 +71,47 @@ test("installed assets reference no plugin-root variable, so copying is faithful
   expect(bodies).not.toContain("CLAUDE_PLUGIN_ROOT");
 });
 
+/** The YAML frontmatter lines of a skill or command file. */
+function frontmatter(body: string): string[] {
+  const match = /^---\n([\s\S]*?)\n---\n/.exec(body);
+  expect(match).not.toBeNull();
+  return match![1].split("\n");
+}
+
+test("every shipped skill and command declares a top-level argument-hint for Claude's slash menu", () => {
+  const files = [
+    ...SKILLS.map((s) => join(plugin, "skills", s, "SKILL.md")),
+    ...COMMANDS.map((c) => join(plugin, "commands", c)),
+  ];
+  for (const file of files) {
+    expect(frontmatter(readFileSync(file, "utf8")).some((l) => /^argument-hint: \S/.test(l))).toBe(true);
+  }
+  const menu = frontmatter(readFileSync(join(plugin, "skills", "specloop", "SKILL.md"), "utf8"))
+    .find((l) => l.startsWith("argument-hint:"))!;
+  const body = readFileSync(join(plugin, "skills", "specloop", "SKILL.md"), "utf8");
+  const actions = [...body.matchAll(/^\| `([a-z ]+)` \|/gm)].map((m) => m[1]);
+  expect(actions.length).toBeGreaterThan(10);
+  for (const action of actions) expect(menu).toContain(action);
+});
+
+test("Codex skill copies keep the hint under metadata; Claude copies keep it top-level", () => {
+  expect(quiet(() => runInit(dir, { agent: "both" }))).toBe(0);
+  for (const skill of SKILLS) {
+    const claudeBody = readFileSync(join(dir, ".claude", "skills", skill, "SKILL.md"), "utf8");
+    const codexBody = readFileSync(join(dir, ".agents", "skills", skill, "SKILL.md"), "utf8");
+    const claude = frontmatter(claudeBody);
+    const codex = frontmatter(codexBody);
+    const hint = claude.find((l) => l.startsWith("argument-hint:"))!;
+    expect(hint).toBeDefined();
+    const top = codex.filter((l) => /^[a-z-]+:/.test(l)).map((l) => l.split(":")[0]);
+    expect(top.every((key) => ["name", "description", "license", "allowed-tools", "metadata", "compatibility"].includes(key))).toBe(true);
+    expect(codex[codex.indexOf("metadata:") + 1]).toBe("  " + hint);
+    expect(codex.filter((l) => l !== "  " + hint && l !== "metadata:")).toEqual(claude.filter((l) => l !== hint && l !== "metadata:"));
+    const rest = (body: string) => body.slice(body.indexOf("\n---\n", 4));
+    expect(rest(codexBody)).toBe(rest(claudeBody));
+  }
+});
+
 test("init --skills none scaffolds the spec but writes no .claude/ directory", () => {
   expect(quiet(() => runInit(dir, { skills: "none" }))).toBe(0);
   expect(existsSync(join(dir, "spec", "README.md"))).toBe(true);

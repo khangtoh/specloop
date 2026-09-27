@@ -439,3 +439,21 @@ checkout was clean, all three manifests were 0.7.0, HEAD and v0.7.0 were
 unchanged, and no recovery state existed. Nothing was published, committed,
 tagged or pushed by the rehearsal. This entry records final rehearsal proof;
 the source workflow/runbook is ready to push. Phase 08 remains 7/7.
+
+
+## Session: 2026-09-27 — inline argument hints for specloop skills
+
+User request: show impeccable-style hints when a specloop skill is invoked in
+the agent CLI. Reconciled against Phase 06's "response menus, not custom
+autocomplete pickers" decision. `argument-hint` is Claude Code's inline hint
+text, not a picker, so the decision stands, with a dated amendment in the
+phase. All five skills now declare `argument-hint`; the `/spec-*` commands
+already did. The source keeps the Claude form. Codex copies written by
+init/upgrade/refresh (copy mode) move the hint under `metadata:` so they pass
+the Agent Skills validator. 0.7.0 skill digests were added to
+legacy-assets.json so existing installs refresh cleanly.
+
+Evidence: spec/evidence/06-argument-hints.md. Tests 148/148, typecheck,
+template/self structural checks, packed onboarding 90/90. Claude Code 2.1.283
+rendered all five hints inline. Phase 06 is 11/12 with live Claude menu
+acceptance still open. Source change only: no version bump, publish or tag.

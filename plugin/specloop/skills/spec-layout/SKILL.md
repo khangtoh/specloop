@@ -1,6 +1,7 @@
 ---
 name: spec-layout
 description: Recommend flat vs. grouped (folder of sub-specs) layout for a specloop project's phases, and move a phase into a folder. Use when the user asks about spec layout, splitting a big phase, grouping sub-specs, or runs spec-layout.
+argument-hint: "[NN]"
 ---
 
 # spec-layout

@@ -177,6 +177,16 @@ command; the shell's `audit` prints the audit prompt while the agent performs
 it. Agent `init [goal]` decomposes a goal; shell `init [dir]` scaffolds files.
 `upgrade`, `refresh`, and `group` preview changes unless `--apply` is supplied.
 
+While you type, Claude Code shows each skill's `argument-hint` inline, so
+`/specloop ` previews the actions before you submit:
+
+```text
+/specloop  [loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]
+```
+
+Codex has no inline hint. Its skill copies keep the same text under `metadata:`,
+because the Agent Skills spec does not allow a top-level `argument-hint`.
+
 Old CLI names remain aliases: `list-spec`/`listspec`, `prio-spec`/`priospec`,
 `prio-task`/`priotask`, and `goal-check`/`goalcheck`. Existing `/spec-*`,
 `/goal-check`, `/prio-spec`, `/list-spec`, and `/spec-layout` agent commands remain available.

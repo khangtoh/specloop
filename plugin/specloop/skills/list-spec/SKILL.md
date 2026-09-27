@@ -1,6 +1,7 @@
 ---
 name: list-spec
 description: List a specloop project's phases in priority order with done-state. Use when the user asks to run list-spec, show the backlog, or see remaining/done phases in priority order.
+argument-hint: "[all|done|undone]"
 ---
 
 # list-spec

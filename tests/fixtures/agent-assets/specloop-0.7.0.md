@@ -1,7 +1,6 @@
 ---
 name: specloop
 description: Manage specloop phase checklists, run spec work, audit completion, or display the specloop command menu when explicitly invoked without an action.
-argument-hint: "[loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]"
 metadata:
   version: "0.2.0"
 ---
