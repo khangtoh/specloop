@@ -28,6 +28,7 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 - [x] (p1) Implement the shared skill response menu and explicit action routing with self-contained workflow references, preserving implicit use and run boundaries.
 - [x] Update current documentation, templates and legacy agent entry points to advertise short names and reconcile explicit loop semantics.
 - [x] Test CLI alias equivalence and priority effects, invalid input, filters, flags and quoted goals.
+- [x] (p1) Handle command-level --help and -h before dispatch; verify init help creates no files and mutating-command help preserves existing project bytes.
 - [x] Test fresh installs and safe refresh for both runtimes, including packaged references and customized-asset protection.
 - [x] Run tests, typecheck, template/self structural checks, packaged onboarding and skill validation.
 
@@ -42,6 +43,13 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 - [ ] Record live Claude evidence that the menu is read-only and explicit actions route correctly.
 
 ## Findings / Results
+
+- _2026-09-30_ — Fixed command-level help falling through to execution (reported
+  as `init --help` scaffolding files). Both help flags now return the shared
+  usage text before option validation or command dispatch. Regression tests
+  cover empty-directory CLI invocations and byte-preserving help for mutation
+  commands. This enforces the existing informational-help decision; no decision
+  is superseded. Phase 06 is 10/11; Claude live acceptance remains open.
 
 - _2026-09-26_ — Authored from the user's approved plan; reconciliation recorded
   in the existing ledger before implementation. Runtime evidence is separate

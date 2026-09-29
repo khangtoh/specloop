@@ -142,6 +142,34 @@ test("help advertises canonical commands and is informational outside a project"
   expect(snapshot()).toEqual(before);
 });
 
+test("command help bypasses dispatch and preserves existing projects", () => {
+  const before = snapshot();
+  const help = run("help");
+  for (const flag of ["--help", "-h"]) {
+    for (const args of [
+      ["init", "--force"], ["upgrade", "--apply"], ["refresh", "--apply"],
+      ["group", "01", "--apply"], ["prio", "spec", "03", "0"],
+      ["prio", "task", "01.2"], ["preflight"], ["init", "--agent", "invalid"],
+    ]) {
+      expect(run(...args, flag)).toEqual(help);
+      expect(snapshot()).toEqual(before);
+    }
+  }
+});
+
+test("init help in an empty working directory creates no files", () => {
+  const target = join(dir, "empty");
+  mkdirSync(target);
+  const cli = join(import.meta.dir, "../bin/specloop.ts");
+  for (const flag of ["--help", "-h"]) {
+    const result = Bun.spawnSync([process.execPath, cli, "init", flag], { cwd: target });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.toString()).toContain("Usage:");
+    expect(result.stderr.toString()).toBe("");
+    expect(readdirSync(target)).toEqual([]);
+  }
+});
+
 for (const agent of ["claude", "codex", "both"] as Agent[]) {
   test(`${agent} install and refresh keep skill workflow references self-contained`, () => {
     const target = join(dir, "installed");

@@ -48,7 +48,7 @@ Commands:
                           (report; --apply to scaffold non-destructively, incl.
                           selected agent skills, commands and hooks).
   audit "<goal>"          Print the goal-completion-check prompt for "<goal>".
-  help, --help            Show this help.
+  help, --help, -h        Show this help (also after any command).
   version, --version      Show the version.
 
 Options:
@@ -93,7 +93,7 @@ Examples:
 export function main(argv: string[]): number {
   const args = argv.slice(2);
   if (args.length === 0) return runPreflight(process.cwd(), {}).exitCode;
-  if (args[0] === "help" || args[0] === "--help" || args[0] === "-h") {
+  if (args[0] === "help" || args.includes("--help") || args.includes("-h")) {
     console.log(HELP);
     return 0;
   }

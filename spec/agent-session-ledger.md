@@ -439,3 +439,16 @@ checkout was clean, all three manifests were 0.7.0, HEAD and v0.7.0 were
 unchanged, and no recovery state existed. Nothing was published, committed,
 tagged or pushed by the rehearsal. This entry records final rehearsal proof;
 the source workflow/runbook is ready to push. Phase 08 remains 7/7.
+
+## Session: 2026-09-30 — command-level help fix
+
+Fixed the reported `specloop init --help` mutation bug under Phase 06's existing
+informational-help contract; no conflicting decision or supersession was needed.
+The CLI now recognizes --help and -h before option parsing and dispatch, including
+when placed after a command. Added subprocess checks proving init help leaves an
+empty working directory empty, plus snapshot checks for existing projects and
+mutating commands. Phase 06 is 10/11; Claude live acceptance stays open.
+
+Verification: 147 tests pass (731 assertions), typecheck passes, and template/self
+structural checks pass. No release or publication requested; installed npm 0.7.0
+will require a subsequent release to receive this fix.
