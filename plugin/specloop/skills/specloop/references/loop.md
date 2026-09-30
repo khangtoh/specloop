@@ -4,9 +4,24 @@ An explicit `loop [phase]` action authorizes execution under the repository's
 run contract. It is distinct from submitting the bare skill for a menu.
 Plan Mode still permits planning only; never edit while that mode is active.
 
+Claude's native `/goal specloop loop` is an explicit **all-specs run**. When
+the active native goal condition is `specloop loop`, interpret it as: complete
+all outstanding numbered-phase tasks, including grouped sub-specs, verify
+applicable index acceptance, and pass required checks. State this expanded
+completion condition in the conversation so the goal evaluator can assess it.
+This goal need not match the index's existing goal text. Follow BACKLOG order
+and dependency gates across phases; do not stop after one phase or an earlier
+index acceptance while phase tasks remain. Recount live checkboxes at the end;
+zero unchecked phase tasks, evidence-backed applicable acceptance, and passing
+checks are required for success. If no eligible work remains but unchecked
+tasks do, report the dependency or external blocker and resume point, not
+completion. Do not check, delete, or waive tasks merely to finish the goal.
+Claude owns `/goal`; do not install a competing command. Mentioning or asking
+about this syntax does not start a run. Ordinary loop defaults remain intact.
+
 1. Read the phase index, ledger, relevant specs, and reporting standard. Run
    `specloop status` to inspect the live work order and checkbox counts.
-2. Choose run scope: an explicit phase focuses on that phase (respect its
+2. Choose run scope: the native all-specs goal above spans all phases. Otherwise, an explicit phase focuses on that phase (respect its
    dependencies). Otherwise, an active goal mapped to the index acceptance
    checkbox is a goal run; without one, choose the highest-priority eligible
    phase as a standard run. Do not silently choose a different phase if the
@@ -18,7 +33,8 @@ Plan Mode still permits planning only; never edit while that mode is active.
 5. Implement the task and verify proportionally to risk. Check only evidence-
    supported tasks; update Findings/Results, index counts, and session ledger.
    Run `specloop check`, commit the verified work, and continue selection.
-6. Continue until the scoped phase is fully verified (focused/standard run)
+6. For an all-specs run, continue until the expanded completion condition above
+   is verified. Otherwise continue until the scoped phase is fully verified (focused/standard run)
    or the mapped goal acceptance checkbox is checked with recorded evidence
    (goal run). A user stop or genuine external blocker also ends the run;
    name a missing decision/external state and resume point for a blocker.

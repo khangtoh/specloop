@@ -22,6 +22,16 @@ Claude project installs expose `/specloop`; marketplace installs expose
 `/specloop:specloop`. Codex uses `$specloop`. These are response menus after
 submission, not custom autocomplete pickers. Existing aliases stay available.
 
+### All-specs goal scope (2026-09-30)
+
+Per the 2026-09-30 ledger reconciliation, Claude's native
+`/goal specloop loop` selects all outstanding specs across phases. This
+extends the Phase 02/06 scope rules only for this explicit goal condition;
+ordinary loop and phase-focused runs retain their defaults. Success requires
+zero unchecked numbered-phase tasks (including grouped files), verified
+applicable index acceptance, and passing required checks. An external blocker
+is a partial result, never success. Do not create or shadow Claude's `/goal`.
+
 ## Implementation
 
 - [x] (p1) Add canonical CLI routing for list, audit and prio spec|task, preserving aliases, arguments and exit behavior; reject missing or invalid priority targets without mutations.
@@ -37,12 +47,23 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 - [x] Integrate published 0.6.0 grouped-layout commands into the shared menu and verify the combined feature set.
 - [x] Publish 0.7.0, verify its registry package, and push main plus the release tag.
 
+- [x] Define and document the Claude `/goal specloop loop` all-specs scope in shipped instructions and validate the assets.
+
 ## Runtime acceptance
 
 - [x] Record live Codex evidence that the menu is read-only and explicit actions route correctly.
+- [ ] Record live Claude `/goal specloop loop` evidence of cross-phase continuation and evidence-based completion or honest blocking.
 - [ ] Record live Claude evidence that the menu is read-only and explicit actions route correctly.
 
 ## Findings / Results
+
+- _2026-09-30_ — Added the native Claude goal shorthand to repository/template
+  instructions, shared skill routing/execution, and usage docs. Completion
+  spans all numbered phases and requires evidence plus required checks.
+  Focused run-contract/onboarding tests: 16 pass, 0 fail. Live Claude goal
+  acceptance remains open; static instructions do not prove runtime behavior.
+  Skill validator unavailable: Python `yaml` dependency missing.
+
 
 - _2026-09-30_ — Fixed command-level help falling through to execution (reported
   as `init --help` scaffolding files). Both help flags now return the shared

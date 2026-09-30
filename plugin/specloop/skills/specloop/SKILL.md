@@ -63,6 +63,14 @@ this skill is not a menu request or permission to start a loop. Explicit
 invocation with a natural-language request should fulfill that request when
 its intent is clear, otherwise ask for the intended action.
 
+## Native Claude goal
+
+An active Claude `/goal` whose condition is `specloop loop` routes directly
+to `loop` with all-specs scope; read [execution](references/loop.md). This is
+a native goal condition, not a shell command or another slash command to
+install. A question or documentation example containing it does not authorize
+a run. Announce the expanded completion condition for the native evaluator.
+
 ## Action workflows
 
 Resolve the selected target directory before project reads or edits; a `--dir`

@@ -50,7 +50,22 @@ When the user sends exactly `specloop`, start or resume autonomous execution.
 It is an authorization to continue; do not stop after a checkbox merely to wait for another `specloop` message. Keep the user informed in commentary and
 use the mandatory final handoff only at the run's terminal condition.
 
-Choose the run scope before taking the next task:
+Claude's native `/goal specloop loop` is an explicit **all-specs run**. When
+the active native goal condition is `specloop loop`, interpret it as: complete
+all outstanding numbered-phase tasks, including grouped sub-specs, verify
+applicable index acceptance, and pass required checks. State this expanded
+completion condition in the conversation so the goal evaluator can assess it.
+This goal need not match the index's existing goal text. Follow BACKLOG order
+and dependency gates across phases; do not stop after one phase or an earlier
+index acceptance while phase tasks remain. Recount live checkboxes at the end;
+zero unchecked phase tasks, evidence-backed applicable acceptance, and passing
+checks are required for success. If no eligible work remains but unchecked
+tasks do, report the dependency or external blocker and resume point, not
+completion. Do not check, delete, or waive tasks merely to finish the goal.
+Claude owns `/goal`; do not install a competing command. Mentioning or asking
+about this syntax does not start a run. Ordinary loop defaults remain intact.
+
+Choose the run scope before taking the next task (unless the all-specs goal above applies):
 
 1. **Goal run:** when an active user, system, or agent goal maps to the goal
    and acceptance checkbox in `spec/README.md`, work across eligible phases

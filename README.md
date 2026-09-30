@@ -181,6 +181,30 @@ Old CLI names remain aliases: `list-spec`/`listspec`, `prio-spec`/`priospec`,
 `prio-task`/`priotask`, and `goal-check`/`goalcheck`. Existing `/spec-*`,
 `/goal-check`, `/prio-spec`, `/list-spec`, and `/spec-layout` agent commands remain available.
 
+### Complete all outstanding specs in Claude
+
+With the updated specloop instructions installed, enter:
+
+```text
+/goal specloop loop
+```
+
+This selects all outstanding specs across phases in BACKLOG/dependency order.
+Claude must verify tasks, update checkboxes and evidence, and continue until
+no numbered-phase tasks remain unchecked, applicable index acceptance is
+verified, and required checks pass. A genuine blocker produces an honest
+partial report and resume point. Plain `/specloop loop` keeps its usual scope.
+
+Claude owns [`/goal`](https://code.claude.com/docs/en/goal); specloop supplies
+the shorthand's meaning. Claude evaluates completion between turns and may
+stop for runtime errors or an impossible condition. `/goal` shows status;
+`/goal clear` clears it. For older installed instructions, use the explicit
+condition:
+
+```text
+/goal Use specloop to complete all outstanding specs across all phases. Done means zero unchecked numbered-phase tasks, evidence-backed index acceptance, and all required checks passing. Follow BACKLOG priority and dependencies; continue across phase boundaries. Report genuine blockers without claiming completion.
+```
+
 ### Autonomous agent runs
 
 Sending exactly `specloop` authorizes an autonomous agent-session run. With an

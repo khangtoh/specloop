@@ -452,3 +452,28 @@ mutating commands. Phase 06 is 10/11; Claude live acceptance stays open.
 Verification: 147 tests pass (731 assertions), typecheck passes, and template/self
 structural checks pass. No release or publication requested; installed npm 0.7.0
 will require a subsequent release to receive this fix.
+
+
+## Session: 2026-09-30 — Claude goal shorthand
+
+**Previous decision:** Phases 02 and 06 select one eligible phase without an
+acceptance-mapped goal; explicit skill loop follows the same scope.
+
+**Conflicting instruction:** The user wants `/goal specloop loop` in Claude
+to work through all outstanding specs until all are done.
+
+**Resolution:** Add an all-specs scope for this native goal condition. Preserve
+ordinary loop defaults and phase focus. Claude owns `/goal`; specloop defines
+the shorthand's measurable completion condition, not a new slash command.
+
+**Scope and consequences:** Update Phase 06, repository/template instructions,
+shared skill execution reference and public usage docs. Completion requires
+all numbered phase tasks and applicable index acceptance to have evidence,
+passing required checks, and no unresolved blockers. Live Claude validation
+remains separate; no run or publication is requested in this session.
+
+Implemented and documented the all-specs shorthand. Focused contract and
+onboarding tests pass 16/16. Phase 06 is 11/13; both Claude live acceptance
+checks remain open. Optional skill validator could not run (missing PyYAML);
+frontmatter is unchanged. Resume: validate the native goal in Claude with
+updated installed assets. No autonomous spec run or release started here.
