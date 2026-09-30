@@ -55,12 +55,24 @@ goal and follows its native lifecycle and budget rules.
 
 ## Runtime acceptance
 
+Per the 2026-09-30 manual-verification ledger decision, the user will manually
+verify the Codex and Claude goal shorthand. This supersedes the agent-run
+verification resume point. These checks remain open until evidence is
+provided, but do not block the implementation handoff. The separate Claude
+menu check is unchanged.
+
+
 - [x] Record live Codex evidence that the menu is read-only and explicit actions route correctly.
-- [ ] Record live Codex `/goal specloop loop` evidence of cross-phase continuation and evidence-based native goal completion or honest blocking.
-- [ ] Record live Claude `/goal specloop loop` evidence of cross-phase continuation and evidence-based completion or honest blocking.
+- [ ] User manual verification: record live Codex `/goal specloop loop` evidence of cross-phase continuation and evidence-based native goal completion or honest blocking.
+- [ ] User manual verification: record live Claude `/goal specloop loop` evidence of cross-phase continuation and evidence-based completion or honest blocking.
 - [ ] Record live Claude evidence that the menu is read-only and explicit actions route correctly.
 
 ## Findings / Results
+
+- _2026-09-30_ — User accepted deferring goal-shorthand runtime verification
+  to manual testing. No runtime success is claimed and no checkboxes changed.
+  Implementation handoff is accepted with those manual checks pending.
+
 
 - _2026-09-30_ — Extended the native all-specs shorthand to Codex, superseding
   the earlier Claude-only scope. Shared routing, execution guidance, templates

@@ -501,3 +501,21 @@ including both-runtime installation and safe refresh; template/self structural
 checks and whitespace validation pass. Phase 06 is 12/15 with three live
 runtime checks open. No goal was started and no release was requested.
 Resume: exercise native Codex and Claude goals in isolated multi-phase fixtures.
+
+
+## Session: 2026-09-30 — manual goal verification ownership
+
+**Previous decision:** The Claude and Codex goal-shorthand sessions left live
+verification as an agent resume point in Phase 06.
+
+**Conflicting instruction:** The user accepts that this feature cannot be
+verified here and will verify it manually.
+
+**Resolution:** Defer both native goal acceptance checks to user-run manual
+verification. This supersedes the agent-run verification resume point, not
+the evidence requirement. Leave the boxes unchecked until results arrive;
+live goal verification does not block the implementation handoff.
+
+**Scope and consequences:** Only goal-shorthand verification ownership changes.
+The separate Claude menu check is unchanged. Phase 06 remains 12/15. No
+further runtime probes are needed for this request; no publication authorized.
