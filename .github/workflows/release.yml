@@ -1,0 +1,66 @@
+# Shared release workflow (release kit). Identical in khangtoh/specloop and
+# khangtoh/product-os; repository-specific steps live in release.config.json.
+#
+# A push to main that changes VERSION releases that version once: verify,
+# package, publish (when configured), then tag vX.Y.Z with a GitHub Release.
+# A pull request touching the release inputs verifies and packages; when its
+# VERSION is new it also dry-runs publish and the GitHub Release.
+# Re-run the workflow (or dispatch it on main) to resume a failed release; an
+# identical published artifact and an existing tag are accepted, never replaced.
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+  pull_request:
+    paths: [VERSION, release.config.json, 'scripts/release-kit/**', .github/workflows/release.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: hashFiles('bun.lock') != ''
+        uses: oven-sh/setup-bun@v2
+      - id: plan
+        run: node scripts/release-kit/release.mjs plan
+      - if: steps.plan.outputs.release == 'true' || github.event_name == 'pull_request'
+        run: node scripts/release-kit/release.mjs verify
+      - if: steps.plan.outputs.release == 'true' || github.event_name == 'pull_request'
+        run: node scripts/release-kit/release.mjs package
+      - if: steps.plan.outputs.release == 'true' || (github.event_name == 'pull_request' && steps.plan.outputs.new == 'true')
+        run: node scripts/release-kit/release.mjs publish ${{ steps.plan.outputs.release != 'true' && '--dry' || '' }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - if: steps.plan.outputs.release == 'true' || (github.event_name == 'pull_request' && steps.plan.outputs.new == 'true')
+        run: node scripts/release-kit/release.mjs github-release ${{ steps.plan.outputs.release != 'true' && '--dry' || '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - if: always() && hashFiles('dist/SHA256SUMS') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.plan.outputs.version }}
+          path: dist/
+
+  kit-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/release-kit/release.mjs drift

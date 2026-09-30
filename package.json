@@ -1,6 +1,6 @@
 {
   "name": "@khangtoh/specloop",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Spec-driven loop engineering: a repeatable construct for driving agents through numbered phase specs with enforced structure and mandatory status handoffs.",
   "author": "khangtoh",
   "type": "module",
@@ -22,10 +22,12 @@
     "check:spec": "bun run bin/specloop.ts check --dir template",
     "check:self": "bun run bin/specloop.ts check --dir .",
     "status": "bun run bin/specloop.ts status --dir .",
-    "test": "bun test",
+    "test": "bun test ./tests",
     "verify:onboarding": "bash scripts/verify-onboarding.sh",
     "typecheck": "tsc --noEmit",
-    "release": "bash scripts/release.sh"
+    "release": "node scripts/release-kit/release.mjs bump",
+    "release:check": "node scripts/release-kit/release.mjs check",
+    "test:release-kit": "node --test scripts/release-kit/release.test.mjs"
   },
   "engines": {
     "bun": ">=1.1.0"

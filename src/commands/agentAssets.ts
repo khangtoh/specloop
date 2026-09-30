@@ -1,13 +1,15 @@
-import { rememberInstalled, type Agent } from "./refresh.js";
+import { codexSkill, rememberInstalled, type Agent } from "./refresh.js";
 import {
   cpSync,
   existsSync,
   lstatSync,
   mkdirSync,
+  readFileSync,
   readdirSync,
   realpathSync,
   rmSync,
   symlinkSync,
+  writeFileSync,
 } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,8 +52,10 @@ const CLAUDE_GROUPS = [
   { src: "commands", dest: join(".claude", "commands") },
 ] as const;
 
+const CODEX_SKILLS = ".agents/skills";
+
 function groups(agent: Agent) {
-  return [...(agent !== "codex" ? CLAUDE_GROUPS : []), ...(agent !== "claude" ? [{ src: "skills", dest: ".agents/skills" }] : [])];
+  return [...(agent !== "codex" ? CLAUDE_GROUPS : []), ...(agent !== "claude" ? [{ src: "skills", dest: CODEX_SKILLS }] : [])];
 }
 
 /** Package root = two levels up from src/commands; `plugin` ships via package.json `files`. */
@@ -156,7 +160,12 @@ export function installAgentAssets(
       if (exists(to)) rmSync(to, { recursive: true, force: true });
 
       if (result.mode === "link") symlinkSync(linkTarget(to, join(from, entry)), to);
-      else cpSync(join(from, entry), to, { recursive: true });
+      else {
+        cpSync(join(from, entry), to, { recursive: true });
+        // A link shares Claude's frontmatter; Codex ignores the extra key at runtime.
+        const skill = join(to, "SKILL.md");
+        if (group.dest === CODEX_SKILLS && existsSync(skill)) writeFileSync(skill, codexSkill(readFileSync(skill, "utf8")));
+      }
 
       result.installed.push(rel);
       console.log(`${GRN}✔${RST} ${rel}`);

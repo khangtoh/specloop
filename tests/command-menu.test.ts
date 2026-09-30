@@ -178,7 +178,7 @@ for (const agent of ["claude", "codex", "both"] as Agent[]) {
     for (const group of groups) {
       const skill = join(target, group, "specloop/SKILL.md");
       const body = readFileSync(skill, "utf8");
-      const refs = [...body.matchAll(/\]\((references\/[^)]+)\)/g)].map(m => join(dirname(skill), m[1]));
+      const refs = [...new Set([...body.matchAll(/\]\((references\/[^)]+)\)/g)].map(m => join(dirname(skill), m[1])))];
       expect(refs).toHaveLength(4);
       for (const ref of refs) expect(existsSync(ref)).toBe(true);
       const missing = refs[0];

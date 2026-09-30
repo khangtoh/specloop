@@ -1,6 +1,7 @@
 ---
 name: spec-upgrade
 description: Adopt an existing project's spec model into specloop. Use when the user asks to upgrade/adopt/migrate/convert a project into specloop, or to bring an existing spec, backlog, or PRD-style spec set under the specloop model.
+argument-hint: "[dir]"
 ---
 
 # spec-upgrade

@@ -34,6 +34,12 @@ applicable index acceptance, and passing required checks. An external blocker
 is a partial result, never success. Do not create or shadow either runtime's `/goal`. Codex reuses the active
 goal and follows its native lifecycle and budget rules.
 
+_2026-09-27 amendment:_ skills also declare Claude's `argument-hint`, the inline
+text Claude Code shows after `/specloop ` while typing (the same mechanism
+impeccable uses). It is a hint, not a picker; the response menu is unchanged.
+The source keeps the hint top-level for Claude; Codex copies carry it under
+`metadata:` so they stay valid Agent Skills frontmatter.
+
 ## Implementation
 
 - [x] (p1) Add canonical CLI routing for list, audit and prio spec|task, preserving aliases, arguments and exit behavior; reject missing or invalid priority targets without mutations.
@@ -53,6 +59,11 @@ goal and follows its native lifecycle and budget rules.
 
 - [x] Extend the all-specs goal shorthand to Codex in shared instructions and documentation; verify Codex asset installation and refresh.
 
+## Inline argument hints
+
+- [x] Declare `argument-hint` on every shipped skill (grouped action list for `specloop`), write Codex copies with the hint under `metadata:`, and recognize 0.7.0 skill bytes for safe refresh.
+- [x] Test hint coverage, both runtime forms and 0.7.0 refresh, and record live Claude Code evidence that the hints render.
+
 ## Runtime acceptance
 
 Per the 2026-09-30 manual-verification ledger decision, the user will manually
@@ -68,6 +79,13 @@ menu check is unchanged.
 - [ ] Record live Claude evidence that the menu is read-only and explicit actions route correctly.
 
 ## Findings / Results
+
+- _2026-09-30_ — Merged upstream 0.8.0 inline hints with native goals and
+  command-help fix. Updated the workflow-reference installation test to count
+  distinct files, since the goal route also links to the existing loop guide.
+  Combined verification: 142 tests, 14 release-kit tests, typecheck and both
+  structural checks pass. Phase 06 is 14/17; manual checks remain open.
+
 
 - _2026-09-30_ — User accepted deferring goal-shorthand runtime verification
   to manual testing. No runtime success is claimed and no checkboxes changed.
@@ -129,3 +147,14 @@ menu check is unchanged.
   checks passed. Every tarball file matches the tag. Evidence:
   [0.7.0 release](evidence/0.7.0-release.md). Phase 06 is 9/10; live Claude
   acceptance is still pending authentication.
+
+- _2026-09-27_ — User request: show impeccable-style hints when a specloop
+  skill is invoked in the agent CLI. Added `argument-hint` to the five skills
+  (the `/spec-*` commands already had one). Codex copies move the hint under
+  `metadata:` at install/refresh (copy mode; links share the Claude form);
+  0.7.0 skill digests added to legacy assets. Tests 148/148, typecheck and
+  structural checks pass, packed onboarding 90/90, and Codex copies pass the
+  Agent Skills validator. Claude Code 2.1.283 renders all five hints inline.
+  Evidence: [argument hints](evidence/06-argument-hints.md). Phase 06 is
+  11/12; the open box is still live Claude menu/routing acceptance, which
+  needs an authenticated session to run a turn.

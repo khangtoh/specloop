@@ -1,7 +1,6 @@
 ---
 name: specloop
 description: Manage specloop phase checklists, run spec work, audit completion, or display the specloop command menu when explicitly invoked without an action.
-argument-hint: "[loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]"
 metadata:
   version: "0.2.0"
 ---
@@ -63,16 +62,6 @@ Implicit use during an ordinary request follows that request; merely loading
 this skill is not a menu request or permission to start a loop. Explicit
 invocation with a natural-language request should fulfill that request when
 its intent is clear, otherwise ask for the intended action.
-
-## Native Codex and Claude goals
-
-An active Codex or Claude `/goal` whose condition is `specloop loop` routes directly
-to `loop` with all-specs scope; read [execution](references/loop.md). This is
-a native goal condition, not a shell command or another slash command to
-install. A question or documentation example containing it does not authorize
-a run. Announce the expanded completion condition for native goal tracking. In Codex,
-reuse the active goal and follow its native lifecycle/budget rules; mark it
-complete only after verifying the all-specs condition.
 
 ## Action workflows
 

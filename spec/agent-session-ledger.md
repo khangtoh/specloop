@@ -519,3 +519,76 @@ live goal verification does not block the implementation handoff.
 **Scope and consequences:** Only goal-shorthand verification ownership changes.
 The separate Claude menu check is unchanged. Phase 06 remains 12/15. No
 further runtime probes are needed for this request; no publication authorized.
+
+
+## Session: 2026-09-27 — inline argument hints for specloop skills
+
+User request: show impeccable-style hints when a specloop skill is invoked in
+the agent CLI. Reconciled against Phase 06's "response menus, not custom
+autocomplete pickers" decision. `argument-hint` is Claude Code's inline hint
+text, not a picker, so the decision stands, with a dated amendment in the
+phase. All five skills now declare `argument-hint`; the `/spec-*` commands
+already did. The source keeps the Claude form. Codex copies written by
+init/upgrade/refresh (copy mode) move the hint under `metadata:` so they pass
+the Agent Skills validator. 0.7.0 skill digests were added to
+legacy-assets.json so existing installs refresh cleanly.
+
+Evidence: spec/evidence/06-argument-hints.md. Tests 148/148, typecheck,
+template/self structural checks, packed onboarding 90/90. Claude Code 2.1.283
+rendered all five hints inline. Phase 06 is 11/12 with live Claude menu
+acceptance still open. Source change only: no version bump, publish or tag.
+
+
+## Session: 2026-09-27 — VERSION-driven CI release kit (Phase 09)
+
+User request: a VERSION file in specloop and ProductOS, and a common release and
+package process that runs when VERSION changes. The user chose CI npm publishing,
+identical kit copies with a drift check, and a bump-only local command.
+Reconciled against Phase 08, whose local publish driver this supersedes (dated
+note added there; its boxes stay checked). Added `VERSION` (0.7.0),
+`release.config.json`, `scripts/release-kit/` and `.github/workflows/release.yml`,
+and removed `scripts/release.mjs`, `release.sh`, `finish-release.sh` and their
+tests. Release evidence now goes in the GitHub Release body, not this ledger.
+
+Evidence: spec/evidence/09-release-kit.md. Kit 14/14, repo tests 136/136,
+typecheck/structural checks, real package + 90/0 onboarding, registry-backed
+0.8.0 dry run, actionlint clean. Phase 09 is 5/7: the owner must add
+`NPM_TOKEN`, and the first live run happens after merge to `main`. Merging this
+change (VERSION added at 0.7.0, already tagged) triggers the workflow but it
+plans nothing to release.
+
+
+## Session: 2026-09-27 — first CI releases: specloop 0.8.0, ProductOS 0.3.0
+
+Merged specloop PR #1 and ProductOS PR #2. ProductOS's merge conflict (a
+concurrent full-word record ID change in the CHANGELOG Unreleased list) was
+resolved by keeping both entries. Bumped ProductOS to 0.3.0: CI verified,
+packaged and created the v0.3.0 GitHub Release in one run. Added
+docs/releases/0.8.0.md and bumped specloop to 0.8.0. Its release needed three
+attempts: E403 until the token allowed bypassing 2FA, then a registry
+visibility timeout after a successful publish, then resumption, which accepted
+the identical published bytes and tagged v0.8.0. The recovery design worked as
+intended. Phase 09 is 7/7. Open follow-ups: a longer npm visibility poll and
+a clearer E403 hint, changed in both kit copies together.
+
+
+## Session: 2026-09-30 — merge upstream and bump version
+
+**Previous decision:** Local work used the Phase 08 release workflow and had
+not requested a version bump; upstream Phase 09 supersedes that workflow.
+
+**Conflicting instruction:** The user now requests merge and version bump.
+
+**Resolution:** Merge origin/main at d93c33d, retaining inline hints, VERSION
+release automation, help fix and both-runtime goal support. Preserve both
+ledger histories and all completed checkboxes. Prepare patch 0.8.1 with the
+Phase 09 bump command using --no-push; remote publication is not part of this
+merge-and-bump request. User-owned manual goal verification stays deferred.
+
+**Scope and consequences:** Resolve spec conflicts by combining requirements
+and recounting Phase 06 (14/17). Verify the merged code and synchronized version.
+
+Merged verification passed: 142 repository tests (754 assertions), 14 release-kit
+tests, typecheck, template/self structure and whitespace checks. The reference
+installation test now deduplicates repeated links to the same workflow file.
+Release-kit tests required local-server permission outside the sandbox.
