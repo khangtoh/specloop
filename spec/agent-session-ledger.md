@@ -477,3 +477,27 @@ onboarding tests pass 16/16. Phase 06 is 11/13; both Claude live acceptance
 checks remain open. Optional skill validator could not run (missing PyYAML);
 frontmatter is unchanged. Resume: validate the native goal in Claude with
 updated installed assets. No autonomous spec run or release started here.
+
+
+## Session: 2026-09-30 — Codex goal shorthand parity
+
+**Previous decision:** The preceding Phase 06 shorthand explicitly targets
+Claude; ordinary Codex loop retains the standard/goal scope rules.
+
+**Conflicting instruction:** The user requests the same `/goal` behavior in Codex.
+
+**Resolution:** Extend the all-specs shorthand to native goals in both runtimes.
+This supersedes only the Claude-only scope, preserving completion criteria,
+ordinary loop defaults, historical evidence, and runtime-owned goal controls.
+
+**Scope and consequences:** Update shared skills, repository/template guidance,
+and usage docs. Codex must reuse the active goal, follow native lifecycle and
+budget rules, and mark it complete only with all-specs evidence. This request
+implements support; it does not start an all-specs goal. Live Codex goal
+acceptance remains separate from asset installation tests.
+
+Codex parity implemented. Verification: 30 focused tests pass (131 assertions),
+including both-runtime installation and safe refresh; template/self structural
+checks and whitespace validation pass. Phase 06 is 12/15 with three live
+runtime checks open. No goal was started and no release was requested.
+Resume: exercise native Codex and Claude goals in isolated multi-phase fixtures.

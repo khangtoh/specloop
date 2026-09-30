@@ -65,8 +65,8 @@ The marketplace plugin provides skills/commands; use the CLI project install
 for the reconciliation hooks. Installing files does not establish runtime
 trust or activation. See `docs/decision-reconciliation.md` in the package.
 
-Claude native goal shorthand: `/goal specloop loop` works across all outstanding
+Codex and Claude native goal shorthand: `/goal specloop loop` works across all outstanding
 phases until every task and applicable index acceptance has verified evidence
 and required checks pass. It reports genuine blockers as partial, never done.
-Ordinary `/specloop loop` retains its default scope. This requires the updated
-skill/instructions; `/goal` itself is provided by Claude Code.
+Ordinary `$specloop loop` (Codex) and `/specloop loop` (Claude) retain their default scope. This requires the updated
+skill/instructions; `/goal` itself is provided by the host runtime.

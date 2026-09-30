@@ -181,7 +181,7 @@ Old CLI names remain aliases: `list-spec`/`listspec`, `prio-spec`/`priospec`,
 `prio-task`/`priotask`, and `goal-check`/`goalcheck`. Existing `/spec-*`,
 `/goal-check`, `/prio-spec`, `/list-spec`, and `/spec-layout` agent commands remain available.
 
-### Complete all outstanding specs in Claude
+### Complete all outstanding specs in Codex or Claude
 
 With the updated specloop instructions installed, enter:
 
@@ -190,10 +190,15 @@ With the updated specloop instructions installed, enter:
 ```
 
 This selects all outstanding specs across phases in BACKLOG/dependency order.
-Claude must verify tasks, update checkboxes and evidence, and continue until
+The agent must verify tasks, update checkboxes and evidence, and continue until
 no numbered-phase tasks remain unchecked, applicable index acceptance is
 verified, and required checks pass. A genuine blocker produces an honest
-partial report and resume point. Plain `/specloop loop` keeps its usual scope.
+partial report and resume point. Plain `$specloop loop` in Codex and `/specloop loop` in Claude keep their usual scope.
+
+Codex provides [native goals](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex).
+With `/goal specloop loop`, specloop reuses that active goal and applies the
+all-specs completion condition above. Native pause/resume, blocking and budget
+rules still apply; hitting a limit does not mean the specs are complete.
 
 Claude owns [`/goal`](https://code.claude.com/docs/en/goal); specloop supplies
 the shorthand's meaning. Claude evaluates completion between turns and may

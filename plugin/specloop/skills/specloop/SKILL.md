@@ -63,13 +63,15 @@ this skill is not a menu request or permission to start a loop. Explicit
 invocation with a natural-language request should fulfill that request when
 its intent is clear, otherwise ask for the intended action.
 
-## Native Claude goal
+## Native Codex and Claude goals
 
-An active Claude `/goal` whose condition is `specloop loop` routes directly
+An active Codex or Claude `/goal` whose condition is `specloop loop` routes directly
 to `loop` with all-specs scope; read [execution](references/loop.md). This is
 a native goal condition, not a shell command or another slash command to
 install. A question or documentation example containing it does not authorize
-a run. Announce the expanded completion condition for the native evaluator.
+a run. Announce the expanded completion condition for native goal tracking. In Codex,
+reuse the active goal and follow its native lifecycle/budget rules; mark it
+complete only after verifying the all-specs condition.
 
 ## Action workflows
 

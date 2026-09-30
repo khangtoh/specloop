@@ -33,7 +33,7 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 
 | 5 | [05-grouped-phase-layout.md](05-grouped-phase-layout.md) | Flat or folder-of-sub-specs phases; layout recommends, group migrates | ✅ 20/20 | None |
 | 7 | [07-decision-reconciliation.md](07-decision-reconciliation.md) | Session reconciliation, runtime hooks and safe refresh | 🟡 11/14 | None |
-| 6 | [06-command-menu.md](06-command-menu.md) | Short commands and native skill response menu | 🟡 11/13 | Claude authentication for live acceptance |
+| 6 | [06-command-menu.md](06-command-menu.md) | Short commands and native skill response menu | 🟡 12/15 | Claude menu and both-runtime live goal acceptance |
 | 8 | [08-release-automation.md](08-release-automation.md) | Automated verified publishing and recoverable release workflow | ✅ 7/7 | None |
 
 ## Status

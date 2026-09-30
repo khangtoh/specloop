@@ -24,13 +24,15 @@ submission, not custom autocomplete pickers. Existing aliases stay available.
 
 ### All-specs goal scope (2026-09-30)
 
-Per the 2026-09-30 ledger reconciliation, Claude's native
+Per the 2026-09-30 Codex parity ledger reconciliation (superseding the
+Claude-only shorthand scope), either Codex's or Claude's native
 `/goal specloop loop` selects all outstanding specs across phases. This
 extends the Phase 02/06 scope rules only for this explicit goal condition;
 ordinary loop and phase-focused runs retain their defaults. Success requires
 zero unchecked numbered-phase tasks (including grouped files), verified
 applicable index acceptance, and passing required checks. An external blocker
-is a partial result, never success. Do not create or shadow Claude's `/goal`.
+is a partial result, never success. Do not create or shadow either runtime's `/goal`. Codex reuses the active
+goal and follows its native lifecycle and budget rules.
 
 ## Implementation
 
@@ -49,13 +51,24 @@ is a partial result, never success. Do not create or shadow Claude's `/goal`.
 
 - [x] Define and document the Claude `/goal specloop loop` all-specs scope in shipped instructions and validate the assets.
 
+- [x] Extend the all-specs goal shorthand to Codex in shared instructions and documentation; verify Codex asset installation and refresh.
+
 ## Runtime acceptance
 
 - [x] Record live Codex evidence that the menu is read-only and explicit actions route correctly.
+- [ ] Record live Codex `/goal specloop loop` evidence of cross-phase continuation and evidence-based native goal completion or honest blocking.
 - [ ] Record live Claude `/goal specloop loop` evidence of cross-phase continuation and evidence-based completion or honest blocking.
 - [ ] Record live Claude evidence that the menu is read-only and explicit actions route correctly.
 
 ## Findings / Results
+
+- _2026-09-30_ — Extended the native all-specs shorthand to Codex, superseding
+  the earlier Claude-only scope. Shared routing, execution guidance, templates
+  and docs now reuse Codex's active goal and respect native lifecycle/budgets.
+  Verified 30 focused contract/asset/refresh tests (131 assertions), including
+  Codex installation and refresh. Live native goal acceptance remains open.
+  Official reference: https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex
+
 
 - _2026-09-30_ — Added the native Claude goal shorthand to repository/template
   instructions, shared skill routing/execution, and usage docs. Completion

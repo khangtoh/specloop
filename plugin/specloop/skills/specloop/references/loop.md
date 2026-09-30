@@ -4,11 +4,11 @@ An explicit `loop [phase]` action authorizes execution under the repository's
 run contract. It is distinct from submitting the bare skill for a menu.
 Plan Mode still permits planning only; never edit while that mode is active.
 
-Claude's native `/goal specloop loop` is an explicit **all-specs run**. When
+In Codex or Claude, native `/goal specloop loop` is an explicit **all-specs run**. When
 the active native goal condition is `specloop loop`, interpret it as: complete
 all outstanding numbered-phase tasks, including grouped sub-specs, verify
 applicable index acceptance, and pass required checks. State this expanded
-completion condition in the conversation so the goal evaluator can assess it.
+completion condition in the conversation so native goal progress can be assessed.
 This goal need not match the index's existing goal text. Follow BACKLOG order
 and dependency gates across phases; do not stop after one phase or an earlier
 index acceptance while phase tasks remain. Recount live checkboxes at the end;
@@ -16,8 +16,13 @@ zero unchecked phase tasks, evidence-backed applicable acceptance, and passing
 checks are required for success. If no eligible work remains but unchecked
 tasks do, report the dependency or external blocker and resume point, not
 completion. Do not check, delete, or waive tasks merely to finish the goal.
-Claude owns `/goal`; do not install a competing command. Mentioning or asking
+The host runtime owns `/goal`; do not install a competing command. Mentioning or asking
 about this syntax does not start a run. Ordinary loop defaults remain intact.
+In Codex, reuse the active native goal; do not create a duplicate or replace
+its objective to expand the shorthand. Follow the native goal tools' rules
+for completion, blocking, pausing, and user-specified budgets. Mark the native
+goal complete only after the all-specs completion evidence above is recorded.
+A runtime budget/usage limit or interruption is not successful completion.
 
 1. Read the phase index, ledger, relevant specs, and reporting standard. Run
    `specloop status` to inspect the live work order and checkbox counts.
