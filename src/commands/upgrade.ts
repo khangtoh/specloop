@@ -241,6 +241,12 @@ function planActions(det: Detection, rootDir: string, skills: SkillsMode = "copy
       run: (_r, specAbs) => copyIfAbsent(join(tpl, "spec", OPTIONAL_RUN_STATE), join(specAbs, OPTIONAL_RUN_STATE)),
     });
   }
+  if (!existsSync(join(rootDir, det.specDir!, "skill-coordination.md"))) {
+    actions.push({
+      label: `add ${det.specDir}/skill-coordination.md (optional project skill rules)`,
+      run: (_r, specAbs) => copyIfAbsent(join(tpl, "spec", "skill-coordination.md"), join(specAbs, "skill-coordination.md")),
+    });
+  }
   if (!det.hasAgents) {
     actions.push({
       label: `add AGENTS.md (specloop binding)`,

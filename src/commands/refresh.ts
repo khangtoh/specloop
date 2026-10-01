@@ -71,7 +71,7 @@ export function assetContents(agent: Agent, specDir = "spec"): Map<string, { bod
   if (agent !== "claude") collect(join(plugin, "skills"), ".agents/skills", "skills", true);
   files.set(".specloop/hooks/reconcile.mjs", { body: readFileSync(join(plugin, "hooks/reconcile.mjs"), "utf8") });
   files.set("AGENTS.md", { body: readFileSync(join(packageRoot, "template/AGENTS.md"), "utf8"), legacy: "AGENTS.md" });
-  for (const name of ["decision-reconciliation.md", "spec-summary-status.md"]) {
+  for (const name of ["decision-reconciliation.md", "spec-summary-status.md", "skill-coordination.md"]) {
     files.set(join(specDir, name), { body: readFileSync(join(packageRoot, "template/spec", name), "utf8"), legacy: "spec/" + name });
   }
   return files;

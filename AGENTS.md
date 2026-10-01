@@ -103,6 +103,20 @@ because of elapsed time, token budget, a checked box, or a phase boundary —
 only the terminal conditions end a run. Do not stop at a task or phase boundary:
 continue until a terminal condition is reached.
 
+## Skill coordination
+
+When work involves applicable dependencies, collaborations, handoffs or conflicts
+between skills, use specloop's skill coordination reference and the optional
+skill-coordination.md in the configured spec directory (spec/ by default).
+Skills may declare a Skill relationships section; project rules can connect
+third-party skills. Verify required guidance or prerequisite results before
+dependent work, reuse results with sufficient evidence, and follow runtime
+instruction precedence plus recorded project ownership. Report missing
+prerequisites or unresolved conflicts and continue independent work.
+Record durable resolutions in the existing session ledger and authoritative
+specs. Coordination does not start a run or expand the user's authorization;
+menu/help and simple read-only commands need no coordination pass.
+
 ## Structural enforcement
 
 Run `specloop check` (or `bun run check:spec`) before handing off. It fails

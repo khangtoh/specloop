@@ -14,6 +14,8 @@ kept here), so there is nothing to sync.
 
 ## Phases (priority order)
 
+- 10 Skill relationships and coordination
+
 - 09 VERSION-driven CI release kit
 - 08 Automated publish and release workflow
 - 06 Short commands and native skill menu

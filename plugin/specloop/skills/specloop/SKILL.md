@@ -1,6 +1,6 @@
 ---
 name: specloop
-description: Manage specloop phase checklists, run spec work, audit completion, or display the specloop command menu when explicitly invoked without an action.
+description: Manage specloop phase checklists, run spec work, audit completion, coordinate declared skill relationships, or display the specloop command menu when explicitly invoked without an action.
 argument-hint: "[loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]"
 metadata:
   version: "0.2.0"
@@ -103,6 +103,16 @@ exists, report that the CLI is unavailable and show
 `bun add -d @khangtoh/specloop`; do not claim checks or version succeeded.
 Read-only status/list and an audit may still be performed directly from the
 project files. Do not invent a path to templates that were not installed.
+
+## Skill coordination
+
+For applicable dependencies, collaborations, handoffs or conflicts between skills,
+read [coordination](references/coordination.md) before dependent work. Resolve
+the project's configured spec directory and use its optional skill-coordination.md
+integration rules. Ordinary menu/help and simple read-only actions stay lightweight.
+Merely loading this guidance does not start a loop or expand the user's request.
+Skills can declare an optional Skill relationships section; project rules can
+also connect third-party skills without changing their files.
 
 ## Spec invariants
 

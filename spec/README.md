@@ -37,6 +37,8 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 8 | [08-release-automation.md](08-release-automation.md) | Automated verified publishing and recoverable release workflow (local driver superseded by Phase 09) | ✅ 7/7 | None |
 | 9 | [09-version-driven-release.md](09-version-driven-release.md) | VERSION-triggered CI release through a kit shared with ProductOS | ✅ 7/7 | None (0.8.0 released through CI) |
 
+| 10 | [10-skill-coordination.md](10-skill-coordination.md) | Optional skill relationships and project integration rules coordinated by specloop | ✅ 6/6 | None |
+
 ## Status
 
 - [ ] **specloop's commands are covered by an automated verification suite** —

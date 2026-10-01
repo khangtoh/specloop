@@ -179,7 +179,7 @@ for (const agent of ["claude", "codex", "both"] as Agent[]) {
       const skill = join(target, group, "specloop/SKILL.md");
       const body = readFileSync(skill, "utf8");
       const refs = [...new Set([...body.matchAll(/\]\((references\/[^)]+)\)/g)].map(m => join(dirname(skill), m[1])))];
-      expect(refs).toHaveLength(4);
+      expect(refs).toHaveLength(5);
       for (const ref of refs) expect(existsSync(ref)).toBe(true);
       const missing = refs[0];
       rmSync(missing);

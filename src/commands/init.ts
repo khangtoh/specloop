@@ -35,9 +35,10 @@ export function runInit(
 
   mkdirSync(targetDir, { recursive: true });
 
-  // spec/ directory (always).
+  // spec/ directory (always); durable history and project integration rules survive force.
   cpSync(join(tpl, "spec"), specDest, { recursive: true,
-    filter: (_src, dest) => !(dest === join(specDest, "agent-session-ledger.md") && existsSync(dest)),
+    filter: (_src, dest) => !(["agent-session-ledger.md", "skill-coordination.md"]
+      .some(name => dest === join(specDest, name)) && existsSync(dest)),
   });
   console.log(`${GRN}✔${RST} spec/  ${DIM}(README, process files, example phase)${RST}`);
 

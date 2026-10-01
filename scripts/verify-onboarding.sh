@@ -175,12 +175,12 @@ mkdir -p "$BOTH"
   bunx specloop refresh --agent both
   bunx specloop refresh --agent both --apply
 ) > "$WORK/both.log" 2>&1 || { cat "$WORK/both.log"; exit 1; }
-for f in .agents/skills/specloop/SKILL.md .codex/hooks.json .claude/settings.json .specloop/hooks/reconcile.mjs .specloop/managed-assets.json spec/decision-reconciliation.md; do
+for f in .agents/skills/specloop/SKILL.md .codex/hooks.json .claude/settings.json .specloop/hooks/reconcile.mjs .specloop/managed-assets.json spec/decision-reconciliation.md spec/skill-coordination.md; do
   assert_file "$BOTH/$f" "$f (packed install)"
 done
 assert_same "$BOTH/.specloop/hooks/reconcile.mjs" "$BOTH/node_modules/@khangtoh/specloop/plugin/specloop/hooks/reconcile.mjs" "shared runner matches packed source"
 for runtime_dir in .claude/skills .agents/skills; do
-  for ref in init upgrade audit loop; do
+  for ref in init upgrade audit loop coordination; do
     assert_same "$BOTH/$runtime_dir/specloop/references/$ref.md" \
       "$BOTH/node_modules/@khangtoh/specloop/plugin/specloop/skills/specloop/references/$ref.md" \
       "$runtime_dir/specloop/references/$ref.md matches packed source"
@@ -196,12 +196,15 @@ done
   bun -e 'const fs = require("fs"); for (const path of [".codex/hooks.json", ".claude/settings.json"]) { const c = JSON.parse(fs.readFileSync(path)); for (const e of ["SessionStart", "UserPromptSubmit", "Stop"]) if (c.hooks[e].length !== 1) process.exit(1); }'
 ) && ok "both runtime configs contain one handler per event" || bad "runtime hook configuration differs"
 cp "$BOTH/spec/agent-session-ledger.md" "$WORK/ledger-before.md"
+echo "Project-specific skill ownership" >> "$BOTH/spec/skill-coordination.md"
+cp "$BOTH/spec/skill-coordination.md" "$WORK/coordination-before.md"
 echo "Custom instruction" >> "$BOTH/AGENTS.md"
 refresh_status=0
 (cd "$BOTH" && bunx specloop refresh --agent both --apply) > "$WORK/refresh.log" 2>&1 || refresh_status=$?
 [ "$refresh_status" -eq 2 ] && ok "custom instructions reported for manual merge" || bad "expected refresh exit 2"
 grep -q 'Custom instruction' "$BOTH/AGENTS.md" && ok "custom instructions preserved" || bad "custom instructions overwritten"
 assert_same "$BOTH/spec/agent-session-ledger.md" "$WORK/ledger-before.md" "refresh preserves ledger bytes"
+assert_same "$BOTH/spec/skill-coordination.md" "$WORK/coordination-before.md" "refresh preserves project skill rules"
 
 # 6. Verdict -------------------------------------------------------------------
 printf '\n%s%d passed, %d failed%s\n' "$BOLD" "$PASS" "$FAIL" "$RST"

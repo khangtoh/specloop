@@ -5,6 +5,11 @@ Claude and Codex hooks prompt review and detect missing ledger updates safely.
 
 Depends on: None.
 
+_2026-10-01 extension:_ [Phase 10](10-skill-coordination.md) adds optional
+cross-skill relationships and project integration rules to this reconciliation
+contract. Runtime precedence, historical checkboxes and live verification
+requirements survive unchanged; see the skill-coordination ledger entry.
+
 ## Instructions
 
 - [x] (p1) Share the reconciliation contract across repository instructions, skills, commands and shipped process templates, covering direct work, resumption, precedence and append-only conflict records.

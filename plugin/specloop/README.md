@@ -70,3 +70,10 @@ phases until every task and applicable index acceptance has verified evidence
 and required checks pass. It reports genuine blockers as partial, never done.
 Ordinary `$specloop loop` (Codex) and `/specloop loop` (Claude) retain their default scope. This requires the updated
 skill/instructions; `/goal` itself is provided by the host runtime.
+
+Skill coordination is available during applicable work: skills declare optional
+relationships, and the configured spec directory's skill-coordination.md can add
+project integrations and scoped ownership decisions. The shared
+[coordination workflow](skills/specloop/references/coordination.md) checks
+guidance/result readiness, conflicts, cycles and handoff evidence. It does not
+start a loop or turn a menu request into work.

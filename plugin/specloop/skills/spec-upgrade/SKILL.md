@@ -37,6 +37,12 @@ PRD-style spec (`Summary/Problem/Scope/Acceptance Criteria`):
 Translate the original specs' requirements into executable checklists — do not
 discard their intent.
 
+## Skill relationships
+
+| Relationship | Skill | Applies when | Contract |
+|---|---|---|---|
+| Hands off to | specloop | The user requests execution after adoption | Provide the adopted phases, acceptance criteria, structural-check result and remaining gaps. Adoption alone does not start execution; use the requested loop scope. |
+
 ## Decision reconciliation — every session
 
 Before any work, including direct user requests outside `/spec-loop`, and after

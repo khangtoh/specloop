@@ -238,6 +238,25 @@ The optional `spec/specloop-run-state.md` is an advisory resume record. It is
 scaffolded by `init` and offered by `upgrade --apply`, but it is not required
 by `specloop check`; completion always comes from the phase checkboxes.
 
+### Skill relationships and coordination
+
+Skills can declare **Requires**, **Works with**, **Hands off to**, and
+**Conflicts with** in an optional Skill relationships section. Specloop
+coordinates applicable relationships and verifies prerequisite guidance or
+results before dependent work. Existing verified artifacts can satisfy a result
+dependency without rerunning its producer.
+
+Optional `spec/skill-coordination.md` adds project relationships and ownership
+rules, including integrations between third-party skills. Durable resolutions
+use the existing session ledger. Conflicts follow instruction precedence and
+recorded project ownership; unresolved conflicts name the missing decision.
+Missing skills and circular execution prerequisites block the affected work.
+
+Init, adoption and refresh ship the guidance and optional rules; customized
+rules survive refresh and forced init. This is a convention followed by the
+agent, and existing projects without the file still validate. See
+[usage and manual scenarios](docs/skill-coordination.md).
+
 ### Phase layout — one file, or a folder of sub-specs
 
 A phase is either a **flat file** or a **folder**; every command treats them the

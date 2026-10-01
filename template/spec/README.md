@@ -42,6 +42,11 @@ Read it before every task and after resumption or compaction. Follow
 [decision reconciliation](decision-reconciliation.md); append resolutions before
 dependent implementation and session entries for material work.
 
+**How do related skills work together?**
+[skill-coordination.md](skill-coordination.md) — optional project relationships
+and ownership rules. The specloop skill supplies the shared workflow. Guidance
+availability and prerequisite-result readiness are separate checks.
+
 ## Phases
 
 Status column legend (defined in

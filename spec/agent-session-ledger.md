@@ -630,3 +630,24 @@ tests and manual scenario walkthroughs. This is an agent convention, not a
 CLI dependency resolver. No automatic skill installation, new run trigger,
 version bump or remote publication is requested. Live behavior must be
 distinguished from installation tests and written scenario review.
+
+
+## Session: 2026-10-01 — skill coordination implementation handoff
+
+Completed Phase 10's six convention/implementation tasks. Added skill relationship
+and project ownership tables, guidance/result prerequisite checks, conditional
+collaboration, conflict reconciliation, cycle handling and evidence-bearing
+handoffs. The shared reference is progressively loaded; a new optional project
+scaffold ships through init/upgrade/refresh and custom rules survive forced init.
+Existing projects without it remain valid, and third-party skills need no edits.
+
+Verification: 149 tests pass (804 assertions); typecheck, template/self checks,
+both-runtime frontmatter checks and whitespace pass; packed onboarding 94/94.
+Evidence and the manual tabletop walkthrough are in
+spec/evidence/10-skill-coordination.md; the live manual procedure is in
+docs/skill-coordination.md. No native model-compliance result is claimed.
+
+During this work another session committed and pushed prepared 0.8.1 at 5f7e7a2,
+including the already-appended coordination intake. That history is preserved;
+this implementation will be a separate source commit without another version
+bump or push. Phase 10 is 6/6; earlier live acceptance checkboxes are unchanged.

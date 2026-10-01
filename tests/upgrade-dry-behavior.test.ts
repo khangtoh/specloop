@@ -27,6 +27,7 @@ test("dry-run plan lists exactly the missing adoption pieces", () => {
     "  ◦ generate spec/README.md (phase index) from 1 numbered specs",
     "  ◦ generate spec/BACKLOG.md from 1 numbered specs",
     "  ◦ add spec/specloop-run-state.md (optional advisory run record)",
+    "  ◦ add spec/skill-coordination.md (optional project skill rules)",
     "  ◦ add AGENTS.md (specloop binding)",
     "  ◦ add .specloop.json (validator config)",
     "  ◦ install 5 specloop skills and 8 /spec-* commands into the selected agent directories",
