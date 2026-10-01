@@ -592,3 +592,41 @@ Merged verification passed: 142 repository tests (754 assertions), 14 release-ki
 tests, typecheck, template/self structure and whitespace checks. The reference
 installation test now deduplicates repeated links to the same workflow file.
 Release-kit tests required local-server permission outside the sandbox.
+
+## Session: 2026-10-01 — push main authorized
+
+**Previous decision:** The 2026-09-30 merge-and-bump session prepared 0.8.1
+locally with --no-push and excluded remote publication from that request.
+
+**Conflicting instruction:** The user now explicitly requests commit and push main.
+
+**Resolution:** Push the prepared main history, including VERSION 0.8.1;
+this authorizes the configured Phase 09 CI release triggered by that push.
+
+**Scope and consequences:** The working tree was clean, origin/main was fetched,
+and main was six commits ahead with no remote-only commits. Both self/template
+structural checks pass. Runtime acceptance checkboxes remain unchanged. CI
+publication success must be assessed separately from successful Git push.
+
+
+## Session: 2026-10-01 — skill coordination intake
+
+**Previous decision:** Phase 07 reconciles project instructions and recorded
+decisions; skills have no shared declaration for relationships to other skills.
+
+**Conflicting instruction:** The user approved and requested implementation
+of convention-first dependencies coordinated by specloop, with both skill
+declarations and project integration rules.
+
+**Resolution:** Extend Phase 07's reconciliation scope through Phase 10.
+Keep runtime instruction precedence and the existing append-only ledger.
+Add optional relationships (Requires, Works with, Hands off to, Conflicts with),
+a shared coordination workflow, and an optional project rules document.
+No historical checkbox is undone and no skill gains authority from a dependency.
+
+**Scope and consequences:** Shared skill, repository/template guidance,
+init/upgrade/refresh, protected project rules, documentation, installation
+tests and manual scenario walkthroughs. This is an agent convention, not a
+CLI dependency resolver. No automatic skill installation, new run trigger,
+version bump or remote publication is requested. Live behavior must be
+distinguished from installation tests and written scenario review.
