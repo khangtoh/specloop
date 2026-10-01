@@ -651,3 +651,21 @@ During this work another session committed and pushed prepared 0.8.1 at 5f7e7a2,
 including the already-appended coordination intake. That history is preserved;
 this implementation will be a separate source commit without another version
 bump or push. Phase 10 is 6/6; earlier live acceptance checkboxes are unchanged.
+
+
+## Session: 2026-10-01 — skill coordination push authorized
+
+**Previous decision:** The Phase 10 implementation handoff committed the
+coordination convention locally at 2811606 and excluded a push from that scope.
+
+**Conflicting instruction:** The user now explicitly requests push.
+
+**Resolution:** Push the committed coordination changes and this authorization
+record to origin/main. This supersedes only the earlier local-only publication
+scope; implementation evidence and manual-runtime caveats survive unchanged.
+
+**Scope and consequences:** Fresh origin fetch confirms one local commit and
+no remote-only commits. Self/template structural checks pass (Phase 10 6/6).
+VERSION is unchanged at 0.8.1, so this is a source push without a version bump.
+Commit this record, push main, and confirm the remote head. No runtime
+acceptance checkboxes are changed.
