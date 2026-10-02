@@ -686,3 +686,19 @@ The guide records the working direction that the verifier and board are
 separate from specloop, which owns the spec and reports process events. No
 phase was created and no checkbox changed; turning this into a phase awaits
 user direction.
+
+
+## Session: 2026-10-02 — agent quality verifier guide merged to main
+
+**Previous decision:** The guide commit 3bfb0f6 was pushed only to the
+ccr-bd55ced2-pymvfo branch.
+
+**Conflicting instruction:** The user asked to merge and push.
+
+**Resolution:** Fast-forward main to the branch and push both. The guide stays a
+design document; its working demo now lives in the separate public repo
+khangtoh/agent-quality-verifier (24 checks, 28 of 28 demo scenarios as expected).
+
+**Scope and consequences:** Documentation and ledger only. No phase or checkbox
+changed; turning the verifier integration into a specloop phase still awaits
+user direction.
