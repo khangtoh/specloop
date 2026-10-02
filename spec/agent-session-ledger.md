@@ -669,3 +669,20 @@ no remote-only commits. Self/template structural checks pass (Phase 10 6/6).
 VERSION is unchanged at 0.8.1, so this is a source push without a version bump.
 Commit this record, push main, and confirm the remote head. No runtime
 acceptance checkboxes are changed.
+
+
+## Session: 2026-10-02 — agent quality verifier guide
+
+Added docs/agent-quality-verifier.md, a plain-language design guide for an
+evidence-based verifier of agent work, derived from the uploaded
+topform-evidence-gated prototype. It defines three goals (tests tagged to spec
+requirements, OpenAPI contract conformance, standard git conventions), admits
+only repeatable, predefined, locally rerunnable checks, and classifies each
+check by reach (G/C/S/E/F) with expected support in Python, JavaScript,
+TypeScript, Go, Rust and Kotlin. Language entries are expected, not measured;
+the multi-language runs are a documented plan, not executed.
+
+The guide records the working direction that the verifier and board are
+separate from specloop, which owns the spec and reports process events. No
+phase was created and no checkbox changed; turning this into a phase awaits
+user direction.
