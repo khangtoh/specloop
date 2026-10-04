@@ -669,3 +669,45 @@ no remote-only commits. Self/template structural checks pass (Phase 10 6/6).
 VERSION is unchanged at 0.8.1, so this is a source push without a version bump.
 Commit this record, push main, and confirm the remote head. No runtime
 acceptance checkboxes are changed.
+
+
+## Session: 2026-10-04 — upstream spec sync (Phase 11)
+
+**Previous decision:** The loop reads specs at the start and after each task
+from the local checkout only. Nothing in specloop takes in spec changes that
+another agent pushed upstream during a run.
+
+**Conflicting instruction:** The owner, working in the getintro repository,
+2026-10-04: a loop running phases 1 to 20 cannot get a spec 10 that another
+agent updated and pushed to main, and asked for this to be built in the
+specloop repository, syncing only the files specloop needs.
+
+**Resolution:** Phase 11 adds `specloop sync`. It runs at task boundaries and
+merges only the spec directory (and an optional `syncPaths`) three ways. Its
+base is a local synced ref. The ledger falls back to union, and the run state
+always keeps the local copy. It is atomic, stops on conflict (exit 2), and
+inspects by default; `--apply` makes one local commit and never pushes. Code is
+not rebased mid-run. This supersedes nothing earlier: the loop gains a step at
+the boundary it already has.
+
+**Scope and consequences:** Five tasks. The loop reference, the skill menu, the
+template `AGENTS.md`, the docs and `legacy-assets.json` change. No version
+bump, release or push is in scope.
+
+
+## Session: 2026-10-04 — upstream spec sync implementation handoff
+
+Completed Phase 11's five tasks. `specloop sync` takes spec changes pushed
+upstream at a task boundary. It merges the spec directory and `syncPaths` three
+ways against a local synced ref, with a union fallback for the ledger and the
+run state kept local. It is atomic, stops with exit 2 on any conflict, dirty
+spec path or failing check, and inspects unless given `--apply`. It never
+rebases, pushes or takes code. The loop reference gains a boundary step; the
+skill menu, the template and repository `AGENTS.md`, the docs and
+`legacy-assets.json` are updated, with the 0.8.1 digests recorded so existing
+installs refresh cleanly.
+
+Verification: 179 tests pass; the typecheck, both structural checks and packed
+onboarding (94/94) pass. An inspect-only run against the getintro repository
+behaved as designed. No native-runtime loop compliance is claimed. VERSION is
+unchanged at 0.8.1. Committed locally; no push or release.

@@ -10,6 +10,8 @@ export interface SpecloopConfig {
   requireDependsOnLine: boolean;
   enforceIndexCounts: boolean;
   agentsFile: string;
+  /** Extra repository paths `specloop sync` merges besides the spec directory, e.g. plans a phase links to. */
+  syncPaths?: string[];
 }
 
 export const DEFAULT_CONFIG: SpecloopConfig = {
@@ -26,6 +28,7 @@ export const DEFAULT_CONFIG: SpecloopConfig = {
   requireDependsOnLine: true,
   enforceIndexCounts: true,
   agentsFile: "AGENTS.md",
+  syncPaths: [],
 };
 
 /** Load `.specloop.json` from the project root, merged over defaults. */

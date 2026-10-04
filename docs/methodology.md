@@ -65,6 +65,33 @@ Because each iteration is small and self-contained, it survives context limits,
 parallel agents, and hand-offs between humans and agents. The ledger is what
 makes resumption cheap; the handoff format is what keeps each iteration honest.
 
+### Specs that change while a loop runs
+
+A loop can run for hours. If another agent pushes a change to a phase the loop
+has not reached yet, the loop would otherwise build against the text it read at
+the start. So, at every task boundary (the box is checked and committed, the next
+one not yet chosen), the loop runs `specloop sync --apply`. It works as follows:
+
+- It merges **only spec files**: the spec directory, plus any `syncPaths` in
+  `.specloop.json`, such as the plans a phase links to. Upstream code is not taken
+  mid-run and nothing is rebased, so implementation never shifts underneath the
+  loop.
+- It merges each file **three ways**, against the upstream commit last synced
+  (kept in a local ref, so a second sync never re-applies the first):
+  - the session ledger, being append-only, falls back to keeping both sides'
+    entries;
+  - the run-state file always stays the loop's own.
+- It is **atomic and cautious**. A real conflict, an uncommitted spec path, or a
+  merged spec that fails `specloop check` leaves the checkout as it was and exits
+  2, so the loop stops and someone reconciles. On success it makes one local
+  commit and exits 10, reporting:
+  - the phases that changed;
+  - new ledger entries;
+  - whether BACKLOG or the index moved;
+  - whether the phase in progress or an already-checked task was reworded.
+- The loop then **re-reads** what changed and selects from the updated specs. It
+  never pushes.
+
 ## The handoff: Spec Summary/Status
 
 Every task handoff — complete, partial, **or** blocked — must include a

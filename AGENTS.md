@@ -41,7 +41,11 @@ and task tags order the boxes within a phase:
 4. Append `spec/agent-session-ledger.md` if the session changed a decision,
    completed material work, or left a resume point.
 5. Produce the `Spec Summary/Status` handoff. Commit.
-6. Repeat until the goal's acceptance checkbox in `spec/README.md` is checked
+6. At that task boundary, run `specloop sync --apply` to take spec changes
+   another agent pushed upstream: spec files only, merged three ways, one
+   local commit, never a rebase or push. On exit 10 re-read what it reports
+   before choosing the next box; on exit 2 stop and reconcile what it names.
+7. Repeat until the goal's acceptance checkbox in `spec/README.md` is checked
    with live evidence recorded.
 
 ## `specloop` execution command

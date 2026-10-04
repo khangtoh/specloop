@@ -38,13 +38,23 @@ A runtime budget/usage limit or interruption is not successful completion.
 5. Implement the task and verify proportionally to risk. Check only evidence-
    supported tasks; update Findings/Results, index counts, and session ledger.
    Run `specloop check`, commit the verified work, and continue selection.
-6. For an all-specs run, continue until the expanded completion condition above
+6. At that task boundary, before selecting again, run `specloop sync --apply`
+   when the project has a git remote. It merges only spec files changed
+   upstream since the last sync, three ways, and makes one local commit; it
+   never rebases, pushes, or takes upstream code. Exit 0: continue. Exit 10:
+   re-read the phases, ledger entries, BACKLOG and index it reports, apply
+   decision reconciliation, then select from the updated specs; if it flags
+   the phase in progress or a reworded checked task, reconcile that first.
+   Exit 2: stop and report the conflict or uncommitted spec path it names as
+   a blocker; never resolve a spec conflict by guessing. Exit 1 (no remote,
+   fetch failure): note it and continue on the local specs.
+7. For an all-specs run, continue until the expanded completion condition above
    is verified. Otherwise continue until the scoped phase is fully verified (focused/standard run)
    or the mapped goal acceptance checkbox is checked with recorded evidence
    (goal run). A user stop or genuine external blocker also ends the run;
    name a missing decision/external state and resume point for a blocker.
    Do not stop for another trigger at a task boundary. A status question gets
    a concise answer and the run continues. Honor explicit narrower user scope.
-7. At the terminal condition, produce the mandatory Spec Summary/Status
+8. At the terminal condition, produce the mandatory Spec Summary/Status
    handoff with recounted phase/component tables and Overall, Evidence, and
    Change state. Report partial work honestly when acceptance remains open.

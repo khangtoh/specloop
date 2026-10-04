@@ -14,6 +14,7 @@ kept here), so there is nothing to sync.
 
 ## Phases (priority order)
 
+- 11 Upstream spec sync at task boundaries
 - 10 Skill relationships and coordination
 
 - 09 VERSION-driven CI release kit

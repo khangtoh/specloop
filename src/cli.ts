@@ -14,6 +14,7 @@ import { runPreflight } from "./commands/preflight.js";
 import { parseSkillsMode, SKILLS_MODES } from "./commands/agentAssets.js";
 import { runLayout } from "./commands/layout.js";
 import { runGroup } from "./commands/group.js";
+import { runSync } from "./commands/sync.js";
 
 /** Single source of truth for the version: the package's own package.json. */
 function readVersion(): string {
@@ -44,6 +45,9 @@ Commands:
   prio task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   layout                  Show phase layouts and recommend changes.
   group <NN>              Group a flat phase (dry run; --apply to write).
+  sync                    Take upstream spec changes at a task boundary: spec
+                          files only, merged three ways (inspect; --apply to
+                          commit locally). Exit 0 none, 10 synced, 2 stop.
   upgrade [dir]           Adopt an existing project's spec model into specloop
                           (report; --apply to scaffold non-destructively, incl.
                           selected agent skills, commands and hooks).
@@ -55,8 +59,10 @@ Options:
   --dir <path>            Project root to operate on (default: cwd).
   --no-split              (group) move without splitting task sections.
   --force                 (init) overwrite an existing spec/ and files.
-  --apply                 (upgrade, refresh, group) apply the inspected changes.
-  --json                  (check, status, list, preflight, layout) machine-readable output.
+  --apply                 (upgrade, refresh, group, sync) apply the inspected changes.
+  --remote <name>         (sync) remote to sync from (default: tracking remote, else origin).
+  --branch <name>         (sync) branch to sync from (default: tracking branch, else main).
+  --json                  (check, status, list, preflight, layout, sync) machine-readable output.
   --to <p1|p2|p3>         (prio task) set an explicit priority instead of bumping.
   --agent <runtime>      (init, upgrade, refresh) claude (default), codex, both.
   --skills <mode>         (init, upgrade) how the specloop skills and /spec-*
@@ -86,6 +92,7 @@ Examples:
   specloop init --skills none      # scaffold spec/ only, no agent assets/hooks
   specloop layout
   specloop group 12 --apply
+  specloop sync --apply            # at a task boundary: take upstream spec edits
   specloop upgrade ./other-repo --apply
   specloop audit "the checkout flow is done"
 `;
@@ -119,6 +126,8 @@ export function main(argv: string[]): number {
     console.error(`Invalid --skills value: ${skillsRaw}. Expected one of: ${SKILLS_MODES.join(", ")}.`);
     return 1;
   }
+  const remote = takeFlagValue(rest, "--remote");
+  const branch = takeFlagValue(rest, "--branch");
   const noSplit = takeFlag(rest, "--no-split");
   const apply = takeFlag(rest, "--apply");
   const json = takeFlag(rest, "--json");
@@ -155,6 +164,8 @@ export function main(argv: string[]): number {
       return runLayout(rootDir, { json });
     case "group":
       return runGroup(rootDir, positional[0], { apply, split: !noSplit });
+    case "sync":
+      return runSync(rootDir, { apply, json, remote, branch });
     case "upgrade":
       return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply, skills, agent });
     case "audit":

@@ -1,7 +1,7 @@
 ---
 name: specloop
 description: Manage specloop phase checklists, run spec work, audit completion, coordinate declared skill relationships, or display the specloop command menu when explicitly invoked without an action.
-argument-hint: "[loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group · help|version] [args]"
+argument-hint: "[loop|status|list · prio spec|prio task · init|upgrade|refresh · check|preflight|audit · layout|group|sync · help|version] [args]"
 metadata:
   version: "0.2.0"
 ---
@@ -35,6 +35,7 @@ outside a specloop repository and without a CLI installed.
 | `prio task` | `<NN.T> [--to p1|p2|p3] [--dir path]` | Set task priority or bump it one level |
 | `layout` | `[--dir path] [--json]` | Inspect flat/grouped layouts and recommendations |
 | `group` | `<NN> [--apply] [--no-split] [--dir path]` | Preview or apply grouping into sub-specs |
+| `sync` | `[--apply] [--remote name] [--branch name] [--dir path] [--json]` | Take upstream spec changes at a task boundary, spec files only |
 | `audit` | `"<goal>" [--dir path]` | Trace goal completion through requirements and evidence |
 | `loop` | `[phase]` | Execute spec work to the run's terminal condition |
 | `help` | None | Show this menu |
@@ -92,9 +93,9 @@ Read only the reference needed for the selected action, relative to this skill:
   filters the agent report, not the shell command. Read the phase's checkboxes
   and report using the project's required status format. For `--json`, return
   the requested machine-readable output without a prose wrapper.
-- `list`, `prio spec`, `prio task`, `check`, `preflight`, `refresh`, `layout`, `group`, `version`:
+- `list`, `prio spec`, `prio task`, `check`, `preflight`, `refresh`, `layout`, `group`, `sync`, `version`:
   run the corresponding CLI command, preserving argument boundaries and flags.
-  Never interpolate raw user text into shell code. Refresh and group remain dry runs
+  Never interpolate raw user text into shell code. Refresh, group and sync remain dry runs
   unless `--apply` is supplied. Pass through failures with the cause and repair;
   do not silently install packages or replace a failing command with edits.
 

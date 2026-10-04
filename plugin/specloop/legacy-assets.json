@@ -14,7 +14,9 @@
   "skills/specloop/SKILL.md": [
     "c633ad205b73cdcbecaafefebbdef208be827cd641dd108506a375b5239c21bf",
     "d6f01f5c425ae7192b5f5a50e548e264cbea6af8c2005c284e2d87130f810ebf",
-    "53825719a76ca5a0291fcc02f8f2dd0f19aebc4a2b26d492b4b33c58f0829c8a"
+    "53825719a76ca5a0291fcc02f8f2dd0f19aebc4a2b26d492b4b33c58f0829c8a",
+    "64d9b927bbf58e20eb7bb12fd7a6ba9cf5dea880a3b6e7b2313bd6c263f9f692",
+    "30592c523129e11ac97b7f96ded7b419a86366c7643c58f8c102839d88e9f734"
   ],
   "commands/list-spec.md": "4a142bb8af5d84cfb1654684a5d0684b070bb0f66e58539f4f01f406a7713355",
   "commands/spec-status.md": "c1286729adaa912910c799378ea7e4c748f0aeb4b1359be118ae185c703cbbdd",
@@ -23,11 +25,17 @@
   "commands/spec-loop.md": "c659db075696bce1595b1f3d7ef3195b7e069633799c8f21775072c78d42bea6",
   "commands/goal-check.md": "c3d68105f4fa390ca019afe3a54a3b007c2406eecda419bf486182fa71d7f3b1",
   "commands/prio-spec.md": "3b434a091ef564fc806b4c6d229391843640c1e6c68ca3bbe7489ffeb81f4388",
-  "AGENTS.md": "e34d7b49200b0acf1e445e14f7a402c5111404026ffc9bcf43ab8be612e40a9b",
+  "AGENTS.md": [
+    "e34d7b49200b0acf1e445e14f7a402c5111404026ffc9bcf43ab8be612e40a9b",
+    "e785de2da71bcc6842cb058abc1a5bcdf51a04334fca3cfc095a1aeb06011a77"
+  ],
   "spec/spec-summary-status.md": "4f73306c18a3e9b8c39ea7dbac492addf834b7365b08e971313eb236d647e0e1",
   "commands/spec-layout.md": "8b8923fdfe67b1ab65b530c3890e98d14b6756e2dbd33924ec4fab53613911a9",
   "skills/spec-layout/SKILL.md": [
     "79c27831ea70944d12810c3be626bd9a9bf0e4e4e67e972b575c259384a9450b",
     "ea8a1c9a5a802bad72af0e9a4b4b4d8c8e58ac052b4077ee68c6ad8480112af2"
+  ],
+  "skills/specloop/references/loop.md": [
+    "37b8ed109bfdd243404009617143de6d463f131040d94578e98fbf3c5c639fec"
   ]
 }

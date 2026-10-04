@@ -38,6 +38,7 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 9 | [09-version-driven-release.md](09-version-driven-release.md) | VERSION-triggered CI release through a kit shared with ProductOS | ✅ 7/7 | None (0.8.0 released through CI) |
 
 | 10 | [10-skill-coordination.md](10-skill-coordination.md) | Optional skill relationships and project integration rules coordinated by specloop | ✅ 6/6 | None |
+| 11 | [11-upstream-spec-sync.md](11-upstream-spec-sync.md) | `specloop sync`: take upstream spec changes at task boundaries, spec files only, merged three ways | ✅ 5/5 | None |
 
 ## Status
 

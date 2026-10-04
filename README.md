@@ -283,6 +283,25 @@ specloop group 12 --apply        # move to spec/12-*/README.md (git mv), split e
 specloop group 12 --no-split --apply   # just move the file into a folder
 ```
 
+### Take upstream spec changes during a run
+
+```bash
+specloop sync                    # inspect: which spec files changed upstream
+specloop sync --apply            # at a task boundary: merge them, one local commit
+specloop sync --apply --json     # the same, machine-readable for an agent
+```
+
+Merges only the spec directory (plus `syncPaths` from `.specloop.json`) three ways
+against the upstream commit last synced. The ledger falls back to a union merge,
+and the run-state file stays local. It never rebases, pushes, or takes upstream
+code. Exit codes:
+
+- 0: nothing changed upstream;
+- 10: changes were synced, so re-read the phases it lists;
+- 2: a conflict, an uncommitted spec path, or a failing check, so stop and
+  reconcile;
+- 1: no remote or fetch failure.
+
 `group` refuses to write if the checkbox totals would change or the folder
 already exists. It rewrites markdown links (inside the moved content and inbound
 from `spec/` and `AGENTS.md`) and lists other files that still mention the old
