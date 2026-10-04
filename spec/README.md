@@ -29,12 +29,14 @@ Legend: ✅ complete · 🟡 partial · ⬜ not started · ⛔ blocked. Progress
 | 1 | [01-verify-upgrade.md](01-verify-upgrade.md) | Automated suite verifying `specloop upgrade` detection + non-destructive adoption | ✅ 28/28 | None (0.3.0 shipped) |
 | 2 | [02-autonomous-run-contract.md](02-autonomous-run-contract.md) | Durable run state, alias/stop policy, and tests guarding the autonomous `specloop` contract | ✅ 22/22 | None |
 | 3 | [03-preflight-check.md](03-preflight-check.md) | `specloop preflight` workspace checks; bare `specloop` runs them (breaking, 0.4.0) | 🟡 14/26 | Phase 02 (run-state record) |
+| 4 | [04-host-goal-integration.md](04-host-goal-integration.md) | Host `/goal` integration: condition generator, trigger scope grammar, deterministic Stop hook |  🟡 28/32 | Phase 02 (run-state record) |
 
 ## Status
 
 - [ ] **specloop's commands are covered by an automated verification suite** —
-  `upgrade` (Phase 01) done; the autonomous run contract (Phase 02) and
-  `preflight` (Phase 03) next. Future phases cover the remaining commands.
+  `upgrade` (Phase 01) and the autonomous run contract (Phase 02) done;
+  `preflight` (Phase 03) and the host `/goal` integration (Phase 04) in flight.
+  Future phases cover the remaining commands.
 
 ## Non-goals
 

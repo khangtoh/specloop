@@ -100,3 +100,8 @@ reality, because the thing that drifts stops the pipeline.
 - Put decisions in the spec the moment you make them; the ledger records that
   you made them and why.
 - Run `goal-check` before telling anyone something ships. That's the whole point.
+- When a host offers a standing goal (`/goal` in Claude Code and Codex), feed it
+  a condition from `specloop goal` rather than prose. Its evaluator reads only
+  what the agent printed, so print `specloop status` and `specloop check` every
+  turn — otherwise "done" is being judged on a summary again, which is the exact
+  failure this method exists to prevent.

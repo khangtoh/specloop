@@ -16,4 +16,5 @@ kept here), so there is nothing to sync.
 
 - 01 Verify the `upgrade` command
 - 02 Autonomous `specloop` run contract
+- 04 Host `/goal` integration
 - 03 `specloop preflight` workspace checks

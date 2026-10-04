@@ -5,6 +5,8 @@ import { runCheck } from "./commands/check.js";
 import { runStatus } from "./commands/status.js";
 import { runInit } from "./commands/init.js";
 import { runGoalCheck } from "./commands/goalCheck.js";
+import { runGoal } from "./commands/goal.js";
+import { runStopHook } from "./commands/stopHook.js";
 import { runUpgrade } from "./commands/upgrade.js";
 import { runPrioTask } from "./commands/prioTask.js";
 import { runPrioSpec } from "./commands/prioSpec.js";
@@ -38,7 +40,12 @@ Commands:
   prio-task <NN.T>        Raise a task's priority within a phase (--to pN, or bump).
   upgrade [dir]           Adopt an existing project's spec model into specloop
                           (report; --apply to scaffold non-destructively).
+  goal [target]           Print a host /goal completion condition for a scope:
+                          (none)=top eligible phase, loop=every eligible phase,
+                          1,2,3=those phases. --start also marks the run active.
   goal-check "<goal>"     Print the goal-completion-check prompt for "<goal>".
+  stop-hook               Stop-hook adjudicator: reads the hook payload on stdin
+                          and blocks while an active run has unchecked boxes.
   help, --help            Show this help.
   version, --version      Show the version.
 
@@ -46,7 +53,9 @@ Options:
   --dir <path>            Project root to operate on (default: cwd).
   --force                 (init) overwrite an existing spec/ and files.
   --apply                 (upgrade) perform the adoption instead of a dry run.
-  --json                  (check, status, list-spec, preflight) machine-readable output.
+  --json                  (check, status, list-spec, preflight, goal) machine-readable output.
+  --start                 (goal) record the scope as an active run in the
+                          advisory run-state file, arming the Stop hook.
   --to <p1|p2|p3>         (prio-task) set an explicit priority instead of bumping.
 
 Two priority levels compose: prio-spec picks the phase (BACKLOG order), and
@@ -61,6 +70,9 @@ Examples:
   specloop prio-spec 22 0          # move phase 22 to the top of the backlog
   specloop prio-task 07.3 --to p1  # set phase 07's 3rd task to high
   specloop upgrade ./other-repo --apply
+  specloop goal                    # condition for the top eligible phase
+  specloop goal loop               # condition for every eligible phase
+  specloop goal 1,2,3 --start      # scope phases 01-03 and arm the Stop hook
   specloop goal-check "the checkout flow is done"
 `;
 
@@ -82,6 +94,7 @@ export function main(argv: string[]): number {
   const to = takeFlagValue(rest, "--to");
   const force = takeFlag(rest, "--force");
   const apply = takeFlag(rest, "--apply");
+  const start = takeFlag(rest, "--start");
   const json = takeFlag(rest, "--json");
   const positional = rest.filter((a) => !a.startsWith("--"));
   const rootDir = dirFlag ?? process.cwd();
@@ -106,13 +119,27 @@ export function main(argv: string[]): number {
       return runPrioTask(rootDir, positional[0], to);
     case "upgrade":
       return runUpgrade(dirFlag ?? positional[0] ?? process.cwd(), { apply });
+    case "goal":
+      return runGoal(rootDir, positional.join(","), { json, start });
     case "goal-check":
     case "goalcheck":
       return runGoalCheck(rootDir, positional.join(" "));
+    case "stop-hook":
+    case "stophook":
+      return runStopHook(rootDir, readStdin());
     default:
       console.error(`Unknown command: ${cmd}\n`);
       console.log(HELP);
       return 1;
+  }
+}
+
+/** Hook payloads arrive on stdin; a hook invoked with no stdin gets "". */
+function readStdin(): string {
+  try {
+    return readFileSync(0, "utf8");
+  } catch {
+    return "";
   }
 }
 

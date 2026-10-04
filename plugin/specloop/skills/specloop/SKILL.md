@@ -54,8 +54,9 @@ Slash commands (this plugin): `/spec-init`, `/spec-loop`, `/spec-status`,
 CLI (bun): `specloop init`, `specloop check`, `specloop status`,
 `specloop list-spec [all|done|undone]`, `specloop prio-spec <NN> <pos>`,
 `specloop prio-task <NN.T> [--to pN]`, `specloop upgrade [dir] [--apply]`,
-`specloop goal-check "<goal>"`. Run `specloop check` (or `bun run check:spec`)
-before every handoff and wire it into CI/prebuild.
+`specloop goal [loop|NN,NN] [--start]`, `specloop goal-check "<goal>"`. Run
+`specloop check` (or `bun run check:spec`) before every handoff and wire it into
+CI/prebuild.
 
 Note: `upgrade` **adopts an existing project's spec model into specloop** (it is
 not task priority — that is `prio-task`).
@@ -71,6 +72,27 @@ not task priority — that is `prio-task`).
    `Spec Summary/Status` → commit → repeat. Reprioritize with `/prio-spec`.
 3. **Audit** — `/goal-check "<goal>"` before telling anyone something ships;
    `/spec-status` or `/list-spec` for a current rollup.
+
+## Host `/goal`
+
+Claude Code and Codex both ship a native `/goal` — a standing completion
+condition that keeps the session working across turns. Prefer it over driving the
+loop from prose, but understand its blind spot: **Claude Code's evaluator judges
+the condition only from what the agent printed in the transcript.** It runs no
+commands and reads no files. Codex's is the working model reporting on itself.
+
+So: `specloop goal <target> --start` prints the condition and records the scope;
+set the host goal to it; then **print `specloop status` and `specloop check`
+output every turn**, because unprinted progress is invisible to the evaluator.
+
+The `specloop` agent trigger takes the same scopes — `specloop` (top eligible
+phase), `specloop loop` (every eligible phase), `specloop 1,2,3` (those phases) —
+each optionally written with the `goal` keyword to ask for the host goal too.
+This plugin adds no `/goal` command of its own; the hosts already have one.
+
+The plugin's `Stop` hook is the deterministic counterpart: it counts real
+checkboxes and holds the turn open until the in-scope ones are done. It is inert
+unless `spec/specloop-run-state.md` says `Run status: active`.
 
 Read `spec/spec-summary-status.md` in the target repo for the exact handoff
 tables and closing lines; it is the source of truth for reporting.

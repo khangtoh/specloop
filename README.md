@@ -39,7 +39,7 @@ fact (counts, status, done-state) honest so no layer drifts from reality.
 | Layer | Question | Constructs |
 |---|---|---|
 | **Scheduling** | what to do next | `BACKLOG.md` (stored order) + phase files/tasks (units) + `prio-spec`/`list-spec` (phase priority) + `(pN)`/`prio-task` (task priority) |
-| **Verification** | is it right / is it done | `spec-summary-status` (per-iteration handoff) + `goal-completion-check` (whole-goal gate & stop condition) |
+| **Verification** | is it right / is it done | `spec-summary-status` (per-iteration handoff) + `goal-completion-check` (whole-goal gate & stop condition) + `specloop goal` / the `Stop` hook (the host `/goal`'s completion condition and its deterministic check) |
 | **Memory** | what happened | `agent-session-ledger` (narrative continuity) |
 
 The scheduling layer is *forward state* (what's next), memory is *backward
@@ -67,7 +67,9 @@ Zero runtime dependencies — the CLI is plain TypeScript run by bun.
 ```
 
 Adds the `/spec-init`, `/spec-loop`, `/spec-status`, `/goal-check`, `/prio-spec`,
-`/list-spec`, and `/spec-upgrade` slash commands plus the `specloop` skill.
+`/list-spec`, and `/spec-upgrade` slash commands, the `specloop` skill, and a
+`Stop` hook that holds a run open until its checkboxes are actually done (see
+[Host `/goal` integration](#host-goal-integration)).
 
 ### As a Codex plugin
 
@@ -84,7 +86,8 @@ specloop init                       # 1. scaffold the structure (incl. BACKLOG.m
 specloop check                      # 2. validate structure (wire into CI/prebuild)
 specloop list-spec                  # 3. see the ranked backlog (undone by default)
 specloop prio-spec 07 0             #    move phase 07 to the top of the work order
-specloop goal-check "X is done"     # 4. audit a goal before you ship it
+specloop goal loop                  # 4. print a /goal condition for the host
+specloop goal-check "X is done"     # 5. audit a goal before you ship it
 ```
 
 ### Priority — two levels that compose
@@ -115,20 +118,74 @@ handoff → commit → repeat. In Claude Code / Codex that's `/spec-loop`.
 
 ### Autonomous agent runs
 
-Sending exactly `specloop` authorizes an autonomous agent-session run. With an
-active goal that maps to the acceptance checkbox in `spec/README.md`, it works
-across eligible phases until that checkbox has recorded evidence. Without a goal,
-it completes the highest-priority eligible numbered phase. It ends only when the
-acceptance condition is met, the user directly interrupts it, or a genuine
-blocker names the missing decision or external state and a resume point.
+Sending `specloop` authorizes an autonomous agent-session run. The trigger takes
+an optional scope, and `goal` is an optional keyword that also asks for the
+host's `/goal` to be set — it never changes which phases are in scope:
+
+| Message | Scope |
+|---|---|
+| `specloop` · `specloop goal` | The highest-priority eligible phase, until every one of its boxes is checked. |
+| `specloop loop` · `specloop goal loop` | Every eligible phase in BACKLOG order, until no eligible box is left. |
+| `specloop 1,2,3` · `specloop goal 1,2,3` | Exactly those phases, in BACKLOG order. |
+
+A phase is **eligible** when its `spec/README.md` status cell is not `⛔ blocked`
+and its `Depends on:` line is satisfied; ineligible phases are skipped and never
+hold a run open. A run ends only when its scope is complete, the user directly
+interrupts it, or a genuine blocker names the missing decision or external state
+and a resume point.
 
 Use a direct instruction to stop. `specloop help` is informational and does not start a run. `specloop start`, `specloop run`, and `specloop go` are rejected
-aliases; only the exact message starts or resumes the agent-session run. This is
+aliases, and so is any argument that is neither `loop` nor a phase list. This is
 not the shell CLI: use `specloop help` in a terminal for CLI help.
 
 The optional `spec/specloop-run-state.md` is an advisory resume record. It is
 scaffolded by `init` and offered by `upgrade --apply`, but it is not required
-by `specloop check`; completion always comes from the phase checkboxes.
+by `specloop check`; completion always comes from the phase checkboxes. Its
+`Run scope:` field is what the Stop hook below reads.
+
+### Host `/goal` integration
+
+Claude Code and Codex both ship a native `/goal`: a standing completion condition
+that keeps the session working across turns instead of stopping each time. Neither
+evaluator can count your checkboxes for you — Claude Code's judges the condition
+**only from what the agent printed in the transcript**, running no commands and
+opening no files, and Codex's is the working model reporting on itself. That is
+exactly the gap specloop fills: it supplies the condition, and the evidence.
+
+```bash
+specloop goal                  # condition for the top eligible phase
+specloop goal loop             # condition for every eligible phase, blocked ones skipped
+specloop goal 1,2,3            # condition scoped to phases 01-03
+specloop goal loop --start     # ...and record the scope as an active run
+specloop goal loop --json      # machine-readable: scope, phases, next box, condition
+```
+
+The printed condition names the commands that prove it (`specloop status`,
+`specloop check`) and forbids judging progress from impression, so a
+transcript-only evaluator still ends up reading counted checkboxes. Paste it into
+`/goal`, or in non-interactive mode:
+
+```bash
+claude -p "/goal $(specloop goal loop)"
+```
+
+Append a bound such as `or stop after 20 turns` to the condition if you want one;
+specloop does not add one, because a turn cap can read as "met" too early.
+
+**The Stop hook — deterministic completion.** The plugin ships a `Stop` hook
+(`plugin/specloop/hooks/`) that does what the native evaluator cannot: it runs
+`specloop check` and counts the real checkboxes, then blocks the turn from ending
+while an eligible box remains. It is **inert unless `spec/specloop-run-state.md`
+records `Run status: active`** — plugin hooks fire in every session, so an
+unarmed specloop must never block unrelated work. Arm it with
+`specloop goal <target> --start`; release it by setting `Run status: idle`. It
+needs the CLI on `PATH`, honours `stop_hook_active` so Claude Code's eight-block
+cap can still end a runaway, and declines to guess when `.specloop.json` is
+broken.
+
+`specloop goal` sets the finish line; `specloop goal-check` audits whether it was
+really crossed. Run the audit when `/goal` reports **Met** — it is the check on
+an evaluator that only ever saw the transcript.
 
 ### Adopt an existing project
 

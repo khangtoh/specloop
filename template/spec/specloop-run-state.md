@@ -2,7 +2,8 @@
 # specloop run state
 
 Run status: idle
-Stated goal: _None — start a goal or standard run with the exact message `specloop`._
+Run scope: _None — `phase NN` | `loop` | `phases NN,NN`; set by `specloop goal --start`._
+Stated goal: _None — start a run with `specloop`, `specloop loop`, or `specloop 1,2,3`._
 Goal acceptance checkbox: _None_
 Current phase: _None_
 Current task: _None_
