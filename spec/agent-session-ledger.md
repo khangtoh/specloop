@@ -742,3 +742,36 @@ khangtoh/agent-quality-verifier (24 checks, 28 of 28 demo scenarios as expected)
 **Scope and consequences:** Documentation and ledger only. No phase or checkbox
 changed; turning the verifier integration into a specloop phase still awaits
 user direction.
+
+
+## Session: 2026-10-05 — 0.9.0 released
+
+**Previous decision:** Phase 11 (`specloop sync`) was committed locally, with no
+version bump, push or release in scope.
+
+**Conflicting instruction:** The owner: "merge and release specloop".
+
+**Resolution:**
+
+- **Merge.** `origin/main` (the agent quality verifier guide) was merged in.
+  The ledger conflict, both sides appending, was resolved as a union.
+- **Bump.** Notes were written in `docs/releases/0.9.0.md`, and the minor bump
+  to 0.9.0 was made in a separate clean worktree, because the main checkout
+  holds unrelated uncommitted files that were left untouched. It was pushed.
+- **First run.** The release stopped at verify: the sync tests' bare remote
+  took CI's default branch, `master`, so the clones were empty. Nothing was
+  published. The tests now name the branch; this was reproduced and fixed under
+  a `master` git default, with 179 tests passing. The fix was pushed and the
+  workflow dispatched.
+- **Second run.** Verify and package passed and npm accepted the publish, but
+  the run failed waiting for npm to show the version, exactly as 0.8.1 did.
+  npm showed 0.9.0 as `latest` after about two minutes. The failed job was
+  re-run and succeeded: the integrity was confirmed, `v0.9.0` was tagged at
+  `daa29ac`, and the GitHub release carries the tarball and `SHA256SUMS`.
+
+**Scope and consequences:** Two things remain open:
+
+- **0.8.1 has no tag or GitHub release.** Its 2026-10-01 run failed the same
+  way and was never re-run.
+- **The release kit waits too briefly.** Its npm visibility wait is shorter
+  than npm's propagation; it has failed twice. The kit is shared with ProductOS.
