@@ -711,3 +711,34 @@ Verification: 179 tests pass; the typecheck, both structural checks and packed
 onboarding (94/94) pass. An inspect-only run against the getintro repository
 behaved as designed. No native-runtime loop compliance is claimed. VERSION is
 unchanged at 0.8.1. Committed locally; no push or release.
+## Session: 2026-10-02 — agent quality verifier guide
+
+Added docs/agent-quality-verifier.md, a plain-language design guide for an
+evidence-based verifier of agent work, derived from the uploaded
+topform-evidence-gated prototype. It defines three goals (tests tagged to spec
+requirements, OpenAPI contract conformance, standard git conventions), admits
+only repeatable, predefined, locally rerunnable checks, and classifies each
+check by reach (G/C/S/E/F) with expected support in Python, JavaScript,
+TypeScript, Go, Rust and Kotlin. Language entries are expected, not measured;
+the multi-language runs are a documented plan, not executed.
+
+The guide records the working direction that the verifier and board are
+separate from specloop, which owns the spec and reports process events. No
+phase was created and no checkbox changed; turning this into a phase awaits
+user direction.
+
+
+## Session: 2026-10-02 — agent quality verifier guide merged to main
+
+**Previous decision:** The guide commit 3bfb0f6 was pushed only to the
+ccr-bd55ced2-pymvfo branch.
+
+**Conflicting instruction:** The user asked to merge and push.
+
+**Resolution:** Fast-forward main to the branch and push both. The guide stays a
+design document; its working demo now lives in the separate public repo
+khangtoh/agent-quality-verifier (24 checks, 28 of 28 demo scenarios as expected).
+
+**Scope and consequences:** Documentation and ledger only. No phase or checkbox
+changed; turning the verifier integration into a specloop phase still awaits
+user direction.
