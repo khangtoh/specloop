@@ -46,10 +46,13 @@ beforeEach(() => {
   edit(seed, "spec/BACKLOG.md", "- 01 Example: project scaffold", "- 01 Example: project scaffold\n- 02 Not yet worked on");
   write(seed, "src/app.js", "export const version = 1;\n");
   git(seed, "init", "-q", "-b", "main"); user(seed, "seed"); commit(seed, "seed");
-  git(root, "init", "-q", "--bare", "remote.git");
+  // The branch is named everywhere: a machine whose git defaults to "master"
+  // would otherwise give the bare remote a HEAD that does not exist, and every
+  // clone an empty checkout (found when CI ran 0.9.0's release).
+  git(root, "init", "-q", "--bare", "-b", "main", "remote.git");
   git(seed, "remote", "add", "origin", join(root, "remote.git"));
   push(seed);
-  for (const name of ["loop", "other"]) { git(root, "clone", "-q", join(root, "remote.git"), name); user(join(root, name), name); }
+  for (const name of ["loop", "other"]) { git(root, "clone", "-q", "-b", "main", join(root, "remote.git"), name); user(join(root, name), name); }
   loop = join(root, "loop"); other = join(root, "other");
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
